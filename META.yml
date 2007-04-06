@@ -1,0 +1,13 @@
+name: RTx-Calendar
+version: 0.01
+abstract: Calendar view
+author: Nicolas Chuche <nchuche@barna.be
+license: perl
+distribution_type: module
+requires:
+  RT: 3.6
+no_index:
+  directory:
+    - html
+    - inc
+generated_by: Module::Install version 0.33

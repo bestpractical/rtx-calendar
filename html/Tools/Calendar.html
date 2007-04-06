@@ -1,0 +1,138 @@
+<%args>
+$Queue => undef
+$MonthDate => undef
+$OwnerId => undef
+$ShowCreated => undef
+</%args>
+
+<& /Elements/Header, Title => $title &>
+<& /Tools/Elements/Tabs, current_tab => "Tools/Calendar.html", Title => $title &>
+displaying Calendar for <% RTx::Calendar::FormatDate($today) %>
+
+<table class="list with-cells">
+<tr>
+% for (1 .. 6, 0) {
+<th width="14%"><%$date->GetWeekday($_)%></th>
+% }
+</tr>
+<tr>
+% while ($date->Unix < $fin->Unix) {
+% my @DayTickets;
+% if ($ShowCreated) {
+% @DayTickets = grep { $_->DueObj->Date eq $date->Date or $_->CreatedObj->Date eq $date->Date } @Tickets;
+% } else {
+% @DayTickets = grep { $_->DueObj->Date eq $date->Date } @Tickets;
+% }
+
+<td valign="top"
+    style="width:14%;<% $today->Date eq $date->Date ? 'background:#FDFED0;' : '' %><% 0 != index($date->Date, $year_month) ? 'background:#f6f7f8;' : '' %>">
+<p class="date"><%(localtime $date->Unix)[3]%></p>
+% for my $t (@DayTickets) {
+<div class="tooltip">
+<small>
+% if ($t->DueObj->Date eq $date->Date and $t->CreatedObj->Date eq $date->Date) {
+<img src="<%$RT::WebImagesURL%>/arrow_bw.png" />
+% } elsif ($t->DueObj->Date eq $date->Date) {
+<img src="<%$RT::WebImagesURL%>/arrow_to.png" />
+% } elsif ($t->CreatedObj->Date eq $date->Date) {
+<img src="<%$RT::WebImagesURL%>/arrow_from.png" />
+% }
+	<a href="<%$RT::WebPath%>/Ticket/Display.html?id=<%$t->Id%>"> <% $t->QueueObj->Name %> #<% $t->Id %> <% $t->Subject %></a></small><br />
+	<span class="tip">
+	<strong><&|/l&>Subject</&>:</strong> <%$t->Subject%><br />
+	<strong><&|/l&>Owner</&>:</strong> <%$t->OwnerObj->Name %><br />
+	<strong><&|/l&>Created</&>:</strong> <%$t->CreatedObj->Date %><br />
+	<strong><&|/l&>Due</&>:</strong> <%$t->DueObj->Date %><br />
+	</span>
+</div>
+% }
+</td>
+% $date->AddDay;
+% if ( (localtime($date->Unix))[6] == 1) {
+</tr><tr>
+% }
+% }
+</tr>
+</table>
+
+<table width="100%">
+<tr>
+<td valign="top" width="50%">
+<form action="<%$RT::WebPath%>/Tools/Calendar.html" method="post">
+<br /><&|/l&>Queue</&>: <& /Elements/SelectQueue, Name => 'Queue', NamedValues => 1, Default => $ARGS{'Queue'} &>
+
+<br /><&|/l&>Owner</&>: <& /Elements/SelectOwner, Name => "OwnerId", Default => $ARGS{'OwnerId'} &>
+
+<br /><&|/l&>Date</&>:
+<input size="20" name="MonthDate" value="<%$MonthDate%>" />
+
+<br /><&|/l&>Show Created</&>:
+<input type="checkbox" class="checkbox" name="ShowCreated"  <%$ARGS{'ShowCreated'} && "checked"%> />
+
+<& /Elements/Submit&>
+</form>
+</td>
+<td valign="top"  width="50%" align="right">
+<img src="<%$RT::WebImagesURL%>/arrow_from.png" /> : <&|/l&>Created</&><br />
+<img src="<%$RT::WebImagesURL%>/arrow_to.png" /> : <&|/l&>Due</&><br />
+<img src="<%$RT::WebImagesURL%>/arrow_bw.png" /> : <&|/l&>Created</&>, <&|/l&>Due</&><br />
+
+</td>
+</table>
+
+</html>
+<%INIT>
+
+use RTx::Calendar;
+
+my $title = loc("Calendar");
+
+my $today = RT::Date->new($session{'CurrentUser'});
+$today->Set(localtime);
+
+my $date = RT::Date->new($session{'CurrentUser'});
+my $fin = RT::Date->new($session{'CurrentUser'});
+# FIXME hours
+if ($MonthDate) {
+    $date->Set(Format => 'unknown', Value => $MonthDate);
+    $fin->Set(Format => 'unknown', Value => $MonthDate);
+    $MonthDate = $date->AsString;
+} else {
+	$date->Set(localtime);
+	$fin->Set(localtime);
+}
+
+my $year_month = substr $date->Date, 0, 7;
+
+$date = RTx::Calendar::FirstMonday($date);
+$fin = RTx::Calendar::LastSunday($fin);
+
+my %already_seen;
+my @Tickets;
+
+my @date_limits = qw/LimitDue/;
+push @date_limits, "LimitCreated"
+  if $ShowCreated;
+
+for my $date_type (@date_limits) {
+  my $Tickets = RT::Tickets->new($session{'CurrentUser'});
+  $Tickets->LimitStatus( VALUE => 'open' );
+  $Tickets->LimitStatus ( VALUE => 'new');
+  $Tickets->LimitStatus ( VALUE => 'stagnant');
+
+  $Tickets->LimitQueue(VALUE => $Queue)
+    if $Queue;
+
+  $Tickets->LimitOwner(VALUE => $OwnerId)
+    if $OwnerId;
+
+  $Tickets->$date_type(OPERATOR => ">=", VALUE => $date->ISO);
+  $Tickets->$date_type(OPERATOR => "<=", VALUE => $fin->ISO);
+
+  while ( my $Ticket = $Tickets->Next()) {
+    push @Tickets, $Ticket
+      unless $already_seen{$Ticket->Id}++;
+  }
+}
+
+</%INIT>
