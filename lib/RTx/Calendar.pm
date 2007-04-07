@@ -4,7 +4,7 @@ use strict;
 use DateTime;
 use DateTime::Set;
 
-our $VERSION = "0.01";
+our $VERSION = "0.02";
 
 sub FirstMonday {
     my ($year, $month) = (shift, shift);
@@ -41,7 +41,7 @@ RTx::Calendar - Calendar for RT
 
 =head1 VERSION
 
-This document describes version 0.01 of RTx::Calendar, released
+This document describes version 0.02 of RTx::Calendar, released
 06 April 2007
 
 =head1 DESCRIPTION
