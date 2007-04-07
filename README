@@ -1,5 +1,9 @@
 README file for RTx::Calendar a very small RT extension to show a
-calendar with your due tickets or due/created tickets.
+calendar with your due tickets or due/created tickets and add a
+MyCalendar portlet.
+
+You can find screenshot on
+http://gaspard.mine.nu/dotclear/index.php?tag/rtx-calendar
 
 Idea borrowed from redmine's calendar (Thanks Jean-Philippe).
 
@@ -13,6 +17,13 @@ Install it like a standard perl module
 perl Makefile.PL
 make
 make install
+
+To use MyCalendar portlet you must add MyCalendar to
+$HomepageComponents in etc/RT_SiteConfig.pm like that :
+
+Set($HomepageComponents, [qw(QuickCreate Quicksearch MyCalendar MyAdminQueues MySupportQueues MyReminders  RefreshHomepage)]);
+
+And add it your preferences.
 
 * Copyright
 

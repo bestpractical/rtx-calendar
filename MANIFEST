@@ -1,6 +1,6 @@
 Changes
 html/Callbacks/RTx-Calendar/Elements/Header/Head
-html/Callbacks/RTx-Calendar/Elements/Tabs/Default
+html/Callbacks/RTx-Calendar/Tools/Elements/Tabs/Default
 html/Elements/MyCalendar
 html/NoAuth/css/calendar.css
 html/NoAuth/images/arrow_bw.png

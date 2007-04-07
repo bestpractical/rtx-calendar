@@ -49,6 +49,13 @@ This document describes version 0.01 of RTx::Calendar, released
 This RT extension provides a calendar view for your tickets. You can
 find it in the menu Tools->Calendar.
 
+You can also add the portlet. To do that you must add MyCalendar to
+$HomepageComponents in etc/RT_SiteConfig.pm like that :
+
+Set($HomepageComponents, [qw(QuickCreate Quicksearch MyCalendar MyAdminQueues MySupportQueues MyReminders  RefreshHomepage)]);
+
+And add it your preferences.
+
 Idea borrowed from redmine's calendar (Thanks Jean-Philippe).
 
 =head1 AUTHORS
