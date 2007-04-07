@@ -1,22 +1,63 @@
 <%args>
 $Queue => undef
-$MonthDate => undef
 $OwnerId => undef
 $ShowCreated => undef
+$Month => (localtime)[4]
+$Year => (localtime)[5] + 1900
 </%args>
 
 <& /Elements/Header, Title => $title &>
 <& /Tools/Elements/Tabs, current_tab => "Tools/Calendar.html", Title => $title &>
-displaying Calendar for <% RTx::Calendar::FormatDate($today) %>
+<&| /Widgets/TitleBox, title => loc('Calendar for ') . $today->GetMonth($Month) . " $Year" , title_class=> 'inverse', color => "#993333" &>
 
-<table class="list with-cells">
+% my @options;
+% if ($ShowCreated) {
+%    push @options, "ShowCreated=$ShowCreated";
+% }
+% if ($OwnerId) {
+%    push @options, "OwnerId=$OwnerId";
+% }
+% if ($Queue) {
+%    push @options, "Queue=$Queue";
+% }
+% my $options = "&" . join("&", @options);
+
+<table width="100%">
 <tr>
+<td align="left">
+% my ($PMonth, $PYear) = ($Month - 1, $Year);
+% if ($PMonth < 0) {
+%    $PYear--;
+%    $PMonth = 11;
+% }
+<a href="<%$RT::WebPath%>/Tools/Calendar.html?Month=<%$PMonth%>&Year=<%$PYear%><%$options%>">«<%$today->GetMonth($PMonth)%></a>
+</td>
+<td align="right">
+% my ($NMonth, $NYear) = ($Month + 1, $Year);
+% if ($NMonth > 11) {
+%    $NYear++;
+%    $NMonth = 0;
+% }
+<a href="<%$RT::WebPath%>/Tools/Calendar.html?Month=<%$NMonth%>&Year=<%$NYear%><%$options%>"><%$today->GetMonth($NMonth)%>»</a>
+</td>
+</tr>
+</table>
+
+<table class="rtxcalendar">
+<thead>
+<tr>
+<th></th>
 % for (1 .. 6, 0) {
 <th width="14%"><%$date->GetWeekday($_)%></th>
 % }
 </tr>
+</thead>
+<tbody>
 <tr>
 % while ($date->Unix < $fin->Unix) {
+% if ( (localtime $date->Unix)[6] == 1) {
+<th><% RTx::Calendar::WeekNumber($date->Unix) %></th>
+% }
 % my @DayTickets;
 % if ($ShowCreated) {
 % @DayTickets = grep { $_->DueObj->Date eq $date->Date or $_->CreatedObj->Date eq $date->Date } @Tickets;
@@ -25,7 +66,8 @@ displaying Calendar for <% RTx::Calendar::FormatDate($today) %>
 % }
 
 <td valign="top"
-    style="width:14%;<% $today->Date eq $date->Date ? 'background:#FDFED0;' : '' %><% 0 != index($date->Date, $year_month) ? 'background:#f6f7f8;' : '' %>">
+    class="<% 0 != index($date->Date, $year_month) ? 'oddline' : '' %>"
+    style="width:14%;<%  $today->Date eq $date->Date ? 'background:#f6f7f8;' : '' %>">
 <p class="date"><%(localtime $date->Unix)[3]%></p>
 % for my $t (@DayTickets) {
 <div class="tooltip">
@@ -42,7 +84,20 @@ displaying Calendar for <% RTx::Calendar::FormatDate($today) %>
 	<strong><&|/l&>Subject</&>:</strong> <%$t->Subject%><br />
 	<strong><&|/l&>Owner</&>:</strong> <%$t->OwnerObj->Name %><br />
 	<strong><&|/l&>Created</&>:</strong> <%$t->CreatedObj->Date %><br />
-	<strong><&|/l&>Due</&>:</strong> <%$t->DueObj->Date %><br />
+        <strong><&|/l&>Due</&>:</strong> <% $t->DueObj->Unix > 0 ? $t->DueObj->Date : '-' %><br />
+	<strong><&|/l&>Status</&>:</strong> <%$t->Status %><br />
+	<strong><&|/l&>Requestors</&>:</strong>
+% my $members = $t->Requestors->MembersObj;
+% if ($members->Count == 0) {
+<&|/l&>none</&>
+% } else {
+%   my @requestors;
+%   while (my $watcher = $members->Next) {
+%     push @requestors, $watcher->MemberObj->Object->Name;
+%   }
+<% join ", ", @requestors %>
+% }
+<br />
 	</span>
 </div>
 % }
@@ -53,18 +108,31 @@ displaying Calendar for <% RTx::Calendar::FormatDate($today) %>
 % }
 % }
 </tr>
+</tbody>
 </table>
+          </&>
+
 
 <table width="100%">
 <tr>
 <td valign="top" width="50%">
 <form action="<%$RT::WebPath%>/Tools/Calendar.html" method="post">
-<br /><&|/l&>Queue</&>: <& /Elements/SelectQueue, Name => 'Queue', NamedValues => 1, Default => $ARGS{'Queue'} &>
+<br /><&|/l&>Queue</&>: <& /Elements/SelectQueue, Name => 'Queue', Default => $ARGS{'Queue'} &>
 
 <br /><&|/l&>Owner</&>: <& /Elements/SelectOwner, Name => "OwnerId", Default => $ARGS{'OwnerId'} &>
 
-<br /><&|/l&>Date</&>:
-<input size="20" name="MonthDate" value="<%$MonthDate%>" />
+<br />
+<select name="Month">
+% for (0..11) {
+<option value="<%$_%>" <% $_ == $Month ? 'selected' : ''%> ><%$today->GetMonth($_)%></option>
+% }
+</select>
+% my $year = (localtime)[5] + 1900;
+<select name="Year">
+% for ( ($year-5) .. ($year+5)) {
+<option value="<%$_%>" <% $_ == $Year ? 'selected' : ''%>><%$_%></option>
+% }
+</select>
 
 <br /><&|/l&>Show Created</&>:
 <input type="checkbox" class="checkbox" name="ShowCreated"  <%$ARGS{'ShowCreated'} && "checked"%> />
@@ -93,19 +161,13 @@ $today->Set(localtime);
 my $date = RT::Date->new($session{'CurrentUser'});
 my $fin = RT::Date->new($session{'CurrentUser'});
 # FIXME hours
-if ($MonthDate) {
-    $date->Set(Format => 'unknown', Value => $MonthDate);
-    $fin->Set(Format => 'unknown', Value => $MonthDate);
-    $MonthDate = $date->AsString;
-} else {
-	$date->Set(localtime);
-	$fin->Set(localtime);
-}
+$date->Set(Format => 'unix', Value => Time::Local::timelocal(0,0,3,1,$Month, $Year));
+$fin->Set(Format => 'unix', Value => Time::Local::timelocal(0,0,3,1,$Month, $Year));
 
 my $year_month = substr $date->Date, 0, 7;
 
 $date = RTx::Calendar::FirstMonday($date);
-$fin = RTx::Calendar::LastSunday($fin);
+$fin = RTx::Calendar::NextSunday($fin);
 
 my %already_seen;
 my @Tickets;

@@ -1,23 +1,22 @@
-This is the README file for RTx::WebCronTool, an RT extension providing a
-web interface for the built-in "rt-crontool" utility, allowing scheduled
-processes to be launched remotely.
+README file for RTx::Calendar a very small RT extension to show a
+calendar with your due tickets or due/created tickets.
 
-Please type "perldoc RTx::WebCronTool" after installation to see the module
-usage information.
+Idea borrowed from redmine's calendar (Thanks Jean-Philippe).
+
+Please type "perldoc RTx::Calendar" after installation to see the
+module usage information.
 
 * Installation
 
-RTx::WebCronTool uses the standard perl module install process:
+Install it like a standard perl module
 
-cpansign -v		# optional; see SIGNATURE for details
 perl Makefile.PL
-make			# or 'nmake' on Win32
-make test
+make
 make install
 
 * Copyright
 
-Copyright 2004 by Autrijus Tang <autrijus@autrijus.org>.
+Copyright 2007 by Nicolas Chuche <nchuche@barna.be>
 
 All rights reserved.  You can redistribute and/or modify
 this bundle under the same terms as Perl itself.

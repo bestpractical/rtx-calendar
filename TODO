@@ -1,0 +1,7 @@
+* ics output
+* use DateTime
+
+SHOWSTOPPER
+
+* Bug in NextSunday on some month, one day too much
+  http://localhost:9000/Tools/Calendar.html?Month=9&Year=2006&ShowCreated=on&OwnerId=47&Queue=4

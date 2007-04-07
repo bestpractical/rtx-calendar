@@ -18,13 +18,23 @@ text-align: right;
 font-size: 0.8em;
 }
 
-table.list {
+table.rtxcalendar {
     width:100%;
     border-collapse: collapse;
     border: 1px dotted #d0d0d0;
     margin-bottom: 6px;
 }
 
-table.with-cells td {
+table.rtxcalendar td {
     border: 1px solid #d7d7d7;
+}
+
+table.rtxcalendar th {
+    border: 1px solid #d7d7d7;
+    background: #eee;
+}
+table.rtxcalendar tbody th {
+    border: 1px solid #d7d7d7;
+    background: #eee;
+    font-weight: normal;
 }
