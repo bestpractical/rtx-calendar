@@ -6,6 +6,8 @@ license: perl
 distribution_type: module
 requires:
   RT: 3.6
+  DateTime: 0
+  DateTime::Set: 0
 no_index:
   directory:
     - html

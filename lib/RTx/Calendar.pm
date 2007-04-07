@@ -1,37 +1,34 @@
 package RTx::Calendar;
 
 use strict;
-use Time::Local;
+use DateTime;
+use DateTime::Set;
 
 our $VERSION = "0.01";
 
 sub FirstMonday {
-    my $date = shift;
-    $date->Set(Format => 'unix', Value => Time::Local::timelocal( 0,0,3,1,(localtime $date->Unix)[4..5] ) );
-    # search previous monday
-    my $wday = (localtime($date->Unix))[6];
-    $date->Set(Format => 'unix', Value => $date->Unix - (($wday - 1) % 7) * 24 * 60 * 60);
-    $date;
+    my ($year, $month) = (shift, shift);
+    my $set = DateTime::Set->from_recurrence(
+	next => sub { $_[0]->truncate( to => 'day' )->subtract( days => 1 ) }
+    );
+
+    my $day = DateTime->new( year => $year, month => $month );
+
+    $day = $set->next($day) while $day->day_of_week != 1;
+    $day;
+
 }
 
-sub NextSunday {
-    my $date = shift;
-    my ($month,$year) = (localtime($date->Unix))[4,5];
-    ++$month; $year += 1900;
-    if ($month > 11) {
-	$month = 0; $year++;
-    }
-    $date->Set(Format => 'unix', Value => Time::Local::timelocal( 0,0,3,1,$month,$year) );
-    my $wday = (localtime($date->Unix))[6];
-    $date->Set(Format => 'unix', Value => $date->Unix + ((0 - $wday) % 7 + 1) * 24 * 60 * 60);
-    $date;
-}
+sub LastSunday {
+    my ($year, $month) = (shift, shift);
+    my $set = DateTime::Set->from_recurrence(
+	next => sub { $_[0]->truncate( to => 'day' )->add( days => 1 ) }
+    );
 
-# wrong in many case
-sub WeekNumber {
-    my $timestamp = shift;
-    my $yearday = (localtime $timestamp)[7];
-    return my $weeknum = int( $yearday / 7 ) + 1;
+    my $day = DateTime->last_day_of_month( year => $year, month => $month );
+
+    $day = $set->next($day) while $day->day_of_week != 7;
+    $day;
 }
 
 1;

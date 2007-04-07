@@ -8,7 +8,7 @@ $Year => (localtime)[5] + 1900
 
 <& /Elements/Header, Title => $title &>
 <& /Tools/Elements/Tabs, current_tab => "Tools/Calendar.html", Title => $title &>
-<&| /Widgets/TitleBox, title => loc('Calendar for ') . $today->GetMonth($Month) . " $Year" , title_class=> 'inverse', color => "#993333" &>
+<&| /Widgets/TitleBox, title => loc('Calendar for ') . $rtdate->GetMonth($Month) . " $Year" , title_class=> 'inverse', color => "#993333" &>
 
 % my @options;
 % my $options = '';
@@ -31,7 +31,7 @@ $Year => (localtime)[5] + 1900
 %    $PYear--;
 %    $PMonth = 11;
 % }
-<a href="<%$RT::WebPath%>/Tools/Calendar.html?Month=<%$PMonth%>&Year=<%$PYear%><%$options%>">«<%$today->GetMonth($PMonth)%></a>
+<a href="<%$RT::WebPath%>/Tools/Calendar.html?Month=<%$PMonth%>&Year=<%$PYear%><%$options%>">«<%$rtdate->GetMonth($PMonth)%></a>
 </td>
 <td align="right">
 % my ($NMonth, $NYear) = ($Month + 1, $Year);
@@ -39,7 +39,7 @@ $Year => (localtime)[5] + 1900
 %    $NYear++;
 %    $NMonth = 0;
 % }
-<a href="<%$RT::WebPath%>/Tools/Calendar.html?Month=<%$NMonth%>&Year=<%$NYear%><%$options%>"><%$today->GetMonth($NMonth)%>»</a>
+<a href="<%$RT::WebPath%>/Tools/Calendar.html?Month=<%$NMonth%>&Year=<%$NYear%><%$options%>"><%$rtdate->GetMonth($NMonth)%>»</a>
 </td>
 </tr>
 </table>
@@ -49,35 +49,36 @@ $Year => (localtime)[5] + 1900
 <tr>
 <th></th>
 % for (1 .. 6, 0) {
-<th width="14%"><%$date->GetWeekday($_)%></th>
+<th width="14%"><%$rtdate->GetWeekday($_)%></th>
 % }
 </tr>
 </thead>
 <tbody>
 <tr>
-% while ($date->Unix < $fin->Unix) {
-% if ( (localtime $date->Unix)[6] == 1) {
-<th><% RTx::Calendar::WeekNumber($date->Unix) %></th>
-% }
+% while ($date <= $end) {
+%   if ( $date->day_of_week == 1) {
+<th><% $date->week_number %></th>
+%   }
 % my @DayTickets;
 % if ($ShowCreated) {
-% @DayTickets = grep { $_->DueObj->Date eq $date->Date or $_->CreatedObj->Date eq $date->Date } @Tickets;
+% @DayTickets = grep { $_->DueObj->Date eq $date->strftime("%F") or $_->CreatedObj->Date eq $date->strftime("%F") } @Tickets;
 % } else {
-% @DayTickets = grep { $_->DueObj->Date eq $date->Date } @Tickets;
+% @DayTickets = grep { $_->DueObj->Date eq $date->strftime("%F") } @Tickets;
 % }
 
 <td valign="top"
-    class="<% 0 != index($date->Date, $year_month) ? 'oddline' : '' %>"
-    style="width:14%;<%  $today->Date eq $date->Date ? 'background:#f6f7f8;' : '' %>">
-<p class="date"><%(localtime $date->Unix)[3]%></p>
+    class="<% $date->month != ($Month + 1) ? 'oddline' : '' %>"
+    style="width:14%;<%  DateTime->compare($today, $date) == 0 ? 'background:#f6f7f8;' : '' %>"
+>
+<p class="date"><%$date->day%></p>
 % for my $t (@DayTickets) {
 <div class="tooltip">
 <small>
-% if ($t->DueObj->Date eq $date->Date and $t->CreatedObj->Date eq $date->Date) {
+% if ($t->DueObj->Date eq $date->strftime("%F") and $t->CreatedObj->Date eq $date->strftime("%F") ) {
 <img src="<%$RT::WebImagesURL%>/arrow_bw.png" />
-% } elsif ($t->DueObj->Date eq $date->Date) {
+% } elsif ($t->DueObj->Date eq $date->strftime("%F")) {
 <img src="<%$RT::WebImagesURL%>/arrow_to.png" />
-% } elsif ($t->CreatedObj->Date eq $date->Date) {
+% } elsif ($t->CreatedObj->Date eq $date->strftime("%F")) {
 <img src="<%$RT::WebImagesURL%>/arrow_from.png" />
 % }
 	<a href="<%$RT::WebPath%>/Ticket/Display.html?id=<%$t->Id%>">
@@ -105,8 +106,8 @@ $Year => (localtime)[5] + 1900
 </div>
 % }
 </td>
-% $date->AddDay;
-% if ( (localtime($date->Unix))[6] == 1) {
+% $date = $set->next($date);
+% if ( $date->day_of_week == 1) {
 </tr><tr>
 % }
 % }
@@ -127,7 +128,7 @@ $Year => (localtime)[5] + 1900
 <br />
 <select name="Month">
 % for (0..11) {
-<option value="<%$_%>" <% $_ == $Month ? 'selected' : ''%> ><%$today->GetMonth($_)%></option>
+<option value="<%$_%>" <% $_ == $Month ? 'selected' : ''%> ><%$rtdate->GetMonth($_)%></option>
 % }
 </select>
 % my $year = (localtime)[5] + 1900;
@@ -158,19 +159,16 @@ use RTx::Calendar;
 
 my $title = loc("Calendar");
 
-my $today = RT::Date->new($session{'CurrentUser'});
-$today->Set(localtime);
+my $rtdate = RT::Date->new($session{'CurrentUser'});
 
-my $date = RT::Date->new($session{'CurrentUser'});
-my $fin = RT::Date->new($session{'CurrentUser'});
-# FIXME hours
-$date->Set(Format => 'unix', Value => Time::Local::timelocal(0,0,3,1,$Month, $Year));
-$fin->Set(Format => 'unix', Value => Time::Local::timelocal(0,0,3,1,$Month, $Year));
+my $today = DateTime->today;
+my $date  = RTx::Calendar::FirstMonday($Year, $Month + 1);
+my $end   = RTx::Calendar::LastSunday($Year, $Month + 1);
 
-my $year_month = substr $date->Date, 0, 7;
-
-$date = RTx::Calendar::FirstMonday($date);
-$fin = RTx::Calendar::NextSunday($fin);
+# use this to loop over days until $end
+my $set = DateTime::Set->from_recurrence(
+    next => sub { $_[0]->truncate( to => 'day' )->add( days => 1 ) }
+);
 
 my %already_seen;
 my @Tickets;
@@ -183,7 +181,8 @@ for my $date_type (@date_limits) {
   my $Tickets = RT::Tickets->new($session{'CurrentUser'});
   $Tickets->LimitStatus( VALUE => 'open' );
   $Tickets->LimitStatus ( VALUE => 'new');
-  $Tickets->LimitStatus ( VALUE => 'stagnant');
+  $Tickets->LimitStatus ( VALUE => 'stalled');
+  $Tickets->LimitStatus ( VALUE => 'resolved');
 
   $Tickets->LimitQueue(VALUE => $Queue)
     if $Queue;
@@ -191,8 +190,8 @@ for my $date_type (@date_limits) {
   $Tickets->LimitOwner(VALUE => $OwnerId)
     if $OwnerId;
 
-  $Tickets->$date_type(OPERATOR => ">=", VALUE => $date->ISO);
-  $Tickets->$date_type(OPERATOR => "<=", VALUE => $fin->ISO);
+  $Tickets->$date_type(OPERATOR => ">=", VALUE => $date->strftime("%F") );
+  $Tickets->$date_type(OPERATOR => "<=", VALUE => $end->strftime("%F") );
 
   while ( my $Ticket = $Tickets->Next()) {
     push @Tickets, $Ticket
