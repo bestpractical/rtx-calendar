@@ -2,6 +2,7 @@
 $Queue => undef
 $OwnerId => undef
 $ShowCreated => undef
+$ShowResolved => undef
 $Month => (localtime)[4]
 $Year => (localtime)[5] + 1900
 </%args>
@@ -14,6 +15,9 @@ $Year => (localtime)[5] + 1900
 % my $options = '';
 % if ($ShowCreated) {
 %    push @options, "ShowCreated=$ShowCreated";
+% }
+% if ($ShowResolved) {
+%    push @options, "ShowResolved=$ShowResolved";
 % }
 % if ($OwnerId) {
 %    push @options, "OwnerId=$OwnerId";
@@ -90,6 +94,7 @@ $Year => (localtime)[5] + 1900
 	<strong><&|/l&>Created</&>:</strong> <%$t->CreatedObj->Date %><br />
         <strong><&|/l&>Due</&>:</strong> <% $t->DueObj->Unix > 0 ? $t->DueObj->Date : '-' %><br />
 	<strong><&|/l&>Status</&>:</strong> <%$t->Status %><br />
+	<strong><&|/l&>Priority</&>:</strong> <%$t->Priority %><br />
 	<strong><&|/l&>Requestors</&>:</strong>
 % my $members = $t->Requestors->MembersObj;
 % if ($members->Count == 0) {
@@ -141,6 +146,9 @@ $Year => (localtime)[5] + 1900
 <br /><&|/l&>Show Created</&>:
 <input type="checkbox" class="checkbox" name="ShowCreated"  <%$ARGS{'ShowCreated'} && "checked"%> />
 
+<br /><&|/l&>Show Resolved</&>:
+<input type="checkbox" class="checkbox" name="ShowResolved"  <%$ARGS{'ShowResolved'} && "checked"%> />
+
 <& /Elements/Submit&>
 </form>
 </td>
@@ -182,7 +190,10 @@ for my $date_type (@date_limits) {
   $Tickets->LimitStatus( VALUE => 'open' );
   $Tickets->LimitStatus ( VALUE => 'new');
   $Tickets->LimitStatus ( VALUE => 'stalled');
-  $Tickets->LimitStatus ( VALUE => 'resolved');
+
+
+  $Tickets->LimitStatus ( VALUE => 'resolved')
+    if $ShowResolved;
 
   $Tickets->LimitQueue(VALUE => $Queue)
     if $Queue;
