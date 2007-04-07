@@ -70,8 +70,7 @@ $Year => (localtime)[5] + 1900
 % @DayTickets = grep { $_->DueObj->Date eq $date->strftime("%F") } @Tickets;
 % }
 
-<td valign="top"
-    class="<% $date->month != ($Month + 1) ? 'oddline' : '' %>"
+<td class="<% $date->month != ($Month + 1) ? 'oddline' : '' %>"
     style="width:14%;<%  DateTime->compare($today, $date) == 0 ? 'background:#f6f7f8;' : '' %>"
 >
 <p class="date"><%$date->day%></p>
@@ -121,7 +120,6 @@ $Year => (localtime)[5] + 1900
 </table>
           </&>
 
-
 <table width="100%">
 <tr>
 <td valign="top" width="50%">
@@ -152,7 +150,7 @@ $Year => (localtime)[5] + 1900
 <& /Elements/Submit&>
 </form>
 </td>
-<td valign="top"  width="50%" align="right">
+<td valign="top" width="50%" align="right">
 <img src="<%$RT::WebImagesURL%>/arrow_from.png" /> : <&|/l&>Created</&><br />
 <img src="<%$RT::WebImagesURL%>/arrow_to.png" /> : <&|/l&>Due</&><br />
 <img src="<%$RT::WebImagesURL%>/arrow_bw.png" /> : <&|/l&>Created</&>, <&|/l&>Due</&><br />

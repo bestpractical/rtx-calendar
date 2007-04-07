@@ -27,6 +27,7 @@ table.rtxcalendar {
 
 table.rtxcalendar td {
     border: 1px solid #d7d7d7;
+    vertical-align: top;
 }
 
 table.rtxcalendar th {
