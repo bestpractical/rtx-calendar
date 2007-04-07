@@ -1,7 +1,7 @@
 <%init>
-    $toptabs->{'zz'} = { title =>loc("Calendar"),
+    $tabs->{'zz'} = { title =>loc("Calendar"),
                           path  => "Tools/Calendar.html" };
 </%init>
 <%args>
-$toptabs
+$tabs
 </%args>
