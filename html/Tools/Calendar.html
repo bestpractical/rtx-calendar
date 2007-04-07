@@ -11,6 +11,7 @@ $Year => (localtime)[5] + 1900
 <&| /Widgets/TitleBox, title => loc('Calendar for ') . $today->GetMonth($Month) . " $Year" , title_class=> 'inverse', color => "#993333" &>
 
 % my @options;
+% my $options = '';
 % if ($ShowCreated) {
 %    push @options, "ShowCreated=$ShowCreated";
 % }
@@ -20,7 +21,7 @@ $Year => (localtime)[5] + 1900
 % if ($Queue) {
 %    push @options, "Queue=$Queue";
 % }
-% my $options = "&" . join("&", @options);
+% $options = "&" . join("&", @options) if @options;
 
 <table width="100%">
 <tr>
@@ -79,9 +80,11 @@ $Year => (localtime)[5] + 1900
 % } elsif ($t->CreatedObj->Date eq $date->Date) {
 <img src="<%$RT::WebImagesURL%>/arrow_from.png" />
 % }
-	<a href="<%$RT::WebPath%>/Ticket/Display.html?id=<%$t->Id%>"> <% $t->QueueObj->Name %> #<% $t->Id %> <% $t->Subject %></a></small><br />
+	<a href="<%$RT::WebPath%>/Ticket/Display.html?id=<%$t->Id%>">
+           <% $t->QueueObj->Name %> #<% $t->Id %>
+           <% length($t->Subject) > 80 ? substr($t->Subject, 0, 77) . "..." : $t->Subject %></a></small><br />
 	<span class="tip">
-	<strong><&|/l&>Subject</&>:</strong> <%$t->Subject%><br />
+	<strong><&|/l&>Subject</&>:</strong> <% $t->Subject%><br />
 	<strong><&|/l&>Owner</&>:</strong> <%$t->OwnerObj->Name %><br />
 	<strong><&|/l&>Created</&>:</strong> <%$t->CreatedObj->Date %><br />
         <strong><&|/l&>Due</&>:</strong> <% $t->DueObj->Unix > 0 ? $t->DueObj->Date : '-' %><br />
