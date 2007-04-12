@@ -2,7 +2,8 @@ Changes for 0.03 - FIXME
 
   * now uses Query Builder to find tickets
   * Calendar.html move in Search
-  * MyCalendar link to your own tickets for the current month
+  * MyCalendar link to your own tickets and Nobody's tickets for the
+    current month
   * ics (ICal) feed available
 
 Changes for 0.02

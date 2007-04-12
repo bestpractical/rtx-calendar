@@ -113,11 +113,22 @@ $RowsPerPage => undef
 </tr>
 </tbody>
 </table>
-          </&>
 
 <table width="100%">
 <tr>
-<td valign="top" width="50%">
+<td align="left">
+<a href="<%$RT::WebPath%>/Search/Calendar.html?Month=<%$PMonth%>&Year=<%$PYear%><%$options%>">«<%$rtdate->GetMonth($PMonth)%></a>
+</td>
+<td align="right">
+<a href="<%$RT::WebPath%>/Search/Calendar.html?Month=<%$NMonth%>&Year=<%$NYear%><%$options%>"><%$rtdate->GetMonth($NMonth)%>»</a>
+</td>
+</tr>
+</table>
+
+
+<table width="100%">
+<tr>
+<td valign="top" align="center" width="80%">
 <form action="<%$RT::WebPath%>/Search/Calendar.html" method="post">
 
 <select name="Month">
@@ -142,6 +153,8 @@ $RowsPerPage => undef
 
 </td>
 </table>
+
+</&>
 
 </html>
 <%INIT>
@@ -181,7 +194,11 @@ if ($Query) {
   $Tickets->LimitStatus( VALUE => 'open' );
   $Tickets->LimitStatus ( VALUE => 'new');
   $Tickets->LimitStatus ( VALUE => 'stalled');
-  $Tickets->LimitOwner(VALUE => $session{CurrentUser}->Id)
+  $Tickets->LimitOwner(VALUE => $session{CurrentUser}->Id);
+  $Tickets->LimitOwner(VALUE => "Nobody");
+
+  # Is it a good idea ? Should be way faster
+  $Tickets->LimitDue(OPERATOR => ">=", VALUE => $date->strftime("%F") );
 }
 # How can I add limit date to FromSQL ?
 # $Tickets->LimitDue(OPERATOR => ">=", VALUE => $date->strftime("%F") );

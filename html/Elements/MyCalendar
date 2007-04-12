@@ -65,7 +65,7 @@ my $title = loc("Calendar");
 my $rtdate = RT::Date->new($session{'CurrentUser'});
 
 my $today = DateTime->today;
-my $begin  = DateTime->today->subtract( days => 3);
+my $begin = DateTime->today->subtract( days => 3);
 my $end   = DateTime->today->add( days => 3);
 
 # use this to loop over days until $end
@@ -82,6 +82,7 @@ $Tickets->LimitStatus ( VALUE => 'new');
 $Tickets->LimitStatus ( VALUE => 'stalled');
 
 $Tickets->LimitOwner(VALUE => $session{'CurrentUser'}->Id);
+$Tickets->LimitOwner(VALUE => 'Nobody');
 
 $Tickets->LimitDue(OPERATOR => ">=", VALUE => $begin->strftime("%F") );
 $Tickets->LimitDue(OPERATOR => "<=", VALUE => $end->strftime("%F") );
