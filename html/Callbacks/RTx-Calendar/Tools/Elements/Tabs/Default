@@ -1,7 +1,0 @@
-<%init>
-    $tabs->{'zz'} = { title =>loc("Calendar"),
-                          path  => "Tools/Calendar.html" };
-</%init>
-<%args>
-$tabs
-</%args>

@@ -1,12 +1,13 @@
-Changes
 html/Callbacks/RTx-Calendar/Elements/Header/Head
-html/Callbacks/RTx-Calendar/Tools/Elements/Tabs/Default
+html/Callbacks/RTx-Calendar/Ticket/Elements/Tabs/Default
+html/Callbacks/RTx-Calendar/User/Elements/Tabs/Default
 html/Elements/MyCalendar
 html/NoAuth/css/calendar.css
 html/NoAuth/images/arrow_bw.png
 html/NoAuth/images/arrow_from.png
 html/NoAuth/images/arrow_to.png
-html/Tools/Calendar.html
+html/Search/Calendar.html
+IDEA
 inc/Module/Install.pm
 inc/Module/Install/Base.pm
 inc/Module/Install/Can.pm
@@ -18,7 +19,7 @@ inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
 lib/RTx/Calendar.pm
 Makefile.PL
-MANIFEST			This list of files
+MANIFEST
 META.yml
 README
 TODO

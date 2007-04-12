@@ -1,6 +1,6 @@
 <&|/Widgets/TitleBox,
     title => loc("Calendar"),
-    title_href => "Tools/Calendar.html?OwnerId=$OwnerId" &>
+    title_href => "Search/Calendar.html" &>
 
 <table class="rtxcalendar">
 <thead>
@@ -76,14 +76,12 @@ my $set = DateTime::Set->from_recurrence(
 my %already_seen;
 my @Tickets;
 
-my $OwnerId = $session{'CurrentUser'}->Id;
-
 my $Tickets = RT::Tickets->new($session{'CurrentUser'});
 $Tickets->LimitStatus( VALUE => 'open' );
 $Tickets->LimitStatus ( VALUE => 'new');
 $Tickets->LimitStatus ( VALUE => 'stalled');
 
-$Tickets->LimitOwner(VALUE => $OwnerId);
+$Tickets->LimitOwner(VALUE => $session{'CurrentUser'}->Id);
 
 $Tickets->LimitDue(OPERATOR => ">=", VALUE => $begin->strftime("%F") );
 $Tickets->LimitDue(OPERATOR => "<=", VALUE => $end->strftime("%F") );

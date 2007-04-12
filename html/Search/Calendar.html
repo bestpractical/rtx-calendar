@@ -1,31 +1,26 @@
 <%args>
-$Queue => undef
-$OwnerId => undef
-$ShowCreated => undef
-$ShowResolved => undef
 $Month => (localtime)[4]
 $Year => (localtime)[5] + 1900
+$Query => undef
+$Format => undef
+$Order => undef
+$OrderBy => undef
+$RowsPerPage => undef
 </%args>
 
 <& /Elements/Header, Title => $title &>
-<& /Tools/Elements/Tabs, current_tab => "Tools/Calendar.html", Title => $title &>
-<&| /Widgets/TitleBox, title => loc('Calendar for ') . $rtdate->GetMonth($Month) . " $Year" , title_class=> 'inverse', color => "#993333" &>
+<& /Ticket/Elements/Tabs,
+    current_tab => "Search/Calendar.html$QueryString",
+    Title => $title &>
+<&| /Widgets/TitleBox,
+     title => loc('Calendar for ') . $rtdate->GetMonth($Month) . " $Year" ,
+     title_class=> 'inverse',
+     color => "#993333" &>
 
 % my @options;
-% my $options = '';
-% if ($ShowCreated) {
-%    push @options, "ShowCreated=$ShowCreated";
-% }
-% if ($ShowResolved) {
-%    push @options, "ShowResolved=$ShowResolved";
-% }
-% if ($OwnerId) {
-%    push @options, "OwnerId=$OwnerId";
-% }
-% if ($Queue) {
-%    push @options, "Queue=$Queue";
-% }
-% $options = "&" . join("&", @options) if @options;
+% push @options, "Query=$Query"
+%   if $Query;
+% my $options = "&" . join("&", @options) if @options;
 
 <table width="100%">
 <tr>
@@ -35,7 +30,7 @@ $Year => (localtime)[5] + 1900
 %    $PYear--;
 %    $PMonth = 11;
 % }
-<a href="<%$RT::WebPath%>/Tools/Calendar.html?Month=<%$PMonth%>&Year=<%$PYear%><%$options%>">«<%$rtdate->GetMonth($PMonth)%></a>
+<a href="<%$RT::WebPath%>/Search/Calendar.html?Month=<%$PMonth%>&Year=<%$PYear%><%$options%>">«<%$rtdate->GetMonth($PMonth)%></a>
 </td>
 <td align="right">
 % my ($NMonth, $NYear) = ($Month + 1, $Year);
@@ -43,7 +38,7 @@ $Year => (localtime)[5] + 1900
 %    $NYear++;
 %    $NMonth = 0;
 % }
-<a href="<%$RT::WebPath%>/Tools/Calendar.html?Month=<%$NMonth%>&Year=<%$NYear%><%$options%>"><%$rtdate->GetMonth($NMonth)%>»</a>
+<a href="<%$RT::WebPath%>/Search/Calendar.html?Month=<%$NMonth%>&Year=<%$NYear%><%$options%>"><%$rtdate->GetMonth($NMonth)%>»</a>
 </td>
 </tr>
 </table>
@@ -64,11 +59,11 @@ $Year => (localtime)[5] + 1900
 <th><% $date->week_number %></th>
 %   }
 % my @DayTickets;
-% if ($ShowCreated) {
-% @DayTickets = grep { $_->DueObj->Date eq $date->strftime("%F") or $_->CreatedObj->Date eq $date->strftime("%F") } @Tickets;
-% } else {
+%# if ($ShowCreated) {
+%# @DayTickets = grep { $_->DueObj->Date eq $date->strftime("%F") or $_->CreatedObj->Date eq $date->strftime("%F") } @Tickets;
+%# } else {
 % @DayTickets = grep { $_->DueObj->Date eq $date->strftime("%F") } @Tickets;
-% }
+%# }
 
 <td class="<% $date->month != ($Month + 1) ? 'oddline' : '' %>"
     style="width:14%;<%  DateTime->compare($today, $date) == 0 ? 'background:#f6f7f8;' : '' %>"
@@ -123,12 +118,8 @@ $Year => (localtime)[5] + 1900
 <table width="100%">
 <tr>
 <td valign="top" width="50%">
-<form action="<%$RT::WebPath%>/Tools/Calendar.html" method="post">
-<br /><&|/l&>Queue</&>: <& /Elements/SelectQueue, Name => 'Queue', Default => $ARGS{'Queue'} &>
+<form action="<%$RT::WebPath%>/Search/Calendar.html" method="post">
 
-<br /><&|/l&>Owner</&>: <& /Elements/SelectOwner, Name => "OwnerId", Default => $ARGS{'OwnerId'} &>
-
-<br />
 <select name="Month">
 % for (0..11) {
 <option value="<%$_%>" <% $_ == $Month ? 'selected' : ''%> ><%$rtdate->GetMonth($_)%></option>
@@ -140,12 +131,6 @@ $Year => (localtime)[5] + 1900
 <option value="<%$_%>" <% $_ == $Year ? 'selected' : ''%>><%$_%></option>
 % }
 </select>
-
-<br /><&|/l&>Show Created</&>:
-<input type="checkbox" class="checkbox" name="ShowCreated"  <%$ARGS{'ShowCreated'} && "checked"%> />
-
-<br /><&|/l&>Show Resolved</&>:
-<input type="checkbox" class="checkbox" name="ShowResolved"  <%$ARGS{'ShowResolved'} && "checked"%> />
 
 <& /Elements/Submit&>
 </form>
@@ -176,35 +161,38 @@ my $set = DateTime::Set->from_recurrence(
     next => sub { $_[0]->truncate( to => 'day' )->add( days => 1 ) }
 );
 
-my %already_seen;
-my @Tickets;
+my $QueryString;
+$QueryString = '?'
+      . $m->comp(
+        '/Elements/QueryString',
+        Query   => $Query,
+        Format  => $Format,
+        Order   => $Order,
+        OrderBy => $OrderBy,
+        Rows    => $RowsPerPage
+      )
+      if ($Query);
 
-my @date_limits = qw/LimitDue/;
-push @date_limits, "LimitCreated"
-  if $ShowCreated;
+my $Tickets = RT::Tickets->new($session{'CurrentUser'});
 
-for my $date_type (@date_limits) {
-  my $Tickets = RT::Tickets->new($session{'CurrentUser'});
+if ($Query) {
+  $Tickets->FromSQL($Query)
+} else {
   $Tickets->LimitStatus( VALUE => 'open' );
   $Tickets->LimitStatus ( VALUE => 'new');
   $Tickets->LimitStatus ( VALUE => 'stalled');
+  $Tickets->LimitOwner(VALUE => $session{CurrentUser}->Id)
+}
+# How can I add limit date to FromSQL ?
+# $Tickets->LimitDue(OPERATOR => ">=", VALUE => $date->strftime("%F") );
+# $Tickets->LimitDue(OPERATOR => "<=", VALUE => $end->strftime("%F") );
 
-  $Tickets->LimitStatus ( VALUE => 'resolved')
-    if $ShowResolved;
+my %already_seen;
+my @Tickets;
 
-  $Tickets->LimitQueue(VALUE => $Queue)
-    if $Queue;
-
-  $Tickets->LimitOwner(VALUE => $OwnerId)
-    if $OwnerId;
-
-  $Tickets->$date_type(OPERATOR => ">=", VALUE => $date->strftime("%F") );
-  $Tickets->$date_type(OPERATOR => "<=", VALUE => $end->strftime("%F") );
-
-  while ( my $Ticket = $Tickets->Next()) {
-    push @Tickets, $Ticket
-      unless $already_seen{$Ticket->Id}++;
-  }
+while ( my $Ticket = $Tickets->Next()) {
+  push @Tickets, $Ticket
+    unless $already_seen{$Ticket->Id}++;
 }
 
 </%INIT>

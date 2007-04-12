@@ -25,6 +25,13 @@ Set($HomepageComponents, [qw(QuickCreate Quicksearch MyCalendar MyAdminQueues My
 
 And add it your preferences.
 
+* Upgrade from 0.02
+
+As I've change directory, if you upgrade from 0.02 you need to :
+
+- Delete all RTHOME/share/html/Callbacks/RTx-Calendar
+- delete RTHOME/share/html/Tools/Calendar.html
+
 * Copyright
 
 Copyright 2007 by Nicolas Chuche <nchuche@barna.be>
