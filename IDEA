@@ -1,0 +1,37 @@
+(12:31:58 AM) warewolf: no he means dhandler
+(12:31:59 AM) nbc: ruz: ok. dhandler for myself
+(12:32:09 AM) warewolf: for transparent handling of stuff
+(12:32:23 AM) ruz: it's like autohandler, but is called when there is no mapping between URL and dir
+(12:32:33 AM) warewolf: file that exists: rtr.example.com/NoAuth/Calendar/dhandler
+(12:32:54 AM) warewolf: file that doesn't exist: rt.example.com/NoAuth/Calendar/oi54gwigiuh45/CalendarFeed
+(12:33:06 AM) dams: ah, do it this way, ok
+(12:33:07 AM) warewolf: dhandler would be called with /oi54gwigiuh45/CalendarFeed as it's PATH_INFO
+(12:33:17 AM) ruz: all, listen warewolf
+(12:33:28 AM) ruz: :)
+(12:33:28 AM) dams: I thought you would pass the magic key as rtr.example.com/NoAuth/Calendar/User/?magic=234235
+(12:33:41 AM) warewolf: you could, but that's not very REST-y.
+(12:33:47 AM) dams: ok
+(12:33:57 AM) dams: I never implemented anything REST-y
+(12:34:00 AM) ruz: solution with dhandler is better and more sexy :)
+(12:34:02 AM) dams: so I take your words :)
+(12:34:12 AM) nbc: I like sexyer solution :)
+(12:34:16 AM) warewolf: I forget exactly how PATH_INFO shows up in mason
+(12:34:34 AM) warewolf: might be $r->path_info or $m->path_info # $r for mod_perl lovers like me
+(12:35:04 AM) nbc: and if I store the magic number in a user custom field. How can I find a user If I've got a unique custom field ?
+(12:35:05 AM) ruz: nb1: then look into the way we handle 'dowload attachment links', we use a dhandler, good and simple example
+(12:35:22 AM) nbc: ruz: ok. I look that
+(12:35:34 AM) warewolf: nb1- do NoAuth/Calendar/iht5iuwghi45hufijhgsiug/warewolf
+(12:35:44 AM) dams: warewolf: $m->dhandler_arg ?
+(12:35:52 AM) warewolf: or NoAuth/Calendar/warewolf/o54gqwh5gah5gkjah34f, which ever you prefer
+(12:36:08 AM) nbc: warewolf: great idea.
+(12:36:13 AM) nbc: I should come more often
+(12:37:36 AM) warewolf: nb1- KISS.  Keep It Simple, Silly :P
+(12:38:22 AM) warewolf: and ruz's right, go look at the file attachment download thinger -- it's written nearly exactly this same way.
+(12:38:23 AM) nbc: warewolf: Yes. Two days I turn around "not so good" solutions
+(12:39:26 AM) nbc: many thanks
+(12:39:36 AM) warewolf: dams- yeha, $m->dhandler_arg looks to be where PATH_INFO gets stashed
+
+/opt/rt3/share/html/Ticket/Attachment/dhandler
+
+
+http://lists.fsck.com/pipermail/rt-users/2006-October/042235.html
