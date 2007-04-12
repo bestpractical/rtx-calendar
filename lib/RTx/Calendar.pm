@@ -41,26 +41,47 @@ RTx::Calendar - Calendar for RT
 
 =head1 VERSION
 
-This document describes version 0.02 of RTx::Calendar, released
-06 April 2007
+This document describes version 0.03 of RTx::Calendar
 
 =head1 DESCRIPTION
 
-This RT extension provides a calendar view for your tickets. You can
-find it in the menu Tools->Calendar.
+This RT extension provides a calendar view for your tickets so you see
+when is your next due ticket. You can find it in the menu
+Search->Calendar. There's also a portlet to put on your own page (see
+Prefs/MyRT.html)
 
-You can also add the portlet. To do that you must add MyCalendar to
+You can find screenshots on
+http://gaspard.mine.nu/dotclear/index.php?tag/rtx-calendar
+
+=head1 INSTALLATION
+
+If you upgrade from 0.02, see next part before.
+
+Install it like a standard perl module
+
+perl Makefile.PL
+make
+make install
+
+To use MyCalendar portlet you must add MyCalendar to
 $HomepageComponents in etc/RT_SiteConfig.pm like that :
 
-Set($HomepageComponents, [qw(QuickCreate Quicksearch MyCalendar MyAdminQueues MySupportQueues MyReminders  RefreshHomepage)]);
+  Set($HomepageComponents, [qw(QuickCreate Quicksearch MyCalendar
+     MyAdminQueues MySupportQueues MyReminders RefreshHomepage)]);
 
-And add it your preferences.
+=head1 UPGRADE FROM 0.02
 
-Idea borrowed from redmine's calendar (Thanks Jean-Philippe).
+As I've change directory structure, if you upgrade from 0.02 you need
+to :
+
+ - delete all RTHOME/share/html/Callbacks/RTx-Calendar
+ - delete RTHOME/share/html/Tools/Calendar.html
 
 =head1 AUTHORS
 
 Nicolas Chuche E<lt>nchuche@barna.beE<gt>
+
+Idea borrowed from redmine's calendar (Thanks Jean-Philippe).
 
 =head1 COPYRIGHT
 
