@@ -1,0 +1,7 @@
+<%init>
+    $tabs->{'z'} = { title =>loc("Calendar"),
+                          path  => "Prefs/Calendar.html" };
+</%init>
+<%args>
+$tabs
+</%args>
