@@ -1,6 +1,6 @@
 <%args>
-$ChangeURL => undef
-$ResetURL  => undef
+$ChangePrivateURL => undef
+$ResetPrivateURL  => undef
 </%args>
 
 <& /Elements/Header, Title => $title &>
@@ -9,45 +9,43 @@ $ResetURL  => undef
     Title => $title
 &>
 
-<&| /Widgets/TitleBox, title => loc('ICal Calendar Configuration ') , title_class=> 'inverse', color => "#993333" &>
+<&| /Widgets/TitleBox, title => loc('ICal Private Feed Configuration ') , title_class=> 'inverse', color => "#993333" &>
 
-% if ($HiddenURL) {
-<p>Your can paste this url in your calendar  : <b><%$RT::WebURL%>/NoAuth/Ical.ics?Id=<%$session{CurrentUser}->Id%>Hidden=<%$HiddenURL%></b><p>
+% if ($PrivateURL) {
+<p>Your can paste this url in your calendar  : <b><%$RT::WebURL%>/NoAuth/Calendar/<%$session{CurrentUser}->Id%>/<%$PrivateURL%></b><p>
 <table>
 <tr>
 <td>
 <form action="<%$RT::WebPath%>/Prefs/Calendar.html" method="post">
-<input type="submit" class="button" name="ResetURL" value="<%loc('Disable ICal')%>">
+<input type="submit" class="button" name="ResetPrivateURL" value="<%loc('Disable ICal')%>">
 </form>
 </td>
 <td>
 <form action="<%$RT::WebPath%>/Prefs/Calendar.html" method="post">
-<input type="submit" class="button" name="ChangeURL" value="<%loc('Change ICal URL')%>">
+<input type="submit" class="button" name="ChangePrivateURL" value="<%loc('Change ICal URL')%>">
 </form>
 </td>
 </tr>
 </table>
 % } else {
-<p>Your ICal feed is disabled. To enable it, Change the hidden URL.</p>
+<p>Your ICal feed is disabled.</p>
 
 <form action="<%$RT::WebPath%>/Prefs/Calendar.html" method="post">
-<input type="submit" class="button" name="ChangeURL" value="<%loc('Enable ICal')%>">
+<input type="submit" class="button" name="ChangePrivateURL" value="<%loc('Enable ICal')%>">
 </form>
 % }
-
 </&>
-
 
 <%INIT>
 my $title = loc("Calendar");
 
 use Digest::SHA1;
 
-if (defined $ChangeURL) {
-  printf STDERR "%s message: %s\n", $session{CurrentUser}->UserObj->AddCustomFieldValue(Field => 'IcalUrl', Value => Digest::SHA1::sha1_base64(time));
-} elsif (defined $ResetURL) {
+if (defined $ChangePrivateURL) {
+  $session{CurrentUser}->UserObj->AddCustomFieldValue(Field => 'IcalUrl', Value => Digest::SHA1::sha1_base64(time));
+} elsif (defined $ResetPrivateURL) {
   $session{CurrentUser}->UserObj->AddCustomFieldValue(Field => 'IcalUrl', Value => '');
 }
 
-my $HiddenURL = $session{CurrentUser}->UserObj->FirstCustomFieldValue('IcalUrl');
+my $PrivateURL = $session{CurrentUser}->UserObj->FirstCustomFieldValue('IcalUrl');
 </%INIT>

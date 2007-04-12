@@ -1,6 +1,6 @@
 <&|/Widgets/TitleBox,
     title => loc("Calendar"),
-    title_href => "Tools/Calendar.html" &>
+    title_href => "Tools/Calendar.html?OwnerId=$OwnerId" &>
 
 <table class="rtxcalendar">
 <thead>
