@@ -1,0 +1,15 @@
+^RTx-Calendar
+
+
+^blib
+^_build
+^Build$
+^cover_db
+^Makefile(\.old)?$
+^MANIFEST\.
+^pm_to_blib$
+
+~$
+\.bak$
+\.old$
+\.sw[a-z]$
