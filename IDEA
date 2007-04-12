@@ -35,3 +35,18 @@
 
 
 http://lists.fsck.com/pipermail/rt-users/2006-October/042235.html
+
+22:35 < chaka> $object->(Add|Set|Delete|First)Attribute
+22:35 < chaka> see RT::Record
+
+22:16 < chaka> 1.
+22:16 < nbc> I'm working on it so that's a perfect time :)
+22:17 -!- al1 [~af@sev93-1-82-229-236-191.fbx.proxad.net] has joined #rt
+22:17 < chaka> I think you do too much work trying to give options for tickets to show
+22:17 < chaka> I prefer if you do it like Timeline
+22:17 < nbc> chaka: all tickets ?
+22:17 < chaka> put the results of a Query Builder search on a calendar
+
+
+22:18 < chaka> 2.
+22:19 < chaka> link from MyCalendar should automatically go to Calendar.html with filter set to Owner=CurrentUser
