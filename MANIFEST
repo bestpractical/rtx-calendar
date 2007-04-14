@@ -11,7 +11,7 @@ html/NoAuth/images/arrow_from.png
 html/NoAuth/images/arrow_to.png
 html/NoAuth/images/reminder.png
 html/Prefs/Calendar.html
-html/Prefs/Elements/EditURL
+html/Prefs/Elements/CalendarFeed
 html/Search/Calendar.html
 inc/Module/Install.pm
 inc/Module/Install/Base.pm

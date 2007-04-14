@@ -11,7 +11,7 @@ $HiddenField => undef
     Title => $title
 &>
 
-<& /Prefs/Elements/EditURL &>
+<& /Prefs/Elements/CalendarFeed &>
 
 % # only allow this part if
 % if ($AllowSearch) {
@@ -25,7 +25,7 @@ $HiddenField => undef
 %       next if ($search->SubValue('SearchType')
 %              && $search->SubValue('SearchType') ne $SearchType);
 
-<& /Prefs/Elements/EditURL, Object => $object, Search => $search &>
+<& /Prefs/Elements/CalendarFeed, Object => $object, Search => $search &>
 
 %     }
 %   }
