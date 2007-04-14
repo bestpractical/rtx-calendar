@@ -1,13 +1,16 @@
+CHANGES
 html/Callbacks/RTx-Calendar/Elements/Header/Head
 html/Callbacks/RTx-Calendar/Ticket/Elements/Tabs/Default
 html/Callbacks/RTx-Calendar/User/Elements/Tabs/Default
 html/Elements/MyCalendar
+html/NoAuth/Calendar/dhandler
 html/NoAuth/css/calendar.css
 html/NoAuth/images/arrow_bw.png
 html/NoAuth/images/arrow_from.png
 html/NoAuth/images/arrow_to.png
+html/Prefs/Calendar.html
+html/Prefs/Elements/EditURL
 html/Search/Calendar.html
-IDEA
 inc/Module/Install.pm
 inc/Module/Install/Base.pm
 inc/Module/Install/Can.pm

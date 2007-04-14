@@ -1,0 +1,107 @@
+<%init>
+
+use Data::ICal;
+use Data::ICal::Entry::Todo;
+use Date::ICal;
+
+my ($UserId, $SearchId, $MagicNumber);
+my $arg = $m->dhandler_arg;
+
+if ($arg =~ m{^(\d+)@(\d+)/(.*)$}) {
+    $UserId = $1;
+    $SearchId = $2;
+    $MagicNumber = $3;
+} elsif ($arg =~ m{^(\d+)/(.*)}) {
+    $UserId = $1;
+    $MagicNumber = $2;
+} else {
+    Abort("Corrupted URL.");
+}
+
+my $CurrentUser = new RT::CurrentUser();
+$CurrentUser->LoadById($UserId);
+
+# if no user, abort
+unless ($CurrentUser->Id) {
+    $m->out("RT/".$RT::VERSION ." ".404 ."\n\nno such file\n");
+    $m->abort;
+}
+
+# if MagicNumber doesn't match the one stored in database, abort
+my $Search;
+my $ICalAttribute;
+if ($SearchId) {
+    $Search = $CurrentUser->Attributes->WithId($SearchId);
+    $ICalAttribute = $Search->FirstAttribute('ICalURL');
+} else {
+    $ICalAttribute = $CurrentUser->FirstAttribute('ICalURL');
+}
+
+unless ($ICalAttribute) {
+    $m->out("RT/".$RT::VERSION ." ".404 ."\n\nno such file\n");
+    $m->abort;
+}
+
+
+if ($MagicNumber ne $ICalAttribute->Content) {
+    $m->out("RT/".$RT::VERSION ." ".404 ."\n\nno such file\n");
+    $m->abort;
+}
+
+my $Tickets = RT::Tickets->new($CurrentUser);
+
+if ($Search) {
+    $Tickets->FromSQL( $Search->SubValue('Query') );
+} else {
+    $Tickets->LimitStatus( VALUE => 'open' );
+    $Tickets->LimitStatus ( VALUE => 'new');
+    $Tickets->LimitStatus ( VALUE => 'stalled');
+
+    $Tickets->LimitOwner ( VALUE => $CurrentUser->Id);
+    $Tickets->LimitOwner ( VALUE => 'Nobody');
+
+    $Tickets->LimitDue(OPERATOR => ">", VALUE => 0 );
+}
+
+my $calendar = Data::ICal->new();
+
+my ($uid) = $RT::WebURL =~ m{https?://([^:]+)};
+
+while (my $Ticket = $Tickets->Next ) {
+
+    my %vtodo = (
+	summary    => $Ticket->Subject ? $Ticket->Subject : '',
+	dtstart    => Date::ICal->new( epoch => $Ticket->CreatedObj->Unix )->ical,
+	url        => "${RT::WebURL}/Ticket/Display.html?id=" . $Ticket->id,
+	uid        => Date::ICal->new( epoch => time() )->ical() . "-" . $Ticket->Id . "@" . $uid,
+	categories => $Ticket->QueueObj->Name,
+    );
+
+    $vtodo{due} = Date::ICal->new( epoch => $Ticket->DueObj->Unix )->ical,
+        if $Ticket->DueObj;
+
+    if ($Ticket->OwnerObj->Id != $RT::Nobody->Id and $Ticket->OwnerObj->EmailAddress) {
+	$vtodo{organizer} = "MAILTO:" . $Ticket->OwnerObj->EmailAddress;
+	$vtodo{attendee} = "MAILTO:" . $Ticket->OwnerObj->EmailAddress;
+    } elsif ($Ticket->QueueObj->CommentAddress) {
+	$vtodo{organizer} = "MAILTO:" . $Ticket->QueueObj->CommentAddress;
+	$vtodo{attendee} = "MAILTO:" . $Ticket->QueueObj->CommentAddress;
+    }
+
+    $vtodo{priority} = $Ticket->Priority
+	if $Ticket->Priority;
+
+    my $vtodo = Data::ICal::Entry::Todo->new();
+    $vtodo->add_properties(%vtodo);
+    $calendar->add_entry($vtodo);
+}
+
+my $cal = $calendar->as_string;
+
+$r->content_type('text/calendar;charset=utf-8');
+$m->clear_buffer();
+$m->out($cal);
+$m->abort;
+
+</%init>
+

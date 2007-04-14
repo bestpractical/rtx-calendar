@@ -1,5 +1,5 @@
 name: RTx-Calendar
-version: 0.02
+version: 0.03
 abstract: Calendar view
 author: Nicolas Chuche <nchuche@barna.be>
 license: perl
@@ -8,6 +8,8 @@ requires:
   RT: 3.6
   DateTime: 0
   DateTime::Set: 0
+  Data::ICal: 0
+  Date::ICal: 0
 no_index:
   directory:
     - html

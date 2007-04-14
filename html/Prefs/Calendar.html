@@ -1,51 +1,60 @@
 <%args>
-$ChangePrivateURL => undef
-$ResetPrivateURL  => undef
+$ChangeURL   => undef
+$ResetURL    => undef
+$SearchType  => 'Ticket'
+$HiddenField => undef
 </%args>
 
 <& /Elements/Header, Title => $title &>
-<& /Prefs/Elements/Tabs,
+<& /User/Elements/Tabs,
     current_tab => 'Prefs/Calendar.html',
     Title => $title
 &>
 
-<&| /Widgets/TitleBox, title => loc('ICal Private Feed Configuration ') , title_class=> 'inverse', color => "#993333" &>
+<& /Prefs/Elements/EditURL &>
 
-% if ($PrivateURL) {
-<p>Your can paste this url in your calendar  : <b><%$RT::WebURL%>/NoAuth/Calendar/<%$session{CurrentUser}->Id%>/<%$PrivateURL%></b><p>
-<table>
-<tr>
-<td>
-<form action="<%$RT::WebPath%>/Prefs/Calendar.html" method="post">
-<input type="submit" class="button" name="ResetPrivateURL" value="<%loc('Disable ICal')%>">
-</form>
-</td>
-<td>
-<form action="<%$RT::WebPath%>/Prefs/Calendar.html" method="post">
-<input type="submit" class="button" name="ChangePrivateURL" value="<%loc('Change ICal URL')%>">
-</form>
-</td>
-</tr>
-</table>
-% } else {
-<p>Your ICal feed is disabled.</p>
+% # only allow this part if
+% if ($AllowSearch) {
 
-<form action="<%$RT::WebPath%>/Prefs/Calendar.html" method="post">
-<input type="submit" class="button" name="ChangePrivateURL" value="<%loc('Enable ICal')%>">
-</form>
+%   # FIXME : _PrivacyObjects is a private method. Another way to find searches ?
+%   my @Objects = RT::SavedSearches->new($session{CurrentUser})->_PrivacyObjects;
+%   for my $object (@Objects) {
+%     next unless ref($object) eq 'RT::User' && $object->id == $session{'CurrentUser'}->Id;
+%     my @searches = $object->Attributes->Named('SavedSearch');
+%     for my $search (@searches) {
+%       next if ($search->SubValue('SearchType')
+%              && $search->SubValue('SearchType') ne $SearchType);
+
+<& /Prefs/Elements/EditURL, Object => $object, Search => $search &>
+
+%     }
+%   }
 % }
-</&>
 
 <%INIT>
-my $title = loc("Calendar");
-
 use Digest::SHA1;
+use RT::SavedSearches;
 
-if (defined $ChangePrivateURL) {
-  $session{CurrentUser}->UserObj->AddCustomFieldValue(Field => 'IcalUrl', Value => Digest::SHA1::sha1_base64(time));
-} elsif (defined $ResetPrivateURL) {
-  $session{CurrentUser}->UserObj->AddCustomFieldValue(Field => 'IcalUrl', Value => '');
+my $title = loc("Calendar Prefs");
+my $AllowSearch;
+
+$AllowSearch = 1
+ if $session{'CurrentUser'}->HasRight( Right => 'LoadSavedSearch',
+                                       Object=> $RT::System );
+
+my $object;
+
+if ($HiddenField eq 'Private') {
+   $object = $session{CurrentUser};
+} elsif ($AllowSearch and my ($SearchId) = $HiddenField =~ m/SavedSearch\-(\d+)/) {
+    $object = $session{CurrentUser}->Attributes->WithId($SearchId);
 }
 
-my $PrivateURL = $session{CurrentUser}->UserObj->FirstCustomFieldValue('IcalUrl');
+if (defined $ChangeURL) {
+  my @args = $object->SetAttribute(Name => 'ICalURL', Content => Digest::SHA1::sha1_base64(time));
+} elsif (defined $ResetURL) {
+  $object->DeleteAttribute('ICalURL');
+}
+
+
 </%INIT>

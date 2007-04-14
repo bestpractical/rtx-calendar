@@ -1,11 +1,11 @@
-.tooltip{position:relative;z-index:1;font-size: 0.8em;}
+.tooltip{position:relative;z-index:1;/*font-size: 0.8em; */}
 .tooltip:hover{z-index:5;color:#000;}
 .tooltip span.tip{display: none; text-align:left;}
 
 div.tooltip:hover span.tip{
 display:block;
 position:absolute;
-top:12px; left:24px; width:270px;
+top:12px; left:24px; width:350px;
 border:1px solid #555;
 background-color:#fff;
 padding: 4px;
@@ -15,7 +15,7 @@ color:#505050;
 
 .date {
 text-align: right;
-font-size: 0.8em;
+/* font-size: 0.8em; */
 }
 
 table.rtxcalendar {
