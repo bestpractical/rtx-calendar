@@ -204,6 +204,9 @@ if ($Query) {
 # $Tickets->LimitDue(OPERATOR => ">=", VALUE => $date->strftime("%F") );
 # $Tickets->LimitDue(OPERATOR => "<=", VALUE => $end->strftime("%F") );
 
+# not really usefull but I like that
+$Tickets->OrderBy(FIELD => 'Due', ORDER => 'ASC');
+
 my %already_seen;
 my @Tickets;
 

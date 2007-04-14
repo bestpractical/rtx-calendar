@@ -76,6 +76,8 @@ if ($Search) {
     $Tickets->LimitDue(OPERATOR => ">", VALUE => 0 );
 }
 
+$Tickets->OrderBy(FIELD => 'Due', ORDER => 'ASC');
+
 my $calendar = Data::ICal->new();
 
 my ($uid) = $RT::WebURL =~ m{https?://([^:]+)};
