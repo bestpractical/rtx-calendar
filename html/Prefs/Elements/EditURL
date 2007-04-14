@@ -22,13 +22,13 @@ This feed will show tickets with due date find with query:<br />
 <td>
 <form action="<%$RT::WebPath%>/Prefs/Calendar.html" method="post">
 <input type="hidden" name="HiddenField" value="<%$HiddenField%>" />
-<input type="submit" class="button" name="ResetURL" value="<%loc('Disable ICal')%>" />
+<input type="submit" class="button" name="ResetURL" value="<%loc('Disable Feed')%>" />
 </form>
 </td>
 <td>
 <form action="<%$RT::WebPath%>/Prefs/Calendar.html" method="post">
 <input type="hidden" name="HiddenField" value="<%$HiddenField%>" />
-<input type="submit" class="button" name="ChangeURL" value="<%loc('Change ICal URL')%>" />
+<input type="submit" class="button" name="ChangeURL" value="<%loc('Change Feed URL')%>" />
 </form>
 </td>
 </tr>
@@ -38,7 +38,7 @@ This feed will show tickets with due date find with query:<br />
 
 <form action="<%$RT::WebPath%>/Prefs/Calendar.html" method="post">
 <input type="hidden" name="HiddenField" value="<%$HiddenField%>" />
-<input type="submit" class="button" name="ChangeURL" value="<%loc('Enable ICal')%>" />
+<input type="submit" class="button" name="ChangeURL" value="<%loc('Enable Feed')%>" />
 </form>
 % }
 
