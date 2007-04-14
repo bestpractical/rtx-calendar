@@ -20,9 +20,11 @@ if ($arg =~ m{^(\d+)@(\d+)/(.*)$}) {
 
 my $CurrentUser = new RT::CurrentUser();
 $CurrentUser->LoadById($UserId);
+my $user = $CurrentUser->Name;
 
 # if no user, abort
 unless ($CurrentUser->Id) {
+    $RT::Logger->error("No such user id $UserId from $ENV{'REMOTE_ADDR'}");
     $m->out("RT/".$RT::VERSION ." ".404 ."\n\nno such file\n");
     $m->abort;
 }
@@ -30,6 +32,7 @@ unless ($CurrentUser->Id) {
 # verify user has LoadSavedSearch right
 if ($SearchId and not $CurrentUser->HasRight( Right => 'LoadSavedSearch',
                                               Object=> $RT::System )) {
+    $RT::Logger->error("not enough rights for user $user from $ENV{'REMOTE_ADDR'}");
     $m->out("RT/".$RT::VERSION ." ".404 ."\n\nno such file\n");
     $m->abort;
 }
@@ -46,12 +49,14 @@ if ($SearchId) {
 }
 
 unless ($ICalAttribute) {
+    $RT::Logger->error("No such ICal feed for $user from $ENV{'REMOTE_ADDR'}");
     $m->out("RT/".$RT::VERSION ." ".404 ."\n\nno such file\n");
     $m->abort;
 }
 
 
 if ($MagicNumber ne $ICalAttribute->Content) {
+    $RT::Logger->error("FAILED LOGIN for $user from $ENV{'REMOTE_ADDR'}");
     $m->out("RT/".$RT::VERSION ." ".404 ."\n\nno such file\n");
     $m->abort;
 }
