@@ -27,6 +27,14 @@ unless ($CurrentUser->Id) {
     $m->abort;
 }
 
+# verify user has LoadSavedSearch right
+if ($SearchId and not $session{'CurrentUser'}->HasRight( Right => 'LoadSavedSearch',
+                                                           Object=> $RT::System )) {
+    $m->out("RT/".$RT::VERSION ." ".404 ."\n\nno such file\n");
+    $m->abort;
+}
+
+
 # if MagicNumber doesn't match the one stored in database, abort
 my $Search;
 my $ICalAttribute;

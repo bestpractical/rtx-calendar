@@ -1,5 +1,5 @@
 ^RTx-Calendar
-
+^IDEA
 
 ^blib
 ^_build
@@ -13,3 +13,4 @@
 \.bak$
 \.old$
 \.sw[a-z]$
+

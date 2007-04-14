@@ -4,7 +4,7 @@ use strict;
 use DateTime;
 use DateTime::Set;
 
-our $VERSION = "0.02";
+our $VERSION = "0.03";
 
 sub FirstMonday {
     my ($year, $month) = (shift, shift);
@@ -37,7 +37,7 @@ __END__
 
 =head1 NAME
 
-RTx::Calendar - Calendar for RT
+RTx::Calendar - Calendar for RT due tasks
 
 =head1 VERSION
 
@@ -47,8 +47,13 @@ This document describes version 0.03 of RTx::Calendar
 
 This RT extension provides a calendar view for your tickets so you see
 when is your next due ticket. You can find it in the menu
-Search->Calendar. There's also a portlet to put on your own page (see
-Prefs/MyRT.html)
+Search->Calendar.
+
+There's also a portlet to put on your own page (see Prefs/MyRT.html)
+
+You can also enable ics (ICal) feeds for all your private searches in
+Prefs/Calendar.html. Authentication is magic number based so that you
+can give those feeds to other people.
 
 You can find screenshots on
 http://gaspard.mine.nu/dotclear/index.php?tag/rtx-calendar
@@ -59,15 +64,18 @@ If you upgrade from 0.02, see next part before.
 
 Install it like a standard perl module
 
-perl Makefile.PL
-make
-make install
+ perl Makefile.PL
+ make
+ make install
 
 To use MyCalendar portlet you must add MyCalendar to
 $HomepageComponents in etc/RT_SiteConfig.pm like that :
 
   Set($HomepageComponents, [qw(QuickCreate Quicksearch MyCalendar
      MyAdminQueues MySupportQueues MyReminders RefreshHomepage)]);
+
+To enable private searches ICal feeds, you need to give
+CreateSavedSearch and LoadSavedSearch rights to your users.
 
 =head1 UPGRADE FROM 0.02
 
