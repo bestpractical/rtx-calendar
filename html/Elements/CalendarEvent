@@ -7,12 +7,12 @@ $Reminder => undef
 <small>
 % if ($Reminder and $Object->DueObj->Date eq $Date->strftime("%F")) {
 <img src="<%$RT::WebImagesURL%>/reminder.png" />
-% } elsif ($Object->DueObj->Date eq $Date->strftime("%F") and $Object->CreatedObj->Date eq $Date->strftime("%F") ) {
-<img src="<%$RT::WebImagesURL%>/arrow_bw.png" />
+% # } elsif ($Object->DueObj->Date eq $Date->strftime("%F") and $Object->CreatedObj->Date eq $Date->strftime("%F") ) {
+% # <img src="<%$RT::WebImagesURL%>/arrow_bw.png" />
 % } elsif ($Object->DueObj->Date eq $Date->strftime("%F")) {
 <img src="<%$RT::WebImagesURL%>/arrow_to.png" />
-% } elsif ($Object->CreatedObj->Date eq $Date->strftime("%F")) {
-<img src="<%$RT::WebImagesURL%>/arrow_from.png" />
+% # } elsif ($Object->CreatedObj->Date eq $Date->strftime("%F")) {
+% # <img src="<%$RT::WebImagesURL%>/arrow_from.png" />
 % }
 	<a href="<%$RT::WebPath%>/Ticket/Display.html?id=<%$TicketId%>">
            <% $Object->QueueObj->Name %> #<% $TicketId %>
