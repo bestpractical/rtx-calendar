@@ -1,41 +1,67 @@
 <%args>
 $Date => undef
-$Ticket => undef
+$Object => undef
+$Reminder => undef
 </%args>
 <div class="tooltip">
 <small>
-% if ($Ticket->DueObj->Date eq $Date->strftime("%F") and $Ticket->CreatedObj->Date eq $Date->strftime("%F") ) {
+% if ($Reminder and $Object->DueObj->Date eq $Date->strftime("%F")) {
+<img src="<%$RT::WebImagesURL%>/reminder.png" />
+% } elsif ($Object->DueObj->Date eq $Date->strftime("%F") and $Object->CreatedObj->Date eq $Date->strftime("%F") ) {
 <img src="<%$RT::WebImagesURL%>/arrow_bw.png" />
-% } elsif ($Ticket->DueObj->Date eq $Date->strftime("%F")) {
+% } elsif ($Object->DueObj->Date eq $Date->strftime("%F")) {
 <img src="<%$RT::WebImagesURL%>/arrow_to.png" />
-% } elsif ($Ticket->CreatedObj->Date eq $Date->strftime("%F")) {
+% } elsif ($Object->CreatedObj->Date eq $Date->strftime("%F")) {
 <img src="<%$RT::WebImagesURL%>/arrow_from.png" />
 % }
-	<a href="<%$RT::WebPath%>/Ticket/Display.html?id=<%$Ticket->Id%>">
-           <% $Ticket->QueueObj->Name %> #<% $Ticket->Id %>
-           <% length($Ticket->Subject) > 80 ? substr($Ticket->Subject, 0, 77) . "..." : $Ticket->Subject %></a></small><br />
+	<a href="<%$RT::WebPath%>/Ticket/Display.html?id=<%$TicketId%>">
+           <% $Object->QueueObj->Name %> #<% $TicketId %>
+           <% length($Object->Subject) > 80 ? substr($Object->Subject, 0, 77) . "..." : $Object->Subject %></a></small><br />
 	<span class="tip">
-	<a href="<%$RT::WebPath%>/Ticket/Display.html?id=<%$Ticket->Id%>">
-           <% $Ticket->QueueObj->Name %> #<% $Ticket->Id %>
+	<a href="<%$RT::WebPath%>/Ticket/Display.html?id=<%$TicketId%>">
+           <% $Object->QueueObj->Name %> #<% $TicketId %>
         </a>
-	:</strong> <% $Ticket->Subject%><br />
+	:</strong> <% $subject%><br />
 	<br />
-	<strong><&|/l&>Owner</&>:</strong> <%$Ticket->OwnerObj->Name %><br />
-	<strong><&|/l&>Created</&>:</strong> <%$Ticket->CreatedObj->Date %><br />
-        <strong><&|/l&>Due</&>:</strong> <% $Ticket->DueObj->Unix > 0 ? $Ticket->DueObj->Date : '-' %><br />
-	<strong><&|/l&>Status</&>:</strong> <%loc($Ticket->Status) %><br />
-	<strong><&|/l&>Priority</&>:</strong> <%$Ticket->Priority %><br />
-	<strong><&|/l&>Requestors</&>:</strong>
-% my $members = $Ticket->Requestors->MembersObj;
-% if ($members->Count == 0) {
-<&|/l&>none</&>
-% } else {
-%   my @requestors;
-%   while (my $watcher = $members->Next) {
-%     push @requestors, $watcher->MemberObj->Object->Name;
-%   }
-<% join ", ", @requestors %>
+	<strong><&|/l&>Owner</&>:</strong> <%$Object->OwnerObj->Name %><br />
+% unless ($Reminder) {
+	<strong><&|/l&>Created</&>:</strong> <%$Object->CreatedObj->Date %><br />
 % }
+        <strong><&|/l&>Due</&>:</strong> <% $Object->DueObj->Unix > 0 ? $Object->DueObj->Date : '-' %><br />
+	<strong><&|/l&>Status</&>:</strong> <%loc($Object->Status) %><br />
+% unless ($Reminder) {
+
+	<strong><&|/l&>Priority</&>:</strong> <%$Object->Priority %><br />
+	<strong><&|/l&>Requestors</&>:</strong>
+
+%   my $members = $Object->Requestors->MembersObj;
+%   if ($members->Count == 0) {
+<&|/l&>none</&>
+%   } else {
+%     my @requestors;
+%     while (my $watcher = $members->Next) {
+%       push @requestors, $watcher->MemberObj->Object->Name;
+%     }
+<% join ", ", @requestors %>
+%   }
 <br />
+% }
 	</span>
 </div>
+
+<%init>
+my $link;
+my $TicketId;
+
+my $ticket;
+my $subject;
+
+if ($Reminder) {
+  $ticket   = $Object->RefersTo->First->TargetObj;
+  $TicketId = $ticket->Id;
+  $subject = $Object->Subject . " (" . $ticket->Subject . ")";
+} else {
+  $TicketId = $Object->Id;
+  $subject = $Object->Subject;
+}
+</%init>

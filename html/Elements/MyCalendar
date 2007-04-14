@@ -16,11 +16,15 @@
 <tr>
 % $date = $begin->clone;
 % while ($date <= $end) {
-%   my @DayTickets = grep { $_->DueObj->Date eq $date->strftime("%F") } @Tickets;
+%   my @DayTickets   = grep { $_->DueObj->Date eq $date->strftime("%F") } @Tickets;
+%   my @DayReminders = grep { $_->DueObj->Date eq $date->strftime("%F") } @Reminders;
 <td>
 <p class="date"><%$date->day%></p>
 % for my $t (@DayTickets) {
-<& /Elements/CalendarEvent, Ticket => $t, Date => $date &>
+<& /Elements/CalendarEvent, Object => $t, Date => $date &>
+% }
+% for my $t (@DayReminders) {
+<& /Elements/CalendarEvent, Object => $t, Date => $date, Reminder => 1 &>
 % }
 </td>
 % $date = $set->next($date);
@@ -66,5 +70,21 @@ while ( my $Ticket = $Tickets->Next()) {
   push @Tickets, $Ticket
     unless $already_seen{$Ticket->Id}++;
 }
+
+my $Reminders = RT::Tickets->new($session{'CurrentUser'});
+$Reminders->FromSQL('(Owner = "Nobody" OR Owner = "'.$session{'CurrentUser'}->Name.'")' .
+                    ' AND Type = "reminder" AND (Status = "new" OR Status = "open")' .
+                    ' AND Due >= "' . $begin->strftime("%F") . '"' .
+                    ' AND Due <= "' . $end->strftime("%F") . '"');
+
+$Reminders->OrderBy(FIELD => 'Due', ORDER => 'ASC');
+
+my @Reminders;
+while ( my $Reminder = $Reminders->Next() ) {
+  # only show reminder refering to a ticket
+  push @Reminders, $Reminder
+    if $Reminder->RefersTo->First
+}
+
 
 </%INIT>
