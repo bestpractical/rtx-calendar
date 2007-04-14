@@ -10,6 +10,9 @@ $HiddenField => undef
 
 % if ($FeedText) {
 <p><%$FeedText%></p>
+% } else {
+This feed will show tickets with due date find with query:<br />
+"<%$Search->SubValue('Query')%>".
 % }
 
 % if ($ICalURL) {
