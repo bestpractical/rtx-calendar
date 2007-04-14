@@ -49,7 +49,7 @@ This RT extension provides a calendar view for your tickets so you see
 when is your next due ticket. You can find it in the menu
 Search->Calendar.
 
-There's also a portlet to put on your own page (see Prefs/MyRT.html)
+There's a portlet to put on your own page (see Prefs/MyRT.html)
 
 You can also enable ics (ICal) feeds for all your private searches in
 Prefs/Calendar.html. Authentication is magic number based so that you
