@@ -28,8 +28,8 @@ unless ($CurrentUser->Id) {
 }
 
 # verify user has LoadSavedSearch right
-if ($SearchId and not $session{'CurrentUser'}->HasRight( Right => 'LoadSavedSearch',
-                                                           Object=> $RT::System )) {
+if ($SearchId and not $CurrentUser->HasRight( Right => 'LoadSavedSearch',
+                                              Object=> $RT::System )) {
     $m->out("RT/".$RT::VERSION ." ".404 ."\n\nno such file\n");
     $m->abort;
 }
@@ -112,4 +112,3 @@ $m->out($cal);
 $m->abort;
 
 </%init>
-
