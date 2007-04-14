@@ -20,32 +20,7 @@
 <td>
 <p class="date"><%$date->day%></p>
 % for my $t (@DayTickets) {
-<div class="tooltip">
-<small><img src="<%$RT::WebImagesURL%>/arrow_to.png" />
-	<a href="<%$RT::WebPath%>/Ticket/Display.html?id=<%$t->Id%>">
-           <% $t->QueueObj->Name %> #<% $t->Id %>
-           <% length($t->Subject) > 80 ? substr($t->Subject, 0, 77) . "..." : $t->Subject %></a></small><br />
-	<span class="tip">
-	<strong><&|/l&>Subject</&>:</strong> <% $t->Subject%><br />
-	<strong><&|/l&>Owner</&>:</strong> <%$t->OwnerObj->Name %><br />
-	<strong><&|/l&>Created</&>:</strong> <%$t->CreatedObj->Date %><br />
-        <strong><&|/l&>Due</&>:</strong> <% $t->DueObj->Unix > 0 ? $t->DueObj->Date : '-' %><br />
-	<strong><&|/l&>Status</&>:</strong> <%$t->Status %><br />
-	<strong><&|/l&>Priority</&>:</strong> <%$t->Priority %><br />
-	<strong><&|/l&>Requestors</&>:</strong>
-% my $members = $t->Requestors->MembersObj;
-% if ($members->Count == 0) {
-<&|/l&>none</&>
-% } else {
-%   my @requestors;
-%   while (my $watcher = $members->Next) {
-%     push @requestors, $watcher->MemberObj->Object->Name;
-%   }
-<% join ", ", @requestors %>
-% }
-<br />
-	</span>
-</div>
+<& /Elements/CalendarEvent, Ticket => $t, Date => $date &>
 % }
 </td>
 % $date = $set->next($date);

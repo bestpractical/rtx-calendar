@@ -1,0 +1,41 @@
+<%args>
+$Date => undef
+$Ticket => undef
+</%args>
+<div class="tooltip">
+<small>
+% if ($Ticket->DueObj->Date eq $Date->strftime("%F") and $Ticket->CreatedObj->Date eq $Date->strftime("%F") ) {
+<img src="<%$RT::WebImagesURL%>/arrow_bw.png" />
+% } elsif ($Ticket->DueObj->Date eq $Date->strftime("%F")) {
+<img src="<%$RT::WebImagesURL%>/arrow_to.png" />
+% } elsif ($Ticket->CreatedObj->Date eq $Date->strftime("%F")) {
+<img src="<%$RT::WebImagesURL%>/arrow_from.png" />
+% }
+	<a href="<%$RT::WebPath%>/Ticket/Display.html?id=<%$Ticket->Id%>">
+           <% $Ticket->QueueObj->Name %> #<% $Ticket->Id %>
+           <% length($Ticket->Subject) > 80 ? substr($Ticket->Subject, 0, 77) . "..." : $Ticket->Subject %></a></small><br />
+	<span class="tip">
+	<a href="<%$RT::WebPath%>/Ticket/Display.html?id=<%$Ticket->Id%>">
+           <% $Ticket->QueueObj->Name %> #<% $Ticket->Id %>
+        </a>
+	:</strong> <% $Ticket->Subject%><br />
+	<br />
+	<strong><&|/l&>Owner</&>:</strong> <%$Ticket->OwnerObj->Name %><br />
+	<strong><&|/l&>Created</&>:</strong> <%$Ticket->CreatedObj->Date %><br />
+        <strong><&|/l&>Due</&>:</strong> <% $Ticket->DueObj->Unix > 0 ? $Ticket->DueObj->Date : '-' %><br />
+	<strong><&|/l&>Status</&>:</strong> <%loc($Ticket->Status) %><br />
+	<strong><&|/l&>Priority</&>:</strong> <%$Ticket->Priority %><br />
+	<strong><&|/l&>Requestors</&>:</strong>
+% my $members = $Ticket->Requestors->MembersObj;
+% if ($members->Count == 0) {
+<&|/l&>none</&>
+% } else {
+%   my @requestors;
+%   while (my $watcher = $members->Next) {
+%     push @requestors, $watcher->MemberObj->Object->Name;
+%   }
+<% join ", ", @requestors %>
+% }
+<br />
+	</span>
+</div>
