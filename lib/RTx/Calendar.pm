@@ -79,11 +79,18 @@ CreateSavedSearch and LoadSavedSearch rights to your users.
 
 =head1 UPGRADE FROM 0.02
 
-As I've change directory structure, if you upgrade from 0.02 you need
-to :
+As I've change directory structure and Calendar now use local, if you
+upgrade from 0.02 you need to delete old files manually. Go in
+RTHOME/share/html (by default /opt/rt3/share/html) and delete those
+files :
 
- - delete all RTHOME/share/html/Callbacks/RTx-Calendar
- - delete RTHOME/share/html/Tools/Calendar.html
+  rm -rf Callbacks/RTx-Calendar
+  rm NoAuth/images/arrow*.png
+  rm NoAuth/css/calendar.css
+  rm Elements/MyCalendar
+  rm Tools/Calendar.html
+
+RTx-Calendar could work without doing this but it's not very clean.
 
 =head1 AUTHORS
 
