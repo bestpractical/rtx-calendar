@@ -16,6 +16,8 @@ $HiddenField => undef
 % # only allow this part if
 % if ($AllowSearch) {
 
+% my $search_count;
+
 %   # FIXME : _PrivacyObjects is a private method. Another way to find searches ?
 %   my @Objects = RT::SavedSearches->new($session{CurrentUser})->_PrivacyObjects;
 %   for my $object (@Objects) {
@@ -24,10 +26,22 @@ $HiddenField => undef
 %     for my $search (@searches) {
 %       next if ($search->SubValue('SearchType')
 %              && $search->SubValue('SearchType') ne $SearchType);
-
+%       $search_count++;
 <& /Prefs/Elements/CalendarFeed, Object => $object, Search => $search &>
 
 %     }
+%   }
+%   unless ($search_count) {
+
+<&| /Widgets/TitleBox, title => loc('Private Search ICal feeds')
+                     , title_class=> 'inverse'
+                     , color => "#993333" &>
+
+You can add private ICal feeds by saving new queries in <a
+href="<%$RT::WebPath . '/Search/Build.html'%>">the Query Builder</a>
+
+</&>
+
 %   }
 % } else {
 %#<&| /Widgets/TitleBox, title => loc('Private Search ICal feeds')
