@@ -53,6 +53,7 @@ sub RTx {
 
     $RT::LocalVarPath	||= $RT::VarPath;
     $RT::LocalPoPath	||= $RT::LocalLexiconPath;
+    #$RT::LocalHtmlPath	||= $RT::MasonLocalComponentRoot;
     $RT::LocalHtmlPath	||= $RT::MasonComponentRoot;
 
     my %path;
