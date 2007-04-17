@@ -90,7 +90,7 @@ files :
   rm Elements/MyCalendar
   rm Tools/Calendar.html
 
-RTx-Calendar could work without doing this but it's not very clean.
+RTx-Calendar may work without this but it's not very clean.
 
 =head1 AUTHORS
 
