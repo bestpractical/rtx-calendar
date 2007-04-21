@@ -175,8 +175,17 @@ my %Tickets;
 
 while ( my $Ticket = $Tickets->Next()) {
   # if reminder, check it's refering to a ticket
-  push @{ $Tickets{$Ticket->DueObj->Date} }, $Ticket
+  # push @{ $Tickets{$Ticket->DueObj->Date} }, $Ticket
+  push @{ $Tickets{ LocalDate($Ticket->DueObj->Unix) } }, $Ticket
     unless $Ticket->Type eq 'reminder' and not $Ticket->RefersTo->First;
 }
+
+# we can't use RT::Date::Date because it use gmtime
+sub LocalDate {
+  my $ts = shift;
+  my ($d,$m,$y) = (localtime($ts))[3..5];
+  sprintf "%4d-%02d-%02d", ($y + 1900), ++$m, $d;
+}
+
 
 </%INIT>
