@@ -1,11 +1,11 @@
 <%args>
 $Date => undef
 $Object => undef
-$Reminder => undef
 </%args>
 <div class="tooltip">
 <small>
-% if ($Reminder and $Object->DueObj->Date eq $Date->strftime("%F")) {
+
+% if ($IsReminder and $Object->DueObj->Date eq $Date->strftime("%F")) {
 <img src="<%$RT::WebImagesURL%>/reminder.png" />
 % # } elsif ($Object->DueObj->Date eq $Date->strftime("%F") and $Object->CreatedObj->Date eq $Date->strftime("%F") ) {
 % # <img src="<%$RT::WebImagesURL%>/arrow_bw.png" />
@@ -24,12 +24,12 @@ $Reminder => undef
 	:</strong> <% $subject%><br />
 	<br />
 	<strong><&|/l&>Owner</&>:</strong> <%$Object->OwnerObj->Name %><br />
-% unless ($Reminder) {
+% unless ($IsReminder) {
 	<strong><&|/l&>Created</&>:</strong> <%$Object->CreatedObj->Date %><br />
 % }
         <strong><&|/l&>Due</&>:</strong> <% $Object->DueObj->Unix > 0 ? $Object->DueObj->Date : '-' %><br />
 	<strong><&|/l&>Status</&>:</strong> <%loc($Object->Status) %><br />
-% unless ($Reminder) {
+% unless ($IsReminder) {
 
 	<strong><&|/l&>Priority</&>:</strong> <%$Object->Priority %><br />
 	<strong><&|/l&>Requestors</&>:</strong>
@@ -50,18 +50,21 @@ $Reminder => undef
 </div>
 
 <%init>
-my $link;
 my $TicketId;
 
 my $ticket;
 my $subject;
+my $IsReminder;
 
-if ($Reminder) {
-  $ticket   = $Object->RefersTo->First->TargetObj;
-  $TicketId = $ticket->Id;
-  $subject = $Object->Subject . " (" . $ticket->Subject . ")";
+if ($Object->Type eq 'reminder') {
+    $IsReminder = 1;
+    if ($Object->RefersTo->First) {
+	$ticket   = $Object->RefersTo->First->TargetObj;
+	$TicketId = $ticket->Id;
+	$subject = $Object->Subject . " (" . $ticket->Subject . ")";
+    }
 } else {
-  $TicketId = $Object->Id;
-  $subject = $Object->Subject;
+    $TicketId = $Object->Id;
+    $subject = $Object->Subject;
 }
 </%init>

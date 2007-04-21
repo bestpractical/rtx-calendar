@@ -65,8 +65,6 @@ $RowsPerPage => undef
 % @DayTickets = grep { $_->DueObj->Date eq $date->strftime("%F") } @Tickets;
 %# }
 
-% my @DayReminders = grep { $_->DueObj->Date eq $date->strftime("%F") } @Reminders;
-
 <td class="<% $date->month != ($Month + 1) ? 'oddline' : '' %>"
     style="width:14%;<%  DateTime->compare($today, $date) == 0 ? 'background:#f6f7f8;' : '' %>"
 >
@@ -74,10 +72,6 @@ $RowsPerPage => undef
 % for my $t (@DayTickets) {
 <& /Elements/CalendarEvent, Object => $t, Date => $date &>
 % }
-% for my $t (@DayReminders) {
-<& /Elements/CalendarEvent, Object => $t, Date => $date, Reminder => 1 &>
-% }
-
 </td>
 % $date = $set->next($date);
 % if ( $date->day_of_week == 1) {
@@ -162,46 +156,34 @@ $QueryString = '?'
       if ($Query);
 
 my $Tickets = RT::Tickets->new($session{'CurrentUser'});
-my $Reminders = RT::Tickets->new($session{'CurrentUser'});
 
 if ($Query) {
   $Tickets->FromSQL($Query)
+
+  # How can I add limit date to FromSQL ?
+  # $Tickets->LimitDue(OPERATOR => ">=", VALUE => $date->strftime("%F") );
+  # $Tickets->LimitDue(OPERATOR => "<=", VALUE => $end->strftime("%F") );
 } else {
   $Tickets->LimitStatus( VALUE => 'open' );
   $Tickets->LimitStatus ( VALUE => 'new');
   $Tickets->LimitStatus ( VALUE => 'stalled');
+
   $Tickets->LimitOwner(VALUE => $session{CurrentUser}->Id);
   $Tickets->LimitOwner(VALUE => "Nobody");
 
+  $Tickets->LimitType(VALUE => 'reminder');
+  $Tickets->LimitType(VALUE => 'ticket');
+
   # Is it a good idea ? Should be way faster
   $Tickets->LimitDue(OPERATOR => ">=", VALUE => $date->strftime("%F") );
-
-  $Reminders = RT::Tickets->new($session{'CurrentUser'});
-  $Reminders->FromSQL('(Owner = "Nobody" OR Owner = "'.$session{'CurrentUser'}->Name.'")' .
-                      ' AND Type = "reminder" AND (Status = "new" OR Status = "open") AND Due >= "' . $date->strftime("%F") . '"');
-  $Reminders->OrderBy(FIELD => 'Due', ORDER => 'ASC');
-
 }
-# How can I add limit date to FromSQL ?
-# $Tickets->LimitDue(OPERATOR => ">=", VALUE => $date->strftime("%F") );
-# $Tickets->LimitDue(OPERATOR => "<=", VALUE => $end->strftime("%F") );
 
-# not really usefull but I like that
-$Tickets->OrderBy(FIELD => 'Due', ORDER => 'ASC');
-
-my %already_seen;
 my @Tickets;
 
 while ( my $Ticket = $Tickets->Next()) {
+  # if reminder, check it's refering to a ticket
   push @Tickets, $Ticket
-    unless $already_seen{$Ticket->Id}++;
-}
-
-my @Reminders;
-while ( my $Reminder = $Reminders->Next() ) {
-  # only show reminder refering to a ticket
-  push @Reminders, $Reminder
-    if $Reminder->RefersTo->First
+    unless $Ticket->Type eq 'reminder' and not $Ticket->RefersTo->First;
 }
 
 </%INIT>
