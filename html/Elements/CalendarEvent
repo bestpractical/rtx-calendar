@@ -24,10 +24,8 @@ $Object => undef
 	:</strong> <% $subject%><br />
 	<br />
 	<strong><&|/l&>Owner</&>:</strong> <%$Object->OwnerObj->Name %><br />
-% unless ($IsReminder) {
-	<strong><&|/l&>Created</&>:</strong> <%$Object->CreatedObj->Date %><br />
-% }
-        <strong><&|/l&>Due</&>:</strong> <% $Object->DueObj->Unix > 0 ? $Object->DueObj->Date : '-' %><br />
+	<strong><&|/l&>Created</&>:</strong> <%$Object->CreatedObj->AsString %><br />
+        <strong><&|/l&>Due</&>:</strong> <% $Object->DueObj->Unix > 0 ? $Object->DueObj->AsString : '-' %><br />
 	<strong><&|/l&>Status</&>:</strong> <%loc($Object->Status) %><br />
 % unless ($IsReminder) {
 

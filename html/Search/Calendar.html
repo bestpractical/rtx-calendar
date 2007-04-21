@@ -58,18 +58,11 @@ $RowsPerPage => undef
 %   if ( $date->day_of_week == 1) {
 <th><% $date->week_number %></th>
 %   }
-% my @DayTickets;
-%# if ($ShowCreated) {
-%# @DayTickets = grep { $_->DueObj->Date eq $date->strftime("%F") or $_->CreatedObj->Date eq $date->strftime("%F") } @Tickets;
-%# } else {
-% @DayTickets = grep { $_->DueObj->Date eq $date->strftime("%F") } @Tickets;
-%# }
-
 <td class="<% $date->month != ($Month + 1) ? 'oddline' : '' %>"
     style="width:14%;<%  DateTime->compare($today, $date) == 0 ? 'background:#f6f7f8;' : '' %>"
 >
 <p class="date"><%$date->day%></p>
-% for my $t (@DayTickets) {
+% for my $t (@{ $Tickets{$date->strftime("%F")} }) {
 <& /Elements/CalendarEvent, Object => $t, Date => $date &>
 % }
 </td>
@@ -178,11 +171,11 @@ if ($Query) {
   $Tickets->LimitDue(OPERATOR => ">=", VALUE => $date->strftime("%F") );
 }
 
-my @Tickets;
+my %Tickets;
 
 while ( my $Ticket = $Tickets->Next()) {
   # if reminder, check it's refering to a ticket
-  push @Tickets, $Ticket
+  push @{ $Tickets{$Ticket->DueObj->Date} }, $Ticket
     unless $Ticket->Type eq 'reminder' and not $Ticket->RefersTo->First;
 }
 
