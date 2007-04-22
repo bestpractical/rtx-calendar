@@ -6,6 +6,7 @@ Changes for 0.03 - FIXME
   * Calendar.html move in Search
   * MyCalendar links to your own tickets and Nobody's tickets for the
     current month
+  * fix a problem with localtime and gmtime
 
 Changes for 0.02
 
