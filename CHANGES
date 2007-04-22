@@ -1,4 +1,4 @@
-Changes for 0.03 - FIXME
+Changes for 0.03
 
   * now uses Query Builder to find tickets
   * ics (ICal) feeds available for each personal search with magic number authentication method
