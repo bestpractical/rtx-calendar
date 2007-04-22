@@ -5,15 +5,22 @@ $Object => undef
 <div class="tooltip">
 <small>
 
-% if ($IsReminder and $Object->DueObj->Date eq $Date->strftime("%F")) {
-<img src="<%$RT::WebImagesURL%>/reminder.png" />
-% # } elsif ($Object->DueObj->Date eq $Date->strftime("%F") and $Object->CreatedObj->Date eq $Date->strftime("%F") ) {
+% # if ($IsReminder and LocalDate($Object->DueObj->Unix) eq $Date->strftime("%F")) {
+% # <img src="<%$RT::WebImagesURL%>/reminder.png" />
+% # } elsif (LocalDate($Object->DueObj->Unix) eq $Date->strftime("%F") and LocalDate($Object->CreatedObj->Unix) eq $Date->strftime("%F") ) {
 % # <img src="<%$RT::WebImagesURL%>/arrow_bw.png" />
-% } elsif ($Object->DueObj->Date eq $Date->strftime("%F")) {
-<img src="<%$RT::WebImagesURL%>/arrow_to.png" />
-% # } elsif ($Object->CreatedObj->Date eq $Date->strftime("%F")) {
+% # } elsif (LocalDate($Object->DueObj->Unix) eq $Date->strftime("%F")) {
+% # <img src="<%$RT::WebImagesURL%>/arrow_to.png" />
+% # } elsif (LocalDate($Object->CreatedObj->Unix) eq $Date->strftime("%F")) {
 % # <img src="<%$RT::WebImagesURL%>/arrow_from.png" />
+% # }
+
+% if ($IsReminder) {
+<img src="<%$RT::WebImagesURL%>/reminder.png" />
+% } else {
+<img src="<%$RT::WebImagesURL%>/arrow_to.png" />
 % }
+
 	<a href="<%$RT::WebPath%>/Ticket/Display.html?id=<%$TicketId%>">
            <% $Object->QueueObj->Name %> #<% $TicketId %>
            <% length($Object->Subject) > 80 ? substr($Object->Subject, 0, 77) . "..." : $Object->Subject %></a></small><br />
@@ -48,6 +55,8 @@ $Object => undef
 </div>
 
 <%init>
+# use RTx::Calendar;
+
 my $TicketId;
 
 my $ticket;

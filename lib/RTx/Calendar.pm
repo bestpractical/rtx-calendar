@@ -31,6 +31,14 @@ sub LastSunday {
     $day;
 }
 
+# we can't use RT::Date::Date because it use gmtime
+# and we need
+sub LocalDate {
+  my $ts = shift;
+  my ($d,$m,$y) = (localtime($ts))[3..5];
+  sprintf "%4d-%02d-%02d", ($y + 1900), ++$m, $d;
+}
+
 1;
 
 __END__
