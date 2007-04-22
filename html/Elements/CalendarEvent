@@ -33,9 +33,9 @@ $Object => undef
 	<strong><&|/l&>Owner</&>:</strong> <%$Object->OwnerObj->Name %><br />
 	<strong><&|/l&>Created</&>:</strong> <%$Object->CreatedObj->AsString %><br />
         <strong><&|/l&>Due</&>:</strong> <% $Object->DueObj->Unix > 0 ? $Object->DueObj->AsString : '-' %><br />
-	<strong><&|/l&>Status</&>:</strong> <%loc($Object->Status) %><br />
-% unless ($IsReminder) {
 
+% unless ($IsReminder) {
+	<strong><&|/l&>Status</&>:</strong> <%loc($Object->Status) %><br />
 	<strong><&|/l&>Priority</&>:</strong> <%$Object->Priority %><br />
 	<strong><&|/l&>Requestors</&>:</strong>
 

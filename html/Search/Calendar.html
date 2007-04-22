@@ -175,8 +175,7 @@ my %Tickets;
 
 while ( my $Ticket = $Tickets->Next()) {
   # if reminder, check it's refering to a ticket
-  # push @{ $Tickets{$Ticket->DueObj->Date} }, $Ticket
-  push @{ $Tickets{ LocalDate($Ticket->DueObj->Unix) } }, $Ticket
+  push @{ $Tickets{ RTx::Calendar::LocalDate($Ticket->DueObj->Unix) } }, $Ticket
     unless $Ticket->Type eq 'reminder' and not $Ticket->RefersTo->First;
 }
 
