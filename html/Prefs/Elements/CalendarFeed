@@ -14,7 +14,7 @@ This feed will show tickets with due date find with query:<br />
 % }
 
 % if ($ICalURL) {
-<p>Your can paste this url in your calendar  : <b><%$RT::WebURL%>/NoAuth/Calendar/<%$Id%>/<%$ICalURL->Content%></b><p>
+<p>Your can paste this url in your calendar  : <b><a href="<%$link%>"><%$link%></a></b><p>
 <table>
 <tr>
 <td>
@@ -32,7 +32,6 @@ This feed will show tickets with due date find with query:<br />
 </tr>
 </table>
 % } else {
-<p>This ICal feed is disabled.</p>
 
 <form action="<%$RT::WebPath%>/Prefs/Calendar.html" method="post">
 <input type="hidden" name="HiddenField" value="<%$HiddenField%>" />
@@ -47,18 +46,23 @@ my $title;
 my $ICalURL;
 my $Id;
 my $FeedText;
+my $link;
 
 if ($Object) {
-  $title = loc('ICal Feed for "') . ($Search->Description || loc('Unnamed search')) . '" search';
+  $title = loc('Feed for "') . ($Search->Description || loc('Unnamed search')) . '" search';
   $HiddenField = "SavedSearch-" . $Search->Id;
   $ICalURL = $Search->FirstAttribute('ICalURL');
   $Id = $session{CurrentUser}->Id . "@" . $Search->Id;
+  $title .= " (disabled)" unless $ICalURL;
 } else {
-  $title = loc('ICal Feed for default calendar');
+  $title = loc('Feed for default calendar');
   $HiddenField = "Private";
   $ICalURL = $session{CurrentUser}->FirstAttribute('ICalURL');
   $Id = $session{CurrentUser}->Id;
   $FeedText = "This feed will show yours and Nobody's tasks with due date.";
 }
+
+$link = $RT::WebURL . "/NoAuth/Calendar/" . $Id . "/" . $ICalURL->Content
+  if $ICalURL;
 
 </%init>
