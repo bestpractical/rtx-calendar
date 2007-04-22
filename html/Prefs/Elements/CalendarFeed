@@ -49,12 +49,12 @@ my $Id;
 my $FeedText;
 
 if ($Object) {
-  $title = loc('ICal Feed Configuration for "') . ($Search->Description || loc('Unnamed search')) . '" search';
+  $title = loc('ICal Feed for "') . ($Search->Description || loc('Unnamed search')) . '" search';
   $HiddenField = "SavedSearch-" . $Search->Id;
   $ICalURL = $Search->FirstAttribute('ICalURL');
   $Id = $session{CurrentUser}->Id . "@" . $Search->Id;
 } else {
-  $title = loc('ICal Feed Configuration for "') . loc('Private Calendar') . '"';
+  $title = loc('ICal Feed for default calendar');
   $HiddenField = "Private";
   $ICalURL = $session{CurrentUser}->FirstAttribute('ICalURL');
   $Id = $session{CurrentUser}->Id;
