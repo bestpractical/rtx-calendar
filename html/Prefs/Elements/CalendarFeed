@@ -4,9 +4,7 @@ $Object => undef
 $HiddenField => undef
 </%args>
 
-<&| /Widgets/TitleBox, title => $title
-                     , title_class=> 'inverse'
-                     , color => "#993333" &>
+<&| /Widgets/TitleBox, title => $title &>
 
 % if ($FeedText) {
 <p><%$FeedText%></p>
