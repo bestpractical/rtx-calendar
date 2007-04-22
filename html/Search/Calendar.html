@@ -32,6 +32,9 @@ $RowsPerPage => undef
 % }
 <a href="<%$RT::WebPath%>/Search/Calendar.html?Month=<%$PMonth%>&Year=<%$PYear%><%$options%>">«<%$rtdate->GetMonth($PMonth)%></a>
 </td>
+<td align="center">
+<a href="<%$RT::WebPath%>/Prefs/Calendar.html">Calendar Preferences</a>
+</td>
 <td align="right">
 % my ($NMonth, $NYear) = ($Month + 1, $Year);
 % if ($NMonth > 11) {
