@@ -4,7 +4,7 @@ use strict;
 use DateTime;
 use DateTime::Set;
 
-our $VERSION = "0.03";
+our $VERSION = "0.04";
 
 sub FirstMonday {
     my ($year, $month) = (shift, shift);
@@ -31,8 +31,8 @@ sub LastSunday {
     $day;
 }
 
-# we can't use RT::Date::Date because it use gmtime
-# and we need
+# we can't use RT::Date::Date because it uses gmtime
+# and we need localtime
 sub LocalDate {
   my $ts = shift;
   my ($d,$m,$y) = (localtime($ts))[3..5];
@@ -49,7 +49,7 @@ RTx::Calendar - Calendar for RT due tasks
 
 =head1 VERSION
 
-This document describes version 0.03 of RTx::Calendar
+This document describes version 0.04 of RTx::Calendar
 
 =head1 DESCRIPTION
 
@@ -99,9 +99,6 @@ to delete old files manually. Go in RTHOME/share/html (by default
 /opt/rt3/share/html) and delete those files :
 
   rm -rf Callbacks/RTx-Calendar
-  rm NoAuth/images/arrow*.png
-  rm NoAuth/css/calendar.css
-  rm Elements/MyCalendar
   rm Tools/Calendar.html
 
 RTx-Calendar may work without this but it's not very clean.
