@@ -15,5 +15,5 @@ WriteAll();
 sub MY::postamble {
     package MY;
     "\npredist: all\n" .
-    "\tpod2readme  lib/RTx/Calendar.pm >! README\n"
+    "\tpod2readme  lib/RTx/Calendar.pm > README\n"
 }
