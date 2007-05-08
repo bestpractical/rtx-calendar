@@ -30,8 +30,8 @@ $HiddenField => undef
 
 % my $search_count;
 
-%   # FIXME : _PrivacyObjects is a private method. Another way to find searches ?
-%   my @Objects = RT::SavedSearches->new($session{CurrentUser})->_PrivacyObjects;
+%   # I'm quite sure the loop isn't usefull but...
+%   my @Objects = $session{CurrentUser}->UserObj;
 %   for my $object (@Objects) {
 %     next unless ref($object) eq 'RT::User' && $object->id == $session{'CurrentUser'}->Id;
 %     my @searches = $object->Attributes->Named('SavedSearch');

@@ -70,6 +70,12 @@ http://gaspard.mine.nu/dotclear/index.php?tag/rtx-calendar
 
 If you upgrade from 0.02, see next part before.
 
+You need to install those three modules :
+
+  * Date::ICal
+  * Data::ICal
+  * DateTime::Set
+
 Install it like a standard perl module
 
  perl Makefile.PL

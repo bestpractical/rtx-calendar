@@ -1,3 +1,7 @@
+Changes for 0.04
+
+  * should work with rt 3.6
+
 Changes for 0.03
 
   * now uses Query Builder to find tickets
