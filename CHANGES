@@ -1,6 +1,7 @@
 Changes for 0.04
 
-  * should work with rt 3.6
+  * should work with rt 3.6.0 and seems to work with 3.7.2
+  * fix a bug in Prefs
 
 Changes for 0.03
 

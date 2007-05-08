@@ -82,6 +82,11 @@ Install it like a standard perl module
  make
  make install
 
+If your RT is not in the default path (/opt/rt3) you must set RTHOME
+before doing the Makefile.PL
+
+=head1 CONFIGURATION
+
 To use MyCalendar portlet you must add MyCalendar to
 $HomepageComponents in etc/RT_SiteConfig.pm like that :
 
