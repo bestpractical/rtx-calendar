@@ -83,7 +83,7 @@ $AllowSearch = 1
 my $object;
 
 if ($HiddenField eq 'Private') {
-   $object = $session{CurrentUser};
+   $object = $session{CurrentUser}->UserObj;
 } elsif ($AllowSearch and my ($SearchId) = $HiddenField =~ m/SavedSearch\-(\d+)/) {
     $object = $session{CurrentUser}->Attributes->WithId($SearchId);
 }
@@ -91,7 +91,7 @@ if ($HiddenField eq 'Private') {
 if (defined $ChangeURL) {
   my @args = $object->SetAttribute(Name => 'ICalURL', Content => Digest::SHA1::sha1_base64(time));
 } elsif (defined $ResetURL) {
-  $object->DeleteAttribute('ICalURL');
+  my @args = $object->DeleteAttribute('ICalURL');
 }
 
 

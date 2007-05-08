@@ -57,7 +57,7 @@ if ($Object) {
 } else {
   $title = loc('Feed for default calendar');
   $HiddenField = "Private";
-  $ICalURL = $session{CurrentUser}->FirstAttribute('ICalURL');
+  $ICalURL = $session{CurrentUser}->UserObj->FirstAttribute('ICalURL');
   $Id = $session{CurrentUser}->Id;
   $FeedText = "This feed will show yours and Nobody's tasks with due date.";
 }

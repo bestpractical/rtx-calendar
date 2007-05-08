@@ -46,7 +46,7 @@ if ($SearchId) {
     $Search = $CurrentUser->Attributes->WithId($SearchId);
     $ICalAttribute = $Search->FirstAttribute('ICalURL');
 } else {
-    $ICalAttribute = $CurrentUser->FirstAttribute('ICalURL');
+    $ICalAttribute = $CurrentUser->UserObj->FirstAttribute('ICalURL');
 }
 
 unless ($ICalAttribute) {
