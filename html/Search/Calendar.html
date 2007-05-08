@@ -154,11 +154,9 @@ $QueryString = '?'
 my $Tickets = RT::Tickets->new($session{'CurrentUser'});
 
 if ($Query) {
-  $Tickets->FromSQL($Query)
+  my $TempQuery = $Query . " AND Due >= '" . $date->strftime("%F") . "' AND Due <= '" . $end->strftime("%F") . "'";
 
-  # How can I add limit date to FromSQL ?
-  # $Tickets->LimitDue(OPERATOR => ">=", VALUE => $date->strftime("%F") );
-  # $Tickets->LimitDue(OPERATOR => "<=", VALUE => $end->strftime("%F") );
+  $Tickets->FromSQL($TempQuery);
 } else {
   $Tickets->LimitStatus( VALUE => 'open' );
   $Tickets->LimitStatus ( VALUE => 'new');
