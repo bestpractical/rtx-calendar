@@ -1,5 +1,12 @@
 TODO
 
+03:07 < chaka> if Starts is in search format put it on the calendar
+03:07 < chaka> same with Due
+03:08 < nbc> chaka: Yes. That's the other Idea I add
+
+03:12 < chaka> the default calendar should be based on a saved search of a specific name
+03:12 < chaka> and if the saved search doesn't exist make a good default
+
 DONE
 
 (12:31:58 AM) warewolf: no he means dhandler
