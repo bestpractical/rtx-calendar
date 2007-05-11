@@ -10,35 +10,35 @@ $DateTypes => undef
      <img src="<%$RT::WebImagesURL%>/reminder.png" />
 
 % } elsif ($DateTypes->{Resolved}
-           and RTx::Calendar::LocalDate($Object->ResolvedObj->Unix) eq $today) {
+%           and RTx::Calendar::LocalDate($Object->ResolvedObj->Unix) eq $today) {
          <img src="<%$RT::WebImagesURL%>/resolved.png" />
 
 % } elsif ($DateTypes->{Starts} and $DateTypes->{Due}
-           and RTx::Calendar::LocalDate($Object->StartsObj->Unix) eq $today and RTx::Calendar::LocalDate($Object->DueObj->Unix) eq $today ) {
+%           and RTx::Calendar::LocalDate($Object->StartsObj->Unix) eq $today and RTx::Calendar::LocalDate($Object->DueObj->Unix) eq $today ) {
     <img src="<%$RT::WebImagesURL%>/startsdue.png" />
 
 % } elsif ($DateTypes->{Due} and $DateTypes->{Created}
-           and RTx::Calendar::LocalDate($Object->DueObj->Unix) eq $today and RTx::Calendar::LocalDate($Object->CreatedObj->Unix) eq $today ) {
+%           and RTx::Calendar::LocalDate($Object->DueObj->Unix) eq $today and RTx::Calendar::LocalDate($Object->CreatedObj->Unix) eq $today ) {
     <img src="<%$RT::WebImagesURL%>/arrow_bw.png" />
 
 % } elsif ($DateTypes->{Starts}
-           and RTx::Calendar::LocalDate($Object->StartsObj->Unix) eq $today) {
+%           and RTx::Calendar::LocalDate($Object->StartsObj->Unix) eq $today) {
     <img src="<%$RT::WebImagesURL%>/starts.png" />
 
 % } elsif ($DateTypes->{Due}
-           and RTx::Calendar::LocalDate($Object->DueObj->Unix) eq $today) {
+%           and RTx::Calendar::LocalDate($Object->DueObj->Unix) eq $today) {
     <img src="<%$RT::WebImagesURL%>/arrow_to.png" />
 
 % } elsif ($DateTypes->{Created}
-           and RTx::Calendar::LocalDate($Object->CreatedObj->Unix) eq $today) {
+%           and RTx::Calendar::LocalDate($Object->CreatedObj->Unix) eq $today) {
     <img src="<%$RT::WebImagesURL%>/arrow_from.png" />
 
 % } elsif ($DateTypes->{Started}
-           and RTx::Calendar::LocalDate($Object->StartedObj->Unix) eq $today) {
+%           and RTx::Calendar::LocalDate($Object->StartedObj->Unix) eq $today) {
     <img src="<%$RT::WebImagesURL%>/started.png" />
 
 % } elsif ($DateTypes->{LastUpdated}
-           and RTx::Calendar::LocalDate($Object->LastUpdatedObj->Unix) eq $today) {
+%           and RTx::Calendar::LocalDate($Object->LastUpdatedObj->Unix) eq $today) {
     <img src="<%$RT::WebImagesURL%>/updated.png" />
 
 % }
