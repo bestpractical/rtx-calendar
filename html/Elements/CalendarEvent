@@ -15,11 +15,11 @@ $DateTypes => undef
 
 % } elsif ($DateTypes->{Starts} and $DateTypes->{Due}
 %           and RTx::Calendar::LocalDate($Object->StartsObj->Unix) eq $today and RTx::Calendar::LocalDate($Object->DueObj->Unix) eq $today ) {
-    <img src="<%$RT::WebImagesURL%>/startsdue.png" />
+    <img src="<%$RT::WebImagesURL%>/starts_due.png" />
 
 % } elsif ($DateTypes->{Due} and $DateTypes->{Created}
 %           and RTx::Calendar::LocalDate($Object->DueObj->Unix) eq $today and RTx::Calendar::LocalDate($Object->CreatedObj->Unix) eq $today ) {
-    <img src="<%$RT::WebImagesURL%>/arrow_bw.png" />
+    <img src="<%$RT::WebImagesURL%>/created_due.png" />
 
 % } elsif ($DateTypes->{Starts}
 %           and RTx::Calendar::LocalDate($Object->StartsObj->Unix) eq $today) {
@@ -27,11 +27,11 @@ $DateTypes => undef
 
 % } elsif ($DateTypes->{Due}
 %           and RTx::Calendar::LocalDate($Object->DueObj->Unix) eq $today) {
-    <img src="<%$RT::WebImagesURL%>/arrow_to.png" />
+    <img src="<%$RT::WebImagesURL%>/due.png" />
 
 % } elsif ($DateTypes->{Created}
 %           and RTx::Calendar::LocalDate($Object->CreatedObj->Unix) eq $today) {
-    <img src="<%$RT::WebImagesURL%>/arrow_from.png" />
+    <img src="<%$RT::WebImagesURL%>/created.png" />
 
 % } elsif ($DateTypes->{Started}
 %           and RTx::Calendar::LocalDate($Object->StartedObj->Unix) eq $today) {
