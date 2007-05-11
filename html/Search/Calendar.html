@@ -6,21 +6,17 @@ $Format => undef
 $Order => undef
 $OrderBy => undef
 $RowsPerPage => undef
+$NewQuery => 0
 </%args>
 
 <& /Elements/Header, Title => $title &>
 <& /Ticket/Elements/Tabs,
-    current_tab => "Search/Calendar.html$QueryString",
+    current_tab => "Search/Calendar.html?$QueryString",
     Title => $title &>
 <&| /Widgets/TitleBox,
      title => loc('Calendar for ') . $rtdate->GetMonth($Month) . " $Year" ,
      title_class=> 'inverse',
      color => "#993333" &>
-
-% my @options;
-% push @options, "Query=$Query"
-%   if $Query;
-% my $options = "&" . join("&", @options) if @options;
 
 <table width="100%">
 <tr>
@@ -30,7 +26,7 @@ $RowsPerPage => undef
 %    $PYear--;
 %    $PMonth = 11;
 % }
-<a href="<%$RT::WebPath%>/Search/Calendar.html?Month=<%$PMonth%>&Year=<%$PYear%><%$options%>">«<%$rtdate->GetMonth($PMonth)%></a>
+<a href="<%$RT::WebPath%>/Search/Calendar.html?Month=<%$PMonth%>&Year=<%$PYear%>&<%$QueryString%>">«<%$rtdate->GetMonth($PMonth)%></a>
 </td>
 <td align="center">
 <a href="<%$RT::WebPath%>/Prefs/Calendar.html">Calendar Preferences</a>
@@ -41,7 +37,7 @@ $RowsPerPage => undef
 %    $NYear++;
 %    $NMonth = 0;
 % }
-<a href="<%$RT::WebPath%>/Search/Calendar.html?Month=<%$NMonth%>&Year=<%$NYear%><%$options%>"><%$rtdate->GetMonth($NMonth)%>»</a>
+<a href="<%$RT::WebPath%>/Search/Calendar.html?Month=<%$NMonth%>&Year=<%$NYear%>&<%$QueryString%>"><%$rtdate->GetMonth($NMonth)%>»</a>
 </td>
 </tr>
 </table>
@@ -65,8 +61,8 @@ $RowsPerPage => undef
     style="width:14%;<%  DateTime->compare($today, $date) == 0 ? 'background:#f6f7f8;' : '' %>"
 >
 <p class="date"><%$date->day%></p>
-% for my $t (@{ $Tickets{$date->strftime("%F")} }) {
-<& /Elements/CalendarEvent, Object => $t, Date => $date &>
+% for my $t ( @{ $Tickets{$date->strftime("%F")} } ) {
+<& /Elements/CalendarEvent, Object => $t, Date => $date, DateTypes => \%DateTypes &>
 % }
 </td>
 % $date = $set->next($date);
@@ -81,10 +77,10 @@ $RowsPerPage => undef
 <table width="100%">
 <tr>
 <td align="left">
-<a href="<%$RT::WebPath%>/Search/Calendar.html?Month=<%$PMonth%>&Year=<%$PYear%><%$options%>">«<%$rtdate->GetMonth($PMonth)%></a>
+<a href="<%$RT::WebPath%>/Search/Calendar.html?Month=<%$PMonth%>&Year=<%$PYear%>&<%$QueryString%>">«<%$rtdate->GetMonth($PMonth)%></a>
 </td>
 <td align="right">
-<a href="<%$RT::WebPath%>/Search/Calendar.html?Month=<%$NMonth%>&Year=<%$NYear%><%$options%>"><%$rtdate->GetMonth($NMonth)%>»</a>
+<a href="<%$RT::WebPath%>/Search/Calendar.html?Month=<%$NMonth%>&Year=<%$NYear%>&<%$QueryString%>"><%$rtdate->GetMonth($NMonth)%>»</a>
 </td>
 </tr>
 </table>
@@ -93,7 +89,7 @@ $RowsPerPage => undef
 <table width="100%">
 <tr>
 <td valign="top" align="center" width="80%">
-<form action="<%$RT::WebPath%>/Search/Calendar.html" method="post">
+<form action="<%$RT::WebPath%>/Search/Calendar.html?<%$QueryString%>" method="post">
 
 <select name="Month">
 % for (0..11) {
@@ -111,10 +107,16 @@ $RowsPerPage => undef
 </form>
 </td>
 <td valign="top" width="50%" align="right">
-% # <img src="<%$RT::WebImagesURL%>/arrow_from.png" /> : <&|/l&>Created</&><br />
+<img src="<%$RT::WebImagesURL%>/arrow_from.png" /> : <&|/l&>Created</&><br />
 <img src="<%$RT::WebImagesURL%>/arrow_to.png" /> : <&|/l&>Due</&><br />
-% # <img src="<%$RT::WebImagesURL%>/arrow_bw.png" /> : <&|/l&>Created</&>, <&|/l&>Due</&><br />
+<img src="<%$RT::WebImagesURL%>/resolved.png" /> : <&|/l&>Resolved</&><br />
+<img src="<%$RT::WebImagesURL%>/updated.png" /> : <&|/l&>Last Updated</&><br />
+<img src="<%$RT::WebImagesURL%>/arrow_bw.png" /> : <&|/l&>Created</&>, <&|/l&>Due</&><br />
 <img src="<%$RT::WebImagesURL%>/reminder.png" /> : <&|/l&>Reminders</&><br />
+<img src="<%$RT::WebImagesURL%>/starts.png" /> : <&|/l&>Starts</&><br />
+<img src="<%$RT::WebImagesURL%>/started.png" /> : <&|/l&>Started</&><br />
+<img src="<%$RT::WebImagesURL%>/startsdue.png" /> : <&|/l&>Starts</&>, <&|/l&>Due</&><br />
+
 
 </td>
 </table>
@@ -123,10 +125,11 @@ $RowsPerPage => undef
 
 </html>
 <%INIT>
-
 use RTx::Calendar;
 
 my $title = loc("Calendar");
+
+my @DateTypes = qw/Created Starts Started Due LastUpdated Resolved/;
 
 my $rtdate = RT::Date->new($session{'CurrentUser'});
 
@@ -139,9 +142,8 @@ my $set = DateTime::Set->from_recurrence(
     next => sub { $_[0]->truncate( to => 'day' )->add( days => 1 ) }
 );
 
-my $QueryString;
-$QueryString = '?'
-      . $m->comp(
+my $QueryString =
+      $m->comp(
         '/Elements/QueryString',
         Query   => $Query,
         Format  => $Format,
@@ -151,10 +153,28 @@ $QueryString = '?'
       )
       if ($Query);
 
+$QueryString ||= 'NewQuery=1';
+
 my $Tickets = RT::Tickets->new($session{'CurrentUser'});
 
+# we search all date types in Format string
+my @Dates = grep { $Format =~ m/__${_}(Relative)?__/ } @DateTypes;
+
+# used to display or not a date in Element/CalendarEvent
+my %DateTypes = map { $_ => 1 } @Dates;
+
 if ($Query) {
-  my $TempQuery = $Query . " AND Due >= '" . $date->strftime("%F") . "' AND Due <= '" . $end->strftime("%F") . "'";
+
+  my $TempQuery = $Query;
+
+  my @DateClauses = map {
+                          "($_ >= '" . $date->strftime("%F") . "' AND $_ <= '" . $end->strftime("%F") . "')"
+	                } @Dates;
+
+  $TempQuery  .= " AND " . " ( " . join(" OR ", @DateClauses) . " ) "
+     if @DateClauses;
+
+  # print STDERR "$TempQuery\n";
 
   $Tickets->FromSQL($TempQuery);
 } else {
@@ -168,16 +188,30 @@ if ($Query) {
   $Tickets->LimitType(VALUE => 'reminder');
   $Tickets->LimitType(VALUE => 'ticket');
 
+  # FIXME date query
+
   # Is it a good idea ? Should be way faster
   $Tickets->LimitDue(OPERATOR => ">=", VALUE => $date->strftime("%F") );
+
+  # we define a default format
+  $Format = "__Due__ __Starts__";
 }
 
+# print STDERR "@Dates\n";
+
 my %Tickets;
+my %AlreadySeen;
 
 while ( my $Ticket = $Tickets->Next()) {
-  # if reminder, check it's refering to a ticket
-  push @{ $Tickets{ RTx::Calendar::LocalDate($Ticket->DueObj->Unix) } }, $Ticket
-    unless $Ticket->Type eq 'reminder' and not $Ticket->RefersTo->First;
+
+  # How to find the LastContacted date ?
+  for my $Date (@Dates) {
+    my $DateObj = $Date . "Obj";
+    push @{ $Tickets{ RTx::Calendar::LocalDate($Ticket->$DateObj->Unix) } }, $Ticket
+      # if reminder, check it's refering to a ticket
+      unless ($Ticket->Type eq 'reminder' and not $Ticket->RefersTo->First)
+             or $AlreadySeen{  RTx::Calendar::LocalDate($Ticket->$DateObj->Unix) }{ $Ticket }++;
+  }
 }
 
 </%INIT>

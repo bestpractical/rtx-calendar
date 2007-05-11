@@ -1,24 +1,46 @@
 <%args>
 $Date => undef
 $Object => undef
+$DateTypes => undef
 </%args>
 <div class="tooltip">
 <small>
 
-% # if ($IsReminder and LocalDate($Object->DueObj->Unix) eq $Date->strftime("%F")) {
-% # <img src="<%$RT::WebImagesURL%>/reminder.png" />
-% # } elsif (LocalDate($Object->DueObj->Unix) eq $Date->strftime("%F") and LocalDate($Object->CreatedObj->Unix) eq $Date->strftime("%F") ) {
-% # <img src="<%$RT::WebImagesURL%>/arrow_bw.png" />
-% # } elsif (LocalDate($Object->DueObj->Unix) eq $Date->strftime("%F")) {
-% # <img src="<%$RT::WebImagesURL%>/arrow_to.png" />
-% # } elsif (LocalDate($Object->CreatedObj->Unix) eq $Date->strftime("%F")) {
-% # <img src="<%$RT::WebImagesURL%>/arrow_from.png" />
-% # }
+% if ($IsReminder and RTx::Calendar::LocalDate($Object->DueObj->Unix) eq $today) {
+     <img src="<%$RT::WebImagesURL%>/reminder.png" />
 
-% if ($IsReminder) {
-<img src="<%$RT::WebImagesURL%>/reminder.png" />
-% } else {
-<img src="<%$RT::WebImagesURL%>/arrow_to.png" />
+% } elsif ($DateTypes->{Resolved}
+           and RTx::Calendar::LocalDate($Object->ResolvedObj->Unix) eq $today) {
+         <img src="<%$RT::WebImagesURL%>/resolved.png" />
+
+% } elsif ($DateTypes->{Starts} and $DateTypes->{Due}
+           and RTx::Calendar::LocalDate($Object->StartsObj->Unix) eq $today and RTx::Calendar::LocalDate($Object->DueObj->Unix) eq $today ) {
+    <img src="<%$RT::WebImagesURL%>/startsdue.png" />
+
+% } elsif ($DateTypes->{Due} and $DateTypes->{Created}
+           and RTx::Calendar::LocalDate($Object->DueObj->Unix) eq $today and RTx::Calendar::LocalDate($Object->CreatedObj->Unix) eq $today ) {
+    <img src="<%$RT::WebImagesURL%>/arrow_bw.png" />
+
+% } elsif ($DateTypes->{Starts}
+           and RTx::Calendar::LocalDate($Object->StartsObj->Unix) eq $today) {
+    <img src="<%$RT::WebImagesURL%>/starts.png" />
+
+% } elsif ($DateTypes->{Due}
+           and RTx::Calendar::LocalDate($Object->DueObj->Unix) eq $today) {
+    <img src="<%$RT::WebImagesURL%>/arrow_to.png" />
+
+% } elsif ($DateTypes->{Created}
+           and RTx::Calendar::LocalDate($Object->CreatedObj->Unix) eq $today) {
+    <img src="<%$RT::WebImagesURL%>/arrow_from.png" />
+
+% } elsif ($DateTypes->{Started}
+           and RTx::Calendar::LocalDate($Object->StartedObj->Unix) eq $today) {
+    <img src="<%$RT::WebImagesURL%>/started.png" />
+
+% } elsif ($DateTypes->{LastUpdated}
+           and RTx::Calendar::LocalDate($Object->LastUpdatedObj->Unix) eq $today) {
+    <img src="<%$RT::WebImagesURL%>/updated.png" />
+
 % }
 
 	<a href="<%$RT::WebPath%>/Ticket/Display.html?id=<%$TicketId%>">
@@ -32,7 +54,16 @@ $Object => undef
 	<br />
 	<strong><&|/l&>Owner</&>:</strong> <%$Object->OwnerObj->Name %><br />
 	<strong><&|/l&>Created</&>:</strong> <%$Object->CreatedObj->AsString %><br />
+
+% # Shoud we keep thoses dates ?
+        <strong><&|/l&>Starts</&>:</strong> <% $Object->StartsObj->Unix > 0 ? $Object->StartsObj->AsString : '-' %><br />
+        <strong><&|/l&>Started</&>:</strong> <% $Object->StartedObj->Unix > 0 ? $Object->StartedObj->AsString : '-' %><br />
+        <strong><&|/l&>LastUpdated</&>:</strong> <% $Object->LastUpdatedObj->Unix > 0 ? $Object->LastUpdatedObj->AsString : '-' %><br />
+
         <strong><&|/l&>Due</&>:</strong> <% $Object->DueObj->Unix > 0 ? $Object->DueObj->AsString : '-' %><br />
+
+% # and those one
+        <strong><&|/l&>Resolved</&>:</strong> <% $Object->ResolvedObj->Unix > 0 ? $Object->ResolvedObj->AsString : '-' %><br />
 
 % unless ($IsReminder) {
 	<strong><&|/l&>Status</&>:</strong> <%loc($Object->Status) %><br />
@@ -55,7 +86,9 @@ $Object => undef
 </div>
 
 <%init>
-# use RTx::Calendar;
+use RTx::Calendar;
+
+my $today = $Date->strftime("%F");
 
 my $TicketId;
 
