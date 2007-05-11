@@ -188,7 +188,10 @@ if ($Query) {
   $Tickets->LimitType(VALUE => 'reminder');
   $Tickets->LimitType(VALUE => 'ticket');
 
-  # FIXME date query
+  # FIXME
+  # /opt/rt3/lib/RT/Tickets_Overlay_SQL.pm
+  # 21:52 < chaka> $tickets->LimitDue( SUBCLAUSE => 'foo', VALUE => $bar );
+  # 21:52 < chaka> $tickets->LimitDue( SUBCLAUSE => 'foo', VALUE => 'baz', ENTRYAGGREGATOR => 'OR')
 
   # Is it a good idea ? Should be way faster
   $Tickets->LimitDue(OPERATOR => ">=", VALUE => $date->strftime("%F") );
