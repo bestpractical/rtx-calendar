@@ -155,66 +155,30 @@ my $QueryString =
 
 $QueryString ||= 'NewQuery=1';
 
-my $Tickets = RT::Tickets->new($session{'CurrentUser'});
+# Default Query and Format
+my $TempFormat = "__Starts__ __Due__";
+my $TempQuery = "( Status = 'new' OR Status = 'open' OR Status = 'stalled')
+ AND ( Owner = '" . $session{CurrentUser}->Id ."' OR Owner = 'Nobody'  )
+ AND ( Type = 'reminder' OR 'Type' = 'ticket' )";
+
+# we overide them if needed
+$TempQuery  ||= $Query;
+$TempFormat ||= $Format;
 
 # we search all date types in Format string
-my @Dates = grep { $Format =~ m/__${_}(Relative)?__/ } @DateTypes;
+my @Dates = grep { $TempFormat =~ m/__${_}(Relative)?__/ } @DateTypes;
 
 # used to display or not a date in Element/CalendarEvent
 my %DateTypes = map { $_ => 1 } @Dates;
 
-if ($Query) {
-
-  my $TempQuery = $Query;
-
-  my @DateClauses = map {
+my @DateClauses = map {
                           "($_ >= '" . $date->strftime("%F") . "' AND $_ <= '" . $end->strftime("%F") . "')"
 	                } @Dates;
+$TempQuery  .= " AND " . " ( " . join(" OR ", @DateClauses) . " ) "
+   if @DateClauses;
 
-  $TempQuery  .= " AND " . " ( " . join(" OR ", @DateClauses) . " ) "
-     if @DateClauses;
+# print STDERR $TempQuery, "\n";
 
-  # print STDERR "$TempQuery\n";
-
-  $Tickets->FromSQL($TempQuery);
-} else {
-  $Tickets->LimitStatus( VALUE => 'open' );
-  $Tickets->LimitStatus ( VALUE => 'new');
-  $Tickets->LimitStatus ( VALUE => 'stalled');
-
-  $Tickets->LimitOwner(VALUE => $session{CurrentUser}->Id);
-  $Tickets->LimitOwner(VALUE => "Nobody");
-
-  $Tickets->LimitType(VALUE => 'reminder');
-  $Tickets->LimitType(VALUE => 'ticket');
-
-  # FIXME
-  # /opt/rt3/lib/RT/Tickets_Overlay_SQL.pm
-  # 21:52 < chaka> $tickets->LimitDue( SUBCLAUSE => 'foo', VALUE => $bar );
-  # 21:52 < chaka> $tickets->LimitDue( SUBCLAUSE => 'foo', VALUE => 'baz', ENTRYAGGREGATOR => 'OR')
-
-  # Is it a good idea ? Should be way faster
-  $Tickets->LimitDue(OPERATOR => ">=", VALUE => $date->strftime("%F") );
-
-  # we define a default format
-  $Format = "__Due__ __Starts__";
-}
-
-# print STDERR "@Dates\n";
-
-my %Tickets;
-my %AlreadySeen;
-
-while ( my $Ticket = $Tickets->Next()) {
-
-  # How to find the LastContacted date ?
-  for my $Date (@Dates) {
-    my $DateObj = $Date . "Obj";
-    push @{ $Tickets{ RTx::Calendar::LocalDate($Ticket->$DateObj->Unix) } }, $Ticket
-      # if reminder, check it's refering to a ticket
-      unless ($Ticket->Type eq 'reminder' and not $Ticket->RefersTo->First)
-             or $AlreadySeen{  RTx::Calendar::LocalDate($Ticket->$DateObj->Unix) }{ $Ticket }++;
-  }
-}
+my %Tickets = RTx::Calendar::FindTickets($session{'CurrentUser'}, $TempQuery, @Dates);
 
 </%INIT>

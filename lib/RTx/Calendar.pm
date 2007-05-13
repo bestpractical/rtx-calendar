@@ -39,6 +39,30 @@ sub LocalDate {
   sprintf "%4d-%02d-%02d", ($y + 1900), ++$m, $d;
 }
 
+sub FindTickets {
+    my ($session, $Query, @Dates) = @_;
+
+    my $Tickets = RT::Tickets->new($session);
+    $Tickets->FromSQL($Query);
+
+    my %Tickets;
+    my %AlreadySeen;
+
+    while ( my $Ticket = $Tickets->Next()) {
+
+	# How to find the LastContacted date ?
+	for my $Date (@Dates) {
+	    my $DateObj = $Date . "Obj";
+	    push @{ $Tickets{ RTx::Calendar::LocalDate($Ticket->$DateObj->Unix) } }, $Ticket
+		# if reminder, check it's refering to a ticket
+		unless ($Ticket->Type eq 'reminder' and not $Ticket->RefersTo->First)
+		    or $AlreadySeen{  RTx::Calendar::LocalDate($Ticket->$DateObj->Unix) }{ $Ticket }++;
+	}
+    }
+    return %Tickets;
+}
+
+
 1;
 
 __END__

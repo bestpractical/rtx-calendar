@@ -19,7 +19,7 @@
 <td>
 <p class="date"><%$date->day%></p>
 % for my $t (@{ $Tickets{$date->strftime("%F")} }) {
-<& /Elements/CalendarEvent, Object => $t, Date => $date &>
+<& /Elements/CalendarEvent, Object => $t, Date => $date, DateTypes => \%DateTypes &>
 % }
 </td>
 % $date = $set->next($date);
@@ -39,36 +39,33 @@ my $title = loc("Calendar");
 my $rtdate = RT::Date->new($session{'CurrentUser'});
 
 my $today = DateTime->today;
-my $begin = DateTime->today->subtract( days => 3);
-my $end   = DateTime->today->add( days => 3);
+# this line is used to debug MyCalendar
+# $today = DateTime->new(year => 2007, month => 4, day => 11);
+
+my $begin = $today->clone->subtract( days => 3);
+my $end   = $today->clone->add( days => 3);
 
 # use this to loop over days until $end
 my $set = DateTime::Set->from_recurrence(
     next => sub { $_[0]->truncate( to => 'day' )->add( days => 1 ) }
 );
 
-my @Tickets;
+my $Query = "( Status = 'new' OR Status = 'open' OR Status = 'stalled')
+ AND ( Owner = '" . $session{CurrentUser}->Id ."' OR Owner = 'Nobody'  )
+ AND ( Type = 'reminder' OR 'Type' = 'ticket' )
+ AND ( ( Due >= '" . $begin->strftime("%F") . "' AND Due <= '" . $end->strftime("%F") . "')
+       OR
+       ( Starts >= '" . $begin->strftime("%F") . "' AND Starts <= '" . $end->strftime("%F") . "')
+     )";
 
-my $Tickets = RT::Tickets->new($session{'CurrentUser'});
-$Tickets->LimitStatus( VALUE => 'open' );
-$Tickets->LimitStatus ( VALUE => 'new');
-$Tickets->LimitStatus ( VALUE => 'stalled');
+# we search all date types in Format string
+my @Dates = qw/Starts Due/;
 
-$Tickets->LimitOwner(VALUE => $session{'CurrentUser'}->Id);
-$Tickets->LimitOwner(VALUE => 'Nobody');
+# used to display or not a date in Element/CalendarEvent
+my %DateTypes = map { $_ => 1 } @Dates;
 
-$Tickets->LimitType(VALUE => 'reminder');
-$Tickets->LimitType(VALUE => 'ticket');
+# print STDERR $Query;
 
-$Tickets->LimitDue(OPERATOR => ">=", VALUE => $begin->strftime("%F") );
-$Tickets->LimitDue(OPERATOR => "<=", VALUE => $end->strftime("%F") );
-
-my %Tickets;
-
-while ( my $Ticket = $Tickets->Next()) {
-  # if reminder, check it's refering to a ticket
-  push @{ $Tickets{ RTx::Calendar::LocalDate($Ticket->DueObj->Unix) } }, $Ticket
-    unless $Ticket->Type eq 'reminder' and not $Ticket->RefersTo->First;
-}
+my %Tickets = RTx::Calendar::FindTickets($session{'CurrentUser'}, $Query, @Dates);
 
 </%INIT>
