@@ -162,8 +162,8 @@ my $TempQuery = "( Status = 'new' OR Status = 'open' OR Status = 'stalled')
  AND ( Type = 'reminder' OR 'Type' = 'ticket' )";
 
 # we overide them if needed
-$TempQuery  ||= $Query;
-$TempFormat ||= $Format;
+$TempQuery  = $Query  if $Query;
+$TempFormat = $Format if $Format;
 
 # we search all date types in Format string
 my @Dates = grep { $TempFormat =~ m/__${_}(Relative)?__/ } @DateTypes;
