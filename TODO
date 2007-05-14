@@ -1,5 +1,9 @@
 TODO
 
+  * add Format choice in ICal feed if asked
+  * add test with Test::WWW::Mechanize
+  * add links from the calendar page
+
 ALREADY DONE
 
   * (chaka) add a personnal calendar with a saved query
