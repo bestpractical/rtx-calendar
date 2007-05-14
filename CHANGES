@@ -1,6 +1,9 @@
 Changes for 0.04
 
   * should work with rt 3.6.0 and seems to work with 3.7.2
+  * display Starts date by default
+  * you can use Format to display dates you want (Created, Started, Due, Starts, ...)
+  * if a saved search is named "calendar", use it for the default Calendar.html and for the portlet
   * fix a bug in Prefs
 
 Changes for 0.03

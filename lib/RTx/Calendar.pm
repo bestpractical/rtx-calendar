@@ -39,10 +39,27 @@ sub LocalDate {
   sprintf "%4d-%02d-%02d", ($y + 1900), ++$m, $d;
 }
 
-sub FindTickets {
-    my ($session, $Query, @Dates) = @_;
+sub DatesClauses {
+    my ($Dates, $begin, $end) = @_;
 
-    my $Tickets = RT::Tickets->new($session);
+    my $clauses = "";
+
+    my @DateClauses = map {
+	"($_ >= '" . $begin . "' AND $_ <= '" . $end . "')"
+    } @$Dates;
+    $clauses  .= " AND " . " ( " . join(" OR ", @DateClauses) . " ) "
+	if @DateClauses;
+
+    return $clauses
+}
+
+sub FindTickets {
+    my ($CurrentUser, $Query, $Dates, $begin, $end) = @_;
+
+    $Query .= DatesClauses($Dates, $begin, $end)
+	if $begin and $end;
+
+    my $Tickets = RT::Tickets->new($CurrentUser);
     $Tickets->FromSQL($Query);
 
     my %Tickets;
@@ -51,15 +68,37 @@ sub FindTickets {
     while ( my $Ticket = $Tickets->Next()) {
 
 	# How to find the LastContacted date ?
-	for my $Date (@Dates) {
+	for my $Date (@$Dates) {
 	    my $DateObj = $Date . "Obj";
-	    push @{ $Tickets{ RTx::Calendar::LocalDate($Ticket->$DateObj->Unix) } }, $Ticket
+	    push @{ $Tickets{ LocalDate($Ticket->$DateObj->Unix) } }, $Ticket
 		# if reminder, check it's refering to a ticket
 		unless ($Ticket->Type eq 'reminder' and not $Ticket->RefersTo->First)
-		    or $AlreadySeen{  RTx::Calendar::LocalDate($Ticket->$DateObj->Unix) }{ $Ticket }++;
+		    or $AlreadySeen{  LocalDate($Ticket->$DateObj->Unix) }{ $Ticket }++;
 	}
     }
     return %Tickets;
+}
+
+#
+# Take a user object and return the search with Description "calendar" if it exists
+#
+sub SearchDefaultCalendar {
+    my $CurrentUser = shift;
+    my $Description = "calendar";
+
+    # I'm quite sure the loop isn't usefull but...
+    my @Objects = $CurrentUser->UserObj;
+    for my $object (@Objects) {
+	next unless ref($object) eq 'RT::User' && $object->id == $CurrentUser->Id;
+	my @searches = $object->Attributes->Named('SavedSearch');
+	for my $search (@searches) {
+	    next if ($search->SubValue('SearchType')
+			 && $search->SubValue('SearchType') ne 'Ticket');
+
+	    return $search
+		if "calendar" eq $search->Description;
+	}
+    }
 }
 
 
@@ -120,12 +159,9 @@ $HomepageComponents in etc/RT_SiteConfig.pm like that :
 To enable private searches ICal feeds, you need to give
 CreateSavedSearch and LoadSavedSearch rights to your users.
 
-=head1 ADVANCED USAGE
+=head1 USAGE
 
-If you want to see reminders in a search you need to go in the
-"advanced" tab of the query builder and add something like that :
-
-  AND ( Type = 'ticket' OR Type = 'reminder' )
+A small help section is available in /Prefs/Calendar.html
 
 =head1 UPGRADE FROM 0.02
 

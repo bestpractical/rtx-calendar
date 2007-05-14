@@ -1,9 +1,8 @@
 TODO
 
-  * add a personnal calendar with a saved query
-
 ALREADY DONE
 
+  * (chaka) add a personnal calendar with a saved query
   * (ymmv)  ICal feeds
   * (chaka) put the results of a Query Builder search on a calendar
   * (chaka) link from MyCalendar should automatically go to Calendar.html with filter set to Owner=CurrentUser

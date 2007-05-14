@@ -38,7 +38,10 @@ my $title = loc("Calendar");
 
 my $rtdate = RT::Date->new($session{'CurrentUser'});
 
+my @DateTypes = qw/Created Starts Started Due LastUpdated Resolved/;
+
 my $today = DateTime->today;
+
 # this line is used to debug MyCalendar
 # $today = DateTime->new(year => 2007, month => 4, day => 11);
 
@@ -52,20 +55,24 @@ my $set = DateTime::Set->from_recurrence(
 
 my $Query = "( Status = 'new' OR Status = 'open' OR Status = 'stalled')
  AND ( Owner = '" . $session{CurrentUser}->Id ."' OR Owner = 'Nobody'  )
- AND ( Type = 'reminder' OR 'Type' = 'ticket' )
- AND ( ( Due >= '" . $begin->strftime("%F") . "' AND Due <= '" . $end->strftime("%F") . "')
-       OR
-       ( Starts >= '" . $begin->strftime("%F") . "' AND Starts <= '" . $end->strftime("%F") . "')
-     )";
+ AND ( Type = 'reminder' OR 'Type' = 'ticket' )";
+my $Format = "__Starts__ __Due__";
+
+if ( my $Search = RTx::Calendar::SearchDefaultCalendar($session{CurrentUser}) ) {
+  $Format = $Search->SubValue('Format');
+  $Query = $Search->SubValue('Query');
+}
 
 # we search all date types in Format string
-my @Dates = qw/Starts Due/;
+my @Dates = grep { $Format =~ m/__${_}(Relative)?__/ } @DateTypes;
 
 # used to display or not a date in Element/CalendarEvent
 my %DateTypes = map { $_ => 1 } @Dates;
 
-# print STDERR $Query;
+$Query .= RTx::Calendar::DatesClauses(\@Dates, $begin->strftime("%F"), $end->strftime("%F"));
 
-my %Tickets = RTx::Calendar::FindTickets($session{'CurrentUser'}, $Query, @Dates);
+# print STDERR $Query, "\n";
+
+my %Tickets = RTx::Calendar::FindTickets($session{'CurrentUser'}, $Query, \@Dates);
 
 </%INIT>
