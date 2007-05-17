@@ -178,7 +178,7 @@ my %DateTypes = map { $_ => 1 } @Dates;
 
 $TempQuery .= RTx::Calendar::DatesClauses(\@Dates, $date->strftime("%F"), $end->strftime("%F"));
 
-print STDERR ("-" x 30), "\n", $TempQuery, "\n";
+# print STDERR ("-" x 30), "\n", $TempQuery, "\n";
 
 my %Tickets = RTx::Calendar::FindTickets($session{'CurrentUser'}, $TempQuery, \@Dates, $date->strftime("%F"), $end->strftime("%F"));
 
