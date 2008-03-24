@@ -89,6 +89,7 @@ while (my $Ticket = $Tickets->Next ) {
     } else {
 	$event = add_event($Ticket, $uid);
     }
+    next unless $event;
     $calendar->add_entry($event);
 }
 
@@ -102,6 +103,7 @@ $m->abort;
 sub add_event {
     my ($Reminder, $uid) = @_;
 
+    return unless defined $Reminder->RefersTo->First;
     my $Ticket  = $Reminder->RefersTo->First->TargetObj;
 
     my %event = (
