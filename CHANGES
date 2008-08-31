@@ -1,3 +1,7 @@
+Changes for 0.06
+
+  * rt 3.8 compatibility
+
 Changes for 0.05
   * fix a bug in ics feeds when showing reminders
   * use Module::Install::RTx 0.21
