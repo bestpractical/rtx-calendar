@@ -1,3 +1,8 @@
+Changes for 0.07
+
+  * add documentation on how to enable plugin in rt 3.8 and later
+  * tickets and reminders types (todo/event) are configurable in ical feed
+
 Changes for 0.06
 
   * rt 3.8 compatibility

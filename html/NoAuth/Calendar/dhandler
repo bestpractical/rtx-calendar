@@ -5,6 +5,9 @@ use Data::ICal::Entry::Todo;
 use Data::ICal::Entry::Event;
 use Date::ICal;
 
+$RT::ICalTicketType   ||= "Data::ICal::Entry::Todo";
+$RT::ICalReminderType ||= "Data::ICal::Entry::Event";
+
 my ($UserId, $SearchId, $MagicNumber);
 my $arg = $m->dhandler_arg;
 
@@ -114,7 +117,7 @@ sub add_event {
 	dtstart     => Date::ICal->new( epoch => $Reminder->DueObj->Unix )->ical,
     );
 
-    my $event = Data::ICal::Entry::Event->new();
+    my $event = $RT::ICalReminderType->new();
     $event->add_properties(%event);
 
     return $event;
@@ -145,7 +148,7 @@ sub add_todo {
     $vtodo{priority} = $Ticket->Priority
 	if $Ticket->Priority;
 
-    my $vtodo = Data::ICal::Entry::Todo->new();
+    my $vtodo = $RT::ICalTicketType->new();
     $vtodo->add_properties(%vtodo);
 
     return $vtodo;

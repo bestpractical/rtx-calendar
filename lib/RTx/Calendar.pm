@@ -4,7 +4,7 @@ use strict;
 use DateTime;
 use DateTime::Set;
 
-our $VERSION = "0.06";
+our $VERSION = "0.07";
 
 sub FirstMonday {
     my ($year, $month) = (shift, shift);
@@ -112,7 +112,7 @@ RTx::Calendar - Calendar for RT due tasks
 
 =head1 VERSION
 
-This document describes version 0.06 of RTx::Calendar
+This document describes version 0.07 of RTx::Calendar
 
 =head1 DESCRIPTION
 
@@ -150,6 +150,13 @@ before doing the Makefile.PL
 
 =head1 CONFIGURATION
 
+=head2 Base configuration
+
+In RT 3.8 and later, to enable calendar plugin, you must add something
+like that in your etc/RT_SiteConfig.pm :
+
+  Set(@Plugins,(qw(RTx::Calendar)));
+
 To use MyCalendar portlet you must add MyCalendar to
 $HomepageComponents in etc/RT_SiteConfig.pm like that :
 
@@ -158,6 +165,16 @@ $HomepageComponents in etc/RT_SiteConfig.pm like that :
 
 To enable private searches ICal feeds, you need to give
 CreateSavedSearch and LoadSavedSearch rights to your users.
+
+=head2 ICAL feed configuration
+
+By default, tickets are todo and reminders event. You can change this
+by setting $RT::ICalTicketType and $RT::ICalReminderType in etc/RT_SiteConfig.pm :
+
+  Set($ICalTicketType,   "Data::ICal::Entry::Event");
+  Set($ICalReminderType ,"Data::ICal::Entry::Todo");
+
+=head2
 
 =head1 USAGE
 
