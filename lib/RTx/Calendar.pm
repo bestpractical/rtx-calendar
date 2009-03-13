@@ -166,6 +166,13 @@ $HomepageComponents in etc/RT_SiteConfig.pm like that :
 To enable private searches ICal feeds, you need to give
 CreateSavedSearch and LoadSavedSearch rights to your users.
 
+=head2 Display configuration
+
+You can show the owner in each day box by adding this line to your
+etc/RT_SiteConfig.pm :
+
+    Set($CalendarDisplayOwner, 1);
+
 =head2 ICAL feed configuration
 
 By default, tickets are todo and reminders event. You can change this

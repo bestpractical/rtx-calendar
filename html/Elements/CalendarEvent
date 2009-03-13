@@ -45,6 +45,7 @@ $DateTypes => undef
 
 	<a href="<%$RT::WebPath%>/Ticket/Display.html?id=<%$TicketId%>">
            <% $Object->QueueObj->Name %> #<% $TicketId %>
+           <% $display_owner ? 'by ' . $Object->OwnerObj->Name : '' %>
            <% length($Object->Subject) > 80 ? substr($Object->Subject, 0, 77) . "..." : $Object->Subject %></a></small><br />
 	<span class="tip">
 	<a href="<%$RT::WebPath%>/Ticket/Display.html?id=<%$TicketId%>">
@@ -107,4 +108,10 @@ if ($Object->Type eq 'reminder') {
     $TicketId = $Object->Id;
     $subject = $Object->Subject;
 }
+
+my $display_owner = $RT::CalendarDisplayOwner;
+$display_owner ||= RT->Config->Get('CalendarDisplayOwner')
+    if RT->can('Config');
+
+
 </%init>
