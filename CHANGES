@@ -2,6 +2,7 @@ Changes for 0.07
 
   * add documentation on how to enable plugin in rt 3.8 and later
   * add configuration to show owner in calendar (Shawn M Moore)
+  * make the popup display fields configurable (Shawn M Moore)
   * tickets and reminders types (todo/event) are configurable in ical feed
 
 Changes for 0.06
