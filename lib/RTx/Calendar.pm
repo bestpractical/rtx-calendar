@@ -173,6 +173,11 @@ etc/RT_SiteConfig.pm :
 
     Set($CalendarDisplayOwner, 1);
 
+You can change which fields show up in the popup display when you
+mouse over a date in etc/RT_SiteConfig.pm :
+
+    @CalendarPopupFields = ('Status', 'OwnerObj->Name', 'DueObj->ISO');
+
 =head2 ICAL feed configuration
 
 By default, tickets are todo and reminders event. You can change this
@@ -180,8 +185,6 @@ by setting $RT::ICalTicketType and $RT::ICalReminderType in etc/RT_SiteConfig.pm
 
   Set($ICalTicketType,   "Data::ICal::Entry::Event");
   Set($ICalReminderType ,"Data::ICal::Entry::Todo");
-
-=head2
 
 =head1 USAGE
 

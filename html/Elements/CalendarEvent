@@ -53,36 +53,23 @@ $DateTypes => undef
         </a>
 	:</strong> <% $subject%><br />
 	<br />
-	<strong><&|/l&>Owner</&>:</strong> <%$Object->OwnerObj->Name %><br />
-	<strong><&|/l&>Created</&>:</strong> <%$Object->CreatedObj->AsString %><br />
 
-% # Shoud we keep thoses dates ?
-        <strong><&|/l&>Starts</&>:</strong> <% $Object->StartsObj->Unix > 0 ? $Object->StartsObj->AsString : '-' %><br />
-        <strong><&|/l&>Started</&>:</strong> <% $Object->StartedObj->Unix > 0 ? $Object->StartedObj->AsString : '-' %><br />
-        <strong><&|/l&>LastUpdated</&>:</strong> <% $Object->LastUpdatedObj->Unix > 0 ? $Object->LastUpdatedObj->AsString : '-' %><br />
-
-        <strong><&|/l&>Due</&>:</strong> <% $Object->DueObj->Unix > 0 ? $Object->DueObj->AsString : '-' %><br />
-
-% # and those one
-        <strong><&|/l&>Resolved</&>:</strong> <% $Object->ResolvedObj->Unix > 0 ? $Object->ResolvedObj->AsString : '-' %><br />
-
-% unless ($IsReminder) {
-	<strong><&|/l&>Status</&>:</strong> <%loc($Object->Status) %><br />
-	<strong><&|/l&>Priority</&>:</strong> <%$Object->Priority %><br />
-	<strong><&|/l&>Requestors</&>:</strong>
-
-%   my $members = $Object->Requestors->MembersObj;
-%   if ($members->Count == 0) {
-<&|/l&>none</&>
-%   } else {
-%     my @requestors;
-%     while (my $watcher = $members->Next) {
-%       push @requestors, $watcher->MemberObj->Object->Name;
-%     }
-<% join ", ", @requestors %>
-%   }
-<br />
+%# logic taken from Ticket/Search/Results.tsv
+% foreach my $attr (@display_fields) {
+%    my $value;
+%
+%    if ($attr =~ /(.*)->ISO$/ and $Object->$1->Unix <= 0) {
+%        $value = '-';
+%    } else {
+%        my $method = '$Object->'.$attr.'()';
+%        $method =~ s/->ISO\(\)$/->ISO( Timezone => 'user' )/;
+%        $value = eval $method;
+%        if ($@) {die "<b>Check your CalendarPopupFields config in etc/RT_SiteConfig.pm</b>.<br /><br />Failed to find \"$attr\" - ". $@};
+%    }
+	<strong><&|/l&><% $label_of{$attr} %></&>:</strong> <% $value %><br />
 % }
+
+<br />
 	</span>
 </div>
 
@@ -113,5 +100,30 @@ my $display_owner = $RT::CalendarDisplayOwner;
 $display_owner ||= RT->Config->Get('CalendarDisplayOwner')
     if RT->can('Config');
 
+
+# 3.6 config
+my @display_fields = @RT::CalendarPopupFields;
+
+# 3.8 config
+# the if condition is weird but it doesn't work with 3.8.0 without the last part
+@display_fields = RT->Config->Get('CalendarPopupFields')
+    if 0 == @display_fields and RT->can('Config') and RT->Config->Get('CalendarPopupFields');
+
+# default
+if (0 == @display_fields) {
+    @display_fields = qw(OwnerObj->Name CreatedObj->ISO StartsObj->ISO
+			 StartedObj->ISO LastUpdatedObj->ISO DueObj->ISO
+			 ResolvedObj->ISO Status Priority
+			 Requestors->MemberEmailAddressesAsString);
+}
+
+
+my %label_of;
+for my $field (@display_fields) {
+    my $label = $field;
+    $label =~ s'Obj-.(?:AsString|Name|ISO)''g;
+    $label =~ s'-\>MemberEmailAddressesAsString''g;
+    $label_of{$field} = $label;
+}
 
 </%init>
