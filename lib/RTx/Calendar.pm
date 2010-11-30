@@ -126,9 +126,6 @@ You can also enable ics (ICal) feeds for your default calendar and all
 your private searches in Prefs/Calendar.html. Authentication is magic
 number based so that you can give those feeds to other people.
 
-You can find screenshots on
-http://gaspard.mine.nu/dotclear/index.php?tag/rtx-calendar
-
 =head1 INSTALLATION
 
 If you upgrade from 0.02, see next part before.
