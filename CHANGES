@@ -1,3 +1,7 @@
+Changes for 0.08
+
+  * make sure the last date of a search is displayed (Shawn M Moore) [rt.cpan.org #63469]
+
 Changes for 0.07
 
   * add documentation on how to enable plugin in rt 3.8 and later
