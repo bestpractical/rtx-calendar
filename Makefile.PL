@@ -16,5 +16,5 @@ sub MY::postamble {
     package MY;
     "\npredist: all\n" .
     "\tpod2readme  lib/RTx/Calendar.pm > README\n".
-    "\tsvk log -v  > ChangeLog\n"
+    "\tgit log > ChangeLog\n"
 }
