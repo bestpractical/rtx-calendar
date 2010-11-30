@@ -45,7 +45,7 @@ sub DatesClauses {
     my $clauses = "";
 
     my @DateClauses = map {
-	"($_ >= '" . $begin . "' AND $_ <= '" . $end . "')"
+	"($_ >= '" . $begin . " 00:00:00' AND $_ <= '" . $end . " 23:59:59')"
     } @$Dates;
     $clauses  .= " AND " . " ( " . join(" OR ", @DateClauses) . " ) "
 	if @DateClauses;
