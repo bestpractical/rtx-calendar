@@ -11,7 +11,7 @@ $NewQuery => 0
 
 <& /Elements/Header, Title => $title &>
 
-% if ( $RT::VERSION lt '3.9.6' ) {
+% if ( $m->comp_exists( '/Ticket/Elements/Tabs' ) ) {
 <& /Ticket/Elements/Tabs,
     current_tab => "Search/Calendar.html?$QueryString",
     Title => $title &>

@@ -6,7 +6,7 @@ $HiddenField => undef
 </%args>
 
 <& /Elements/Header, Title => $title &>
-% if ( $RT::VERSION lt '3.9.6' ) {
+% if ( $m->comp_exists( '/User/Elements/Tabs' ) ) {
 <& /User/Elements/Tabs,
     current_tab => 'Prefs/Calendar.html',
     Title => $title
