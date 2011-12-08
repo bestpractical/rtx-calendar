@@ -1,4 +1,7 @@
 Changes for 0.08
+  * RT 4 compatibility
+
+Changes for 0.08
 
   * make sure the last date of a search is displayed (Shawn M Moore) [rt.cpan.org #63469]
 

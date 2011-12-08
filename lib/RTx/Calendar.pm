@@ -4,7 +4,7 @@ use strict;
 use DateTime;
 use DateTime::Set;
 
-our $VERSION = "0.08";
+our $VERSION = "0.08_01";
 
 sub FirstMonday {
     my ($year, $month) = (shift, shift);
