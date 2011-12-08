@@ -101,6 +101,29 @@ sub SearchDefaultCalendar {
     }
 }
 
+package RT::Interface::Web::Menu;
+
+# we should get an add_after method in 4.0.5, but until then
+# shim this in so I don't copy the code.
+unless (RT::Interface::Web::Menu->can('add_after')) {
+        *RT::Interface::Web::Menu::add_after = sub {
+            warn "Running from extension";
+            my $self = shift;
+            my $parent = $self->parent;
+            my $sort_order;
+            for my $contemporary ($parent->children) {
+                if ( $contemporary->key eq $self->key ) {
+                    $sort_order = $contemporary->sort_order + 1;
+                    next;
+                }
+                if ( $sort_order ) {
+                    $contemporary->sort_order( $contemporary->sort_order + 1 );
+                }
+            }
+            $parent->child( @_, sort_order => $sort_order );
+        };
+}
+
 
 1;
 

@@ -57,21 +57,9 @@ my $query_string = sub {
 
 if ( $request_path =~ qr{^/Search/} && $m->request_args->{Query} ) {
     my $tabs = PageMenu;
-    my $sort_order;
-    # we want to sort ourselves after the Charts link
-    # this involves shifting any other tabs (like feeds) off to the right
-    for my $child ($tabs->children) {
-        if ( $child->key eq 'chart' ) {
-            $sort_order = $child->sort_order + 1;
-            next;
-        }
-        if ( $sort_order ) {
-            $child->sort_order( $child->sort_order + 1 );
-        }
-    }
-    $tabs->child( 'calendar' => title => loc('Calendar'),
-                  path => '/Search/Calendar.html?' . $query_string->( %{$m->request_args} ),
-                  sort_order => $sort_order );
+    my $chart = $tabs->child('chart');
+    $chart->add_after( 'calendar' => title => loc('Calendar'),
+                       path => '/Search/Calendar.html?' . $query_string->( %{$m->request_args} ) );
 }
 
 my $about_me = Menu->child( 'preferences' );
