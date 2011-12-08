@@ -70,9 +70,8 @@ if ( $request_path =~ qr{^/Search/} && $m->request_args->{Query} ) {
         }
     }
     $tabs->child( 'calendar' => title => loc('Calendar'),
-                    path => '/Search/Calendar.html?' . $query_string->(
-                        %{$m->request_args} ),
-                    sort_order => $sort_order );
+                  path => '/Search/Calendar.html?' . $query_string->( %{$m->request_args} ),
+                  sort_order => $sort_order );
 }
 
 my $about_me = Menu->child( 'preferences' );
