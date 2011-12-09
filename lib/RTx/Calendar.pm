@@ -107,7 +107,6 @@ package RT::Interface::Web::Menu;
 # shim this in so I don't copy the code.
 unless (RT::Interface::Web::Menu->can('add_after')) {
         *RT::Interface::Web::Menu::add_after = sub {
-            warn "Running from extension";
             my $self = shift;
             my $parent = $self->parent;
             my $sort_order;
