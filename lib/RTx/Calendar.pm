@@ -132,10 +132,6 @@ __END__
 
 RTx::Calendar - Calendar for RT due tasks
 
-=head1 VERSION
-
-This document describes version 0.07 of RTx::Calendar
-
 =head1 DESCRIPTION
 
 This RT extension provides a calendar view for your tickets and your
