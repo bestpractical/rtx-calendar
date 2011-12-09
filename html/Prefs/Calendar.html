@@ -111,9 +111,9 @@ $AllowSearch = 1
 
 my $object;
 
-if ($HiddenField eq 'Private') {
+if ($HiddenField && $HiddenField eq 'Private') {
    $object = $session{CurrentUser}->UserObj;
-} elsif ($AllowSearch and my ($SearchId) = $HiddenField =~ m/SavedSearch\-(\d+)/) {
+} elsif ($AllowSearch and $HiddenField and my ($SearchId) = $HiddenField =~ m/SavedSearch\-(\d+)/) {
     $object = $session{CurrentUser}->Attributes->WithId($SearchId);
 }
 
