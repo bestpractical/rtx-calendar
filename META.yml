@@ -19,6 +19,8 @@ no_index:
   directory:
     - html
     - inc
+  package:
+    - RT::Interface::Web::Menu
 requires:
   Data::ICal: 0
   Date::ICal: 0

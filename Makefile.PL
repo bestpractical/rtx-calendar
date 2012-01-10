@@ -11,11 +11,6 @@ requires 'DateTime::Set' => 0;
 requires 'Data::ICal'    => 0;
 requires 'Date::ICal'    => 0;
 
-WriteAll();
+no_index(package => 'RT::Interface::Web::Menu');
 
-sub MY::postamble {
-    package MY;
-    "\npredist: all\n" .
-    "\tpod2readme  lib/RTx/Calendar.pm > README\n".
-    "\tgit log > ChangeLog\n"
-}
+WriteAll();
