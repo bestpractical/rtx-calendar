@@ -218,16 +218,13 @@ RTx-Calendar may work without this but it's not very clean.
 
 =head1 BUGS
 
-=over
-
-=item *
-compatible only with RT 3.6 for the moment. If someone need
-compatibility with 3.4 I can work on this. And I will work on 3.7
-compatibility later.
-
-=back
+All bugs should be reported via
+L<http://rt.cpan.org/Public/Dist/Display.html?Name=RTx-Calendar>
+or L<bug-RTx-Calendar@rt.cpan.org>.
 
 =head1 AUTHORS
+
+Best Practical Solutions
 
 Nicolas Chuche E<lt>nchuche@barna.beE<gt>
 
@@ -235,7 +232,8 @@ Idea borrowed from redmine's calendar (Thanks Jean-Philippe).
 
 =head1 COPYRIGHT
 
-Copyright 2007 by Nicolas Chuche E<lt>nchuche@barna.beE<gt>
+Copyright 2007-2009 by Nicolas Chuche E<lt>nchuche@barna.beE<gt>
+Copyright 2010-2012 by Best Practical Solutions.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
