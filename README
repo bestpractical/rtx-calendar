@@ -79,17 +79,21 @@ UPGRADE FROM 0.02
     RTx-Calendar may work without this but it's not very clean.
 
 BUGS
-    *   compatible only with RT 3.6 for the moment. If someone need
-        compatibility with 3.4 I can work on this. And I will work on 3.7
-        compatibility later.
+    All bugs should be reported via
+    <http://rt.cpan.org/Public/Dist/Display.html?Name=RTx-Calendar> or
+    bug-RTx-Calendar@rt.cpan.org.
 
 AUTHORS
+    Best Practical Solutions
+
     Nicolas Chuche <nchuche@barna.be>
 
     Idea borrowed from redmine's calendar (Thanks Jean-Philippe).
 
 COPYRIGHT
-    Copyright 2007 by Nicolas Chuche <nchuche@barna.be>
+    Copyright 2007-2009 by Nicolas Chuche <nchuche@barna.be>
+
+    Copyright 2010-2012 by Best Practical Solutions.
 
     This program is free software; you can redistribute it and/or modify it
     under the same terms as Perl itself.
