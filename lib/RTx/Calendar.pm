@@ -233,6 +233,7 @@ Idea borrowed from redmine's calendar (Thanks Jean-Philippe).
 =head1 COPYRIGHT
 
 Copyright 2007-2009 by Nicolas Chuche E<lt>nchuche@barna.beE<gt>
+
 Copyright 2010-2012 by Best Practical Solutions.
 
 This program is free software; you can redistribute it and/or
