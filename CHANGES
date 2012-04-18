@@ -1,3 +1,6 @@
+Changes for 0.14
+  * Guard the modern stylesheets call on older RTs
+
 Changes for 0.13
   * Serve CSS the modern way on recent RT's
   * Namespace our CSS to avoid styling the RT core UI
