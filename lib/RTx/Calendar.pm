@@ -6,6 +6,8 @@ use DateTime::Set;
 
 our $VERSION = "0.12";
 
+RT->AddStyleSheets('calendar.css');
+
 sub FirstMonday {
     my ($year, $month) = (shift, shift);
     my $set = DateTime::Set->from_recurrence(
