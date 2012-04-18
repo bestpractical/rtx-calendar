@@ -6,7 +6,8 @@ use DateTime::Set;
 
 our $VERSION = "0.13";
 
-RT->AddStyleSheets('calendar.css');
+RT->AddStyleSheets('calendar.css')
+    if RT->can('AddStyleSheets');
 
 sub FirstMonday {
     my ($year, $month) = (shift, shift);
