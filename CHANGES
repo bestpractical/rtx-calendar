@@ -1,3 +1,7 @@
+Changes for 0.13
+  * Serve CSS the modern way on recent RT's
+  * Namespace our CSS to avoid styling the RT core UI
+
 Changes for 0.12
   * Copyright updates
 
