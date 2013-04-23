@@ -26,6 +26,7 @@ requires:
   Date::ICal: 0
   DateTime: 0
   DateTime::Set: 0
+  Digest::SHA: 0
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.14
+version: 0.15

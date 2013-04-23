@@ -1,3 +1,6 @@
+Changes for 0.15
+  * Switch to Digest::SHA from Digest::SHA1 to appease Debian
+
 Changes for 0.14
   * Guard the modern stylesheets call on older RTs
 
