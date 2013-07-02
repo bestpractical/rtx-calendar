@@ -9,7 +9,7 @@ readme_from('lib/RTx/Calendar.pm');
 requires 'DateTime'      => 0;
 requires 'DateTime::Set' => 0;
 requires 'Data::ICal'    => 0;
-requires 'Date::ICal'    => 0;
+requires 'DateTime::Format::ICal'    => 0;
 requires 'Digest::SHA';
 
 no_index(package => 'RT::Interface::Web::Menu');

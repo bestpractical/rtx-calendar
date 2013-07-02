@@ -17,7 +17,7 @@ INSTALLATION
 
     You need to install those three modules :
 
-      * Date::ICal
+      * DateTime::Format::ICal
       * Data::ICal
       * DateTime::Set
 
