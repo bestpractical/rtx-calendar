@@ -3,7 +3,8 @@
 use Data::ICal;
 use Data::ICal::Entry::Todo;
 use Data::ICal::Entry::Event;
-use Date::ICal;
+use DateTime;
+use DateTime::Format::ICal;
 
 $RT::ICalTicketType   ||= "Data::ICal::Entry::Todo";
 $RT::ICalReminderType ||= "Data::ICal::Entry::Event";
@@ -112,9 +113,9 @@ sub add_event {
     my %event = (
 	summary => $Reminder->Subject ? $Reminder->Subject : '',
 	url        => "${RT::WebURL}/Ticket/Display.html?id=" . $Ticket->id,
-	uid        => Date::ICal->new( epoch => time() )->ical() . "-" . $Reminder->Id . "@" . $uid,
+	uid        => DateTime::Format::ICal->format_datetime( DateTime->from_epoch( epoch => time() ) ) . "-" . $Reminder->Id . "@" . $uid,
 	categories => $Ticket->QueueObj->Name,
-	dtstart     => Date::ICal->new( epoch => $Reminder->DueObj->Unix )->ical,
+	dtstart     => DateTime::Format::ICal->format_datetime( DateTime->from_epoch( epoch => $Reminder->DueObj->Unix ) ),
     );
 
     my $event = $RT::ICalReminderType->new();
@@ -128,13 +129,13 @@ sub add_todo {
 
     my %vtodo = (
 	summary    => $Ticket->Subject ? $Ticket->Subject : '',
-	dtstart    => Date::ICal->new( epoch => $Ticket->CreatedObj->Unix )->ical,
+	dtstart    => DateTime::Format::ICal->format_datetime( DateTime->from_epoch( epoch => $Ticket->CreatedObj->Unix ) ),
 	url        => "${RT::WebURL}/Ticket/Display.html?id=" . $Ticket->id,
-	uid        => Date::ICal->new( epoch => time() )->ical() . "-" . $Ticket->Id . "@" . $uid,
+	uid        => DateTime::Format::ICal->format_datetime( DateTime->from_epoch( epoch => time() ) ) . "-" . $Ticket->Id . "@" . $uid,
 	categories => $Ticket->QueueObj->Name,
     );
 
-    $vtodo{due} = Date::ICal->new( epoch => $Ticket->DueObj->Unix )->ical,
+    $vtodo{due} = DateTime::Format::ICal->format_datetime( DateTime->from_epoch( epoch => $Ticket->DueObj->Unix ) ),
         if $Ticket->DueObj;
 
     if ($Ticket->OwnerObj->Id != $RT::Nobody->Id and $Ticket->OwnerObj->EmailAddress) {
