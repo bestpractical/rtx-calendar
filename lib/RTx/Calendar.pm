@@ -153,7 +153,6 @@ If you upgrade from 0.02, see next part before.
 
 You need to install those three modules :
 
-  * Date::ICal
   * Data::ICal
   * DateTime::Set
 
