@@ -151,9 +151,8 @@ number based so that you can give those feeds to other people.
 
 If you upgrade from 0.02, see next part before.
 
-You need to install those three modules :
+You need to install those two modules :
 
-  * Date::ICal
   * Data::ICal
   * DateTime::Set
 
