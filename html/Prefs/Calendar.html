@@ -44,6 +44,17 @@ LastUpdated dates :
 </pre>
 </p>
 
+<h3>time spans</h3>
+<p>If you want a ticket displayed for every day it is active, not just the begin and end dates, RTx::Calendar supports special "time span" pseudo-columns. When these are used, the ticket will be displayed in each calendar date within the defined time span. You can add time spans in the <a
+href="<%$RT::WebPath%>/Search/Edit.html"><%loc("Edit Query")%></a> tab
+of the <%loc("query builder")%>. For example:
+
+<pre>
+  '__Starts-Due__',
+  '__Started-Resolved__',
+</pre>
+</p>
+
 <h3>changing the default query :</h3>
 <p>You can change the default Query of Calendar.html and MyCalendar
 portlet by saving a query with the name <code>calendar</code> in the

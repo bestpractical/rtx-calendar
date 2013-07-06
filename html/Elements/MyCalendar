@@ -40,6 +40,14 @@ my $rtdate = RT::Date->new($session{'CurrentUser'});
 
 my @DateTypes = qw/Created Starts Started Due LastUpdated Resolved/;
 
+# Add "time span" pseudo-columns 'Started-Resolved', 'Starts-Due', etc
+for my $open ( qw/Created Starts Started Due LastUpdated Resolved/ ) {
+    for my $close ( qw/Created Starts Started Due LastUpdated Resolved/ ) {
+        push @DateTypes, $open . '-' . $close
+            if $open ne $close;
+    }
+}
+
 my $today = DateTime->today;
 
 # this line is used to debug MyCalendar
@@ -69,10 +77,8 @@ my @Dates = grep { $Format =~ m/__${_}(Relative)?__/ } @DateTypes;
 # used to display or not a date in Element/CalendarEvent
 my %DateTypes = map { $_ => 1 } @Dates;
 
-$Query .= RTx::Calendar::DatesClauses(\@Dates, $begin->strftime("%F"), $end->strftime("%F"));
-
 # print STDERR $Query, "\n";
 
-my %Tickets = RTx::Calendar::FindTickets($session{'CurrentUser'}, $Query, \@Dates);
+my %Tickets = RTx::Calendar::FindTickets($session{'CurrentUser'}, $Query, \@Dates, $begin, $end);
 
 </%INIT>
