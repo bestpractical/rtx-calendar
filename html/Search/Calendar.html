@@ -137,6 +137,14 @@ my $title = loc("Calendar");
 
 my @DateTypes = qw/Created Starts Started Due LastUpdated Resolved/;
 
+# Add "time span" pseudo-columns 'Started-Resolved', 'Starts-Due', etc
+for my $open ( qw/Created Starts Started Due LastUpdated Resolved/ ) {
+    for my $close ( qw/Created Starts Started Due LastUpdated Resolved/ ) {
+        push @DateTypes, $open . '-' . $close
+            if $open ne $close;
+    }
+}
+
 my $rtdate = RT::Date->new($session{'CurrentUser'});
 
 my $today = DateTime->today;
@@ -186,6 +194,6 @@ $TempQuery .= RTx::Calendar::DatesClauses(\@Dates, $date->strftime("%F"), $end->
 
 # print STDERR ("-" x 30), "\n", $TempQuery, "\n";
 
-my %Tickets = RTx::Calendar::FindTickets($session{'CurrentUser'}, $TempQuery, \@Dates, $date->strftime("%F"), $end->strftime("%F"));
+my %Tickets = RTx::Calendar::FindTickets($session{'CurrentUser'}, $TempQuery, \@Dates, $date, $end);
 
 </%INIT>

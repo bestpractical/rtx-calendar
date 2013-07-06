@@ -47,9 +47,17 @@ sub DatesClauses {
 
     my $clauses = "";
 
-    my @DateClauses = map {
-	"($_ >= '" . $begin . " 00:00:00' AND $_ <= '" . $end . " 23:59:59')"
-    } @$Dates;
+    my @DateClauses;
+    for ( @$Dates ) {
+        if ( /^(.+)-(.+)$/ ) {
+            push @DateClauses,
+                "($2 >= '" . $begin . " 00:00:00' AND $1 <= '" . $end . " 23:59:59')";
+        }
+        else {
+            push @DateClauses,
+                "($_ >= '" . $begin . " 00:00:00' AND $_ <= '" . $end . " 23:59:59')";
+        }
+    }
     $clauses  .= " AND " . " ( " . join(" OR ", @DateClauses) . " ) "
 	if @DateClauses;
 
@@ -59,8 +67,11 @@ sub DatesClauses {
 sub FindTickets {
     my ($CurrentUser, $Query, $Dates, $begin, $end) = @_;
 
-    $Query .= DatesClauses($Dates, $begin, $end)
-	if $begin and $end;
+    my $set = DateTime::Set->from_recurrence(
+        next => sub { $_[0]->truncate( to => 'day' )->add( days => 1 ) }
+    );
+
+    $Query .= DatesClauses( $Dates, $begin->strftime("%F"), $end->strftime("%F") );
 
     my $Tickets = RT::Tickets->new($CurrentUser);
     $Tickets->FromSQL($Query);
@@ -72,6 +83,26 @@ sub FindTickets {
 
 	# How to find the LastContacted date ?
 	for my $Date (@$Dates) {
+
+            # process "time span" pseudo-columns
+            if ( $Date =~ /^(.+)-(.+)$/ ) {
+                my ( $OpenObj, $CloseObj ) = ( $1 . "Obj", $2 . "Obj" );
+
+                for ( my $day = $begin;
+                      DateTime->compare( $day, $end ) < 1;
+                      $day = $set->next($day) ) {
+
+                    push @{ $Tickets{ $day->strftime("%F") } }, $Ticket
+                        # if reminder, check it's refering to a ticket
+                        unless ($Ticket->Type eq 'reminder' and not $Ticket->RefersTo->First)
+                        or $AlreadySeen{  $day->strftime("%F") }{ $Ticket }++
+                        or LocalDate($Ticket->$OpenObj->Unix) gt $day->strftime("%F")
+                        or LocalDate($Ticket->$CloseObj->Unix) lt $day->strftime("%F");
+                }
+
+                next;
+            }
+
 	    my $DateObj = $Date . "Obj";
 	    push @{ $Tickets{ LocalDate($Ticket->$DateObj->Unix) } }, $Ticket
 		# if reminder, check it's refering to a ticket
