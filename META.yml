@@ -23,7 +23,6 @@ no_index:
     - RT::Interface::Web::Menu
 requires:
   Data::ICal: 0
-  Date::ICal: 0
   DateTime: 0
   DateTime::Set: 0
   Digest::SHA: 0
