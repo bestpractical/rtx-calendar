@@ -1,3 +1,6 @@
+Changes for 0.16
+  * Remove dependency on Date::ICal and use RT::Date's support instead
+
 Changes for 0.15
   * Switch to Digest::SHA from Digest::SHA1 to appease Debian
 
