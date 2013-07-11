@@ -1,4 +1,7 @@
-Changes for 0.16
+Changes for 0.17
+  * Re-released after resolving PAUSE permissions; no changes since 0.16
+
+Changes for 0.16 — Never indexed by PAUSE
   * Remove dependency on Date::ICal and use RT::Date's support instead
 
 Changes for 0.15
