@@ -32,9 +32,9 @@ $NewQuery => 0
 % }
 <a href="<%$RT::WebPath%>/Search/Calendar.html?Month=<%$PMonth%>&Year=<%$PYear%>&<%$QueryString%>">«<%$rtdate->GetMonth($PMonth)%></a>
 </td>
-<td align="center">
-<a href="<%$RT::WebPath%>/Prefs/Calendar.html">Calendar Preferences and Help</a>
-</td>
+<th align="center">
+  <font size="+1"><% $rtdate->GetMonth($Month). " $Year" %></font>
+</th>
 <td align="right">
 % my ($NMonth, $NYear) = ($Month + 1, $Year);
 % if ($NMonth > 11) {
@@ -83,16 +83,8 @@ $NewQuery => 0
 <td align="left">
 <a href="<%$RT::WebPath%>/Search/Calendar.html?Month=<%$PMonth%>&Year=<%$PYear%>&<%$QueryString%>">«<%$rtdate->GetMonth($PMonth)%></a>
 </td>
-<td align="right">
-<a href="<%$RT::WebPath%>/Search/Calendar.html?Month=<%$NMonth%>&Year=<%$NYear%>&<%$QueryString%>"><%$rtdate->GetMonth($NMonth)%>»</a>
-</td>
-</tr>
-</table>
 
-
-<table width="100%">
-<tr>
-<td valign="top" align="center" width="80%">
+<td valign="top" align="center">
 <form action="<%$RT::WebPath%>/Search/Calendar.html?<%$QueryString%>" method="post">
 
 <select name="Month">
@@ -111,25 +103,55 @@ $NewQuery => 0
 
 </form>
 </td>
-<td valign="top" width="50%" align="right">
-<img src="<%$RT::WebImagesURL%>/created.png" /> : <&|/l&>Created</&><br />
-<img src="<%$RT::WebImagesURL%>/due.png" /> : <&|/l&>Due</&><br />
-<img src="<%$RT::WebImagesURL%>/resolved.png" /> : <&|/l&>Resolved</&><br />
-<img src="<%$RT::WebImagesURL%>/updated.png" /> : <&|/l&>Last Updated</&><br />
-<img src="<%$RT::WebImagesURL%>/created_due.png" /> : <&|/l&>Created</&>, <&|/l&>Due</&><br />
-<img src="<%$RT::WebImagesURL%>/reminder.png" /> : <&|/l&>Reminders</&><br />
-<img src="<%$RT::WebImagesURL%>/starts.png" /> : <&|/l&>Starts</&><br />
-<img src="<%$RT::WebImagesURL%>/started.png" /> : <&|/l&>Started</&><br />
-<img src="<%$RT::WebImagesURL%>/starts_due.png" /> : <&|/l&>Starts</&>, <&|/l&>Due</&><br />
 
-
+<td align="right">
+<a href="<%$RT::WebPath%>/Search/Calendar.html?Month=<%$NMonth%>&Year=<%$NYear%>&<%$QueryString%>"><%$rtdate->GetMonth($NMonth)%>»</a>
 </td>
+</tr>
+</table>
+
+<table width="100%">
+<tr>
+
+<td valign="top" rowspan=9>
+  <BR>
+  <a href="<%$RT::WebPath%>/Prefs/Calendar.html">Calendar Preferences and Help</a>
+</td>
+
+% foreach my $legend (keys %legend) {
+    <tr>
+      <td align="right">
+        <img src="<%$RT::WebImagesURL%>/<%$legend%>.png" />
+      </td>
+      <td align="left">
+%       my $more = 0;
+%       foreach ( @{$legend{$legend}} ) {
+          <% $more++ ? ', ' : '' %>
+          <&|/l&><% $_ %></&>
+%       }
+      </td>
+    </tr>
+% }
+
 </table>
 
 </&>
 
-<%INIT>
+<%ONCE>
 
+my %legend = (
+  'created'     => ['Created'],
+  'due'         => ['Due'],
+  'resolved'    => ['Resolved'],
+  'updated'     => ['Last Updated'],
+  'created_due' => ['Created','Due'],
+  'reminder'    => ['Reminders'],
+  'started'     => ['Started'],
+  'starts_due'  => ['Starts','Due'],
+);
+
+</%ONCE>
+<%INIT>
 my $title = loc("Calendar");
 
 my @DateTypes = qw/Created Starts Started Due LastUpdated Resolved/;
