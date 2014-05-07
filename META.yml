@@ -19,6 +19,7 @@ no_index:
   directory:
     - html
     - inc
+    - static
   package:
     - RT::Interface::Web::Menu
 requires:

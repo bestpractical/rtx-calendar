@@ -20,9 +20,7 @@ $NewQuery => 0
 % }
 
 <&| /Widgets/TitleBox,
-     title => loc('Calendar for ') . $rtdate->GetMonth($Month) . " $Year" ,
-     title_class=> 'inverse',
-     color => "#993333" &>
+     title => loc('Calendar for [_1] [_2]', $rtdate->GetMonth($Month), $Year) &>
 
 <table width="100%">
 <tr>
