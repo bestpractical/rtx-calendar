@@ -16,12 +16,18 @@
 <tr>
 % $date = $begin->clone;
 % while ($date <= $end) {
-<td>
-<p class="date"><%$date->day%></p>
-% for my $t (@{ $Tickets{$date->strftime("%F")} }) {
-<& /Elements/CalendarEvent, Object => $t, Date => $date, DateTypes => \%DateTypes &>
-% }
-</td>
+%   my @classes = ();
+%   push @classes, "today"     if (DateTime->compare($today,     $date) == 0);
+%   push @classes, "yesterday" if (DateTime->compare($yesterday, $date) == 0);
+
+    <td class="<% @classes %>"><div class="inside-day">
+      <div class="calendardate"><%$date->day%></div>
+
+%     for my $t ( @{ $Tickets{$date->strftime("%F")} } ) {
+        <& /Elements/CalendarEvent, Object => $t, Date => $date, DateTypes => \%DateTypes &>
+%     }
+
+    </div></td>
 % $date = $set->next($date);
 % }
 </tr>
@@ -41,6 +47,7 @@ my $rtdate = RT::Date->new($session{'CurrentUser'});
 my @DateTypes = qw/Created Starts Started Due LastUpdated Resolved/;
 
 my $today = DateTime->today;
+my $yesterday = $today->clone->subtract( days=>1 );
 
 # this line is used to debug MyCalendar
 # $today = DateTime->new(year => 2007, month => 4, day => 11);

@@ -59,14 +59,21 @@ $NewQuery => 0
 <tbody>
 <tr>
 % while ($date <= $end) {
-<td class="<% $date->month != ($Month + 1) ? 'oddline' : '' %>"
-    style="width:14%;<%  DateTime->compare($today, $date) == 0 ? 'background:#f6f7f8;' : '' %>"
->
-<p class="date"><%$date->day%></p>
-% for my $t ( @{ $Tickets{$date->strftime("%F")} } ) {
-<& /Elements/CalendarEvent, Object => $t, Date => $date, DateTypes => \%DateTypes &>
-% }
-</td>
+%   my @classes = ();
+%   push @classes, "offmonth"  if $date->month != ($Month + 1);
+%   push @classes, "today"     if (DateTime->compare($today,     $date) == 0);
+%   push @classes, "yesterday" if (DateTime->compare($yesterday, $date) == 0);
+%   push @classes, "aweekago"  if (DateTime->compare($aweekago,  $date) == 0);
+
+    <td class="<% @classes %>"><div class="inside-day">
+      <div class="calendardate"><%$date->day%></div>
+
+%     for my $t ( @{ $Tickets{$date->strftime("%F")} } ) {
+        <& /Elements/CalendarEvent, Object => $t, Date => $date, DateTypes => \%DateTypes &>
+%     }
+
+    </div></td>
+
 %   $date = $set->next($date);
 %   if ( $date->day_of_week == $startday_of_week ) {
       </tr><tr>
@@ -167,6 +174,8 @@ my $startday_of_week = ${$week{$weekstart}}[0]  || 7;
 my $endday_of_week   = ${$week{$weekstart}}[-1] || 7;
 
 my $today = DateTime->today;
+my $yesterday = $today->clone->subtract( days=>1 );
+my $aweekago  = $today->clone->subtract( days=>7 );
 my $date = RTx::Calendar::FirstDay($Year, $Month + 1, $startday_of_week );
 my $end  = RTx::Calendar::LastDay ($Year, $Month + 1, $endday_of_week );
 
