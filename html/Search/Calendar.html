@@ -30,7 +30,7 @@ $NewQuery => 0
 %    $PYear--;
 %    $PMonth = 11;
 % }
-<a href="<%$RT::WebPath%>/Search/Calendar.html?Month=<%$PMonth%>&Year=<%$PYear%>&<%$QueryString%>">«<%$rtdate->GetMonth($PMonth)%></a>
+<a href="<%$RT::WebPath%>/Search/Calendar.html?Month=<%$PMonth%>&Year=<%$PYear%>&<%$QueryString%>">« <%$rtdate->GetMonth($PMonth)%></a>
 </td>
 <th align="center">
   <font size="+1"><% $rtdate->GetMonth($Month). " $Year" %></font>
@@ -41,7 +41,7 @@ $NewQuery => 0
 %    $NYear++;
 %    $NMonth = 0;
 % }
-<a href="<%$RT::WebPath%>/Search/Calendar.html?Month=<%$NMonth%>&Year=<%$NYear%>&<%$QueryString%>"><%$rtdate->GetMonth($NMonth)%>»</a>
+<a href="<%$RT::WebPath%>/Search/Calendar.html?Month=<%$NMonth%>&Year=<%$NYear%>&<%$QueryString%>"><%$rtdate->GetMonth($NMonth)%> »</a>
 </td>
 </tr>
 </table>
@@ -80,7 +80,7 @@ $NewQuery => 0
 <table width="100%">
 <tr>
 <td align="left">
-<a href="<%$RT::WebPath%>/Search/Calendar.html?Month=<%$PMonth%>&Year=<%$PYear%>&<%$QueryString%>">«<%$rtdate->GetMonth($PMonth)%></a>
+<a href="<%$RT::WebPath%>/Search/Calendar.html?Month=<%$PMonth%>&Year=<%$PYear%>&<%$QueryString%>">« <%$rtdate->GetMonth($PMonth)%></a>
 </td>
 
 <td valign="top" align="center">
@@ -104,7 +104,7 @@ $NewQuery => 0
 </td>
 
 <td align="right">
-<a href="<%$RT::WebPath%>/Search/Calendar.html?Month=<%$NMonth%>&Year=<%$NYear%>&<%$QueryString%>"><%$rtdate->GetMonth($NMonth)%>»</a>
+<a href="<%$RT::WebPath%>/Search/Calendar.html?Month=<%$NMonth%>&Year=<%$NYear%>&<%$QueryString%>"><%$rtdate->GetMonth($NMonth)%> »</a>
 </td>
 </tr>
 </table>
