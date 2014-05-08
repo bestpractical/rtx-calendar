@@ -4,7 +4,7 @@ use strict;
 use DateTime;
 use DateTime::Set;
 
-our $VERSION = "0.17";
+our $VERSION = "0.18";
 
 RT->AddStyleSheets('calendar.css');
 

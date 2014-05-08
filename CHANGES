@@ -1,3 +1,7 @@
+Changes for 0.18
+  * RT 4.2 compatibility
+  * UI updates from Ivan Kohler
+
 Changes for 0.17
   * Re-released after resolving PAUSE permissions; no changes since 0.16
 
