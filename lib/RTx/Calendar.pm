@@ -6,8 +6,7 @@ use DateTime::Set;
 
 our $VERSION = "0.17";
 
-RT->AddStyleSheets('calendar.css')
-    if RT->can('AddStyleSheets');
+RT->AddStyleSheets('calendar.css');
 
 sub FirstDay {
     my ($year, $month, $matchday) = @_;
