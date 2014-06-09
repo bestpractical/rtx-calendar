@@ -1,3 +1,9 @@
+Changes for 0.20
+  * Packaging fixes only (0.19 failed to update CHANGES)
+
+Changes for 0.19
+  * Fix double-encoding of previous/next month chevrons
+
 Changes for 0.18
   * RT 4.2 compatibility
   * UI updates from Ivan Kohler
