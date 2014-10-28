@@ -62,12 +62,4 @@ if ( $request_path =~ qr{^/Search/} && $m->request_args->{Query} ) {
                        path => '/Search/Calendar.html?' . $query_string->( %{$m->request_args} ) );
 }
 
-my $about_me = Menu->child( 'preferences' );
-my $settings = $about_me ? $about_me->child('settings') : undef;
-
-if ( $settings ) {
-    $settings->child( 'calendar' => title => loc('Calendar'),
-                    path => '/Prefs/Calendar.html' );
-}
-
 </%INIT>
