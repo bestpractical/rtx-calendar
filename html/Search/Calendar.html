@@ -117,7 +117,7 @@ $NewQuery => 0
 </table>
 
 <table width="100%">
-% foreach my $legend (keys %legend) {
+% foreach my $legend (sort keys %legend) {
     <tr>
       <td align="right">
         <img src="<%$RT::WebImagesURL%>/<%$legend%>.png" />
