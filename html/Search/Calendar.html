@@ -117,13 +117,6 @@ $NewQuery => 0
 </table>
 
 <table width="100%">
-<tr>
-
-<td valign="top" rowspan=9>
-  <BR>
-  <a href="<%$RT::WebPath%>/Prefs/Calendar.html">Calendar Preferences and Help</a>
-</td>
-
 % foreach my $legend (keys %legend) {
     <tr>
       <td align="right">
@@ -140,6 +133,43 @@ $NewQuery => 0
 % }
 
 </table>
+
+</&>
+
+<&| /Widgets/TitleBox, title => loc('Help') &>
+
+<h3><&|/l&>displaying reminders</&>:</h3>
+<p>
+<&|/l_unsafe, qq{<a href="$RT::WebPath/Search/Edit.html">} . loc("Advanced") . '</a>' &>
+If you want to have reminders in a search you need to go to [_1] tab
+and add something to the Query like that:
+</&>
+ <pre>
+   AND ( Type = 'ticket' OR Type = 'reminder' )
+</pre>
+</p>
+
+<h3><&|/l&>displaying other kind of dates</&>:</h3>
+<p>
+<&|/l_unsafe, qq{<a href="$RT::WebPath/Search/Build.html">} . loc("Query Builder") . '</a>'&>
+By default RTx::Calendar display Due and Starts dates. You can select other
+kind of events you want with the Display Columns section in the [_1].
+The following one will display the two latter and LastUpdated dates:
+</&>
+<pre>
+  '&lt;small&gt;__Due__&lt;/small&gt;',
+  '&lt;small&gt;__Starts__&lt;/small&gt;',
+  '&lt;small&gt;__LastUpdated__&lt;/small&gt;'
+</pre>
+</p>
+
+<h3><&|/l&>changing the default query</&>:</h3>
+<p>
+<&|/l_unsafe, qq{<a href="$RT::WebPath/Search/Build.html">} . loc("Query Builder") . '</a>'&>
+You can change the default Query of Calendar.html and MyCalendar
+portlet by saving a query with the name <code>calendar</code> in the [_1].
+</&>
+</p>
 
 </&>
 
