@@ -23,10 +23,8 @@ no_index:
   package:
     - RT::Interface::Web::Menu
 requires:
-  Data::ICal: 0
   DateTime: 0
   DateTime::Set: 0
-  Digest::SHA: 0
   perl: 5.8.3
 resources:
   license: http://dev.perl.org/licenses/

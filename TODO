@@ -1,6 +1,5 @@
 TODO
 
-  * add Format choice in ICal feed if asked
   * add test with Test::WWW::Mechanize
   * add links from the calendar page
 

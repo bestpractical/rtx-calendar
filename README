@@ -8,16 +8,11 @@ DESCRIPTION
 
     There's a portlet to put on your home page (see Prefs/MyRT.html)
 
-    You can also enable ics (ICal) feeds for your default calendar and all
-    your private searches in Prefs/Calendar.html. Authentication is magic
-    number based so that you can give those feeds to other people.
-
 INSTALLATION
     If you upgrade from 0.02, see next part before.
 
     You need to install those two modules :
 
-      * Data::ICal
       * DateTime::Set
 
     Install it like a standard perl module
@@ -42,9 +37,6 @@ CONFIGURATION
       Set($HomepageComponents, [qw(QuickCreate Quicksearch MyCalendar
          MyAdminQueues MySupportQueues MyReminders RefreshHomepage)]);
 
-    To enable private searches ICal feeds, you need to give
-    CreateSavedSearch and LoadSavedSearch rights to your users.
-
   Display configuration
     You can show the owner in each day box by adding this line to your
     etc/RT_SiteConfig.pm :
@@ -55,14 +47,6 @@ CONFIGURATION
     over a date in etc/RT_SiteConfig.pm :
 
         @CalendarPopupFields = ('Status', 'OwnerObj->Name', 'DueObj->ISO');
-
-  ICAL feed configuration
-    By default, tickets are todo and reminders event. You can change this by
-    setting $RT::ICalTicketType and $RT::ICalReminderType in
-    etc/RT_SiteConfig.pm :
-
-      Set($ICalTicketType,   "Data::ICal::Entry::Event");
-      Set($ICalReminderType ,"Data::ICal::Entry::Todo");
 
 USAGE
     A small help section is available in /Prefs/Calendar.html
