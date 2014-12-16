@@ -1,8 +1,7 @@
 ---
-abstract: 'Calendar view'
+abstract: 'Calendar for RT due tasks'
 author:
   - 'Best Practical Solutions'
-  - 'Nicolas Chuche <nchuche@barna.be>'
 build_requires:
   ExtUtils::MakeMaker: 6.59
 configure_requires:
