@@ -4,7 +4,7 @@ use strict;
 use DateTime;
 use DateTime::Set;
 
-our $VERSION = "0.20";
+our $VERSION = "1.00";
 
 RT->AddStyleSheets('calendar.css');
 
@@ -109,7 +109,7 @@ __END__
 
 =head1 NAME
 
-RTx::Calendar - Calendar for RT due tasks
+RTx::Calendar - Calendar for RT due dates
 
 =head1 DESCRIPTION
 
@@ -121,32 +121,42 @@ There's a portlet to put on your home page (see Prefs/MyRT.html)
 
 =head1 INSTALLATION
 
-If you upgrade from 0.02, see next part before.
+=over
 
-You need to install those two modules :
+=item C<perl Makefile.PL>
 
-  * DateTime::Set
+=item C<make>
 
-Install it like a standard perl module
+=item C<make install>
 
- perl Makefile.PL
- make
- make install
+May need root permissions
 
-If your RT is not in the default path (/opt/rt3) you must set RTHOME
-before doing the Makefile.PL
+=item Edit your F</opt/rt4/etc/RT_SiteConfig.pm>
+
+If you are using RT 4.2 or greater, add this line:
+
+    Plugin('RTx::Calendar');
+
+For RT 4.0, add this line:
+
+    Set(@Plugins, qw(RTx::Calendar));
+
+or add C<RTx::Calendar> to your existing C<@Plugins> line.
+
+=item Clear your mason cache
+
+    rm -rf /opt/rt4/var/mason_data/obj
+
+=item Restart your webserver
+
+=back
 
 =head1 CONFIGURATION
 
 =head2 Base configuration
 
-In RT 3.8 and later, to enable calendar plugin, you must add something
-like that in your etc/RT_SiteConfig.pm :
-
-  Set(@Plugins,(qw(RTx::Calendar)));
-
-To use MyCalendar portlet you must add MyCalendar to
-$HomepageComponents in etc/RT_SiteConfig.pm like that :
+To use the C<MyCalendar> portlet, you must add C<MyCalendar> to
+C<$HomepageComponents> in F<etc/RT_SiteConfig.pm>:
 
   Set($HomepageComponents, [qw(QuickCreate Quicksearch MyCalendar
      MyAdminQueues MySupportQueues MyReminders RefreshHomepage)]);
@@ -154,53 +164,43 @@ $HomepageComponents in etc/RT_SiteConfig.pm like that :
 =head2 Display configuration
 
 You can show the owner in each day box by adding this line to your
-etc/RT_SiteConfig.pm :
+F<etc/RT_SiteConfig.pm>:
 
     Set($CalendarDisplayOwner, 1);
 
 You can change which fields show up in the popup display when you
-mouse over a date in etc/RT_SiteConfig.pm :
+mouse over a date in F<etc/RT_SiteConfig.pm>:
 
-    @CalendarPopupFields = ('Status', 'OwnerObj->Name', 'DueObj->ISO');
+    Set(@CalendarPopupFields, ('Status', 'OwnerObj->Name', 'DueObj->ISO'));
 
 =head1 USAGE
 
 A small help section is available in /Prefs/Calendar.html
 
-=head1 UPGRADE FROM 0.02
+=head1 AUTHOR
 
-As I've change directory structure, if you upgrade from 0.02 you need
-to delete old files manually. Go in RTHOME/share/html (by default
-/opt/rt3/share/html) and delete those files :
+Best Practical Solutions, LLC E<lt>modules@bestpractical.comE<gt>
 
-  rm -rf Callbacks/RTx-Calendar
-  rm Tools/Calendar.html
-
-RTx-Calendar may work without this but it's not very clean.
+Originally written by Nicolas Chuche E<lt>nchuche@barna.beE<gt>
 
 =head1 BUGS
 
-All bugs should be reported via
-L<http://rt.cpan.org/Public/Dist/Display.html?Name=RTx-Calendar>
-or L<bug-RTx-Calendar@rt.cpan.org>.
+All bugs should be reported via email to
 
-=head1 AUTHORS
+    L<bug-RTx-Calendar@rt.cpan.org|mailto:bug-RTx-Calendar@rt.cpan.org>
 
-Best Practical Solutions
+or via the web at
 
-Nicolas Chuche E<lt>nchuche@barna.beE<gt>
+    L<rt.cpan.org|http://rt.cpan.org/Public/Dist/Display.html?Name=RTx-Calendar>.
 
-Idea borrowed from redmine's calendar (Thanks Jean-Philippe).
+=head1 LICENSE AND COPYRIGHT
 
-=head1 COPYRIGHT
+This software is Copyright (c) 2010-2014 by Best Practical Solutions
 
-Copyright 2007-2009 by Nicolas Chuche E<lt>nchuche@barna.beE<gt>
+Copyright 2007-2009 by Nicolas Chuche
 
-Copyright 2010-2014 by Best Practical Solutions.
+This is free software, licensed under:
 
-This program is free software; you can redistribute it and/or
-modify it under the same terms as Perl itself.
-
-See L<http://www.perl.com/perl/misc/Artistic.html>
+  The GNU General Public License, Version 2, June 1991
 
 =cut
