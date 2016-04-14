@@ -1,3 +1,6 @@
+1.01
+ - Provide a default search format when one isn't passed
+
 1.00
  - Packaging and documentation updates
  - Drop ical support, as it is in core RT
