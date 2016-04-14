@@ -47,6 +47,7 @@
 %# END BPS TAGGED BLOCK }}}
 <%INIT>
 my $request_path = $HTML::Mason::Commands::r->path_info;
+my $request_args = $m->request_args;
 
 my $query_string = sub {
     my %args = @_;
@@ -55,11 +56,14 @@ my $query_string = sub {
     return $u->query;
 };
 
-if ( $request_path =~ qr{^/Search/} && $m->request_args->{Query} ) {
+if ( $request_path =~ qr{^/Search/} && $request_args->{Query} ) {
     my $tabs = PageMenu;
     my $chart = $tabs->child('chart');
+
+    $request_args->{Format} = RT->Config->Get('DefaultSearchResultFormat') unless $request_args->{Format};
+
     $chart->add_after( 'calendar' => title => loc('Calendar'),
-                       path => '/Search/Calendar.html?' . $query_string->( %{$m->request_args} ) );
+                       path => '/Search/Calendar.html?' . $query_string->( %$request_args ) );
 }
 
 </%INIT>
