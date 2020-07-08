@@ -1,3 +1,7 @@
+1.02
+ - Clearer documentation
+ - Update stylesheet to work with bootstrap in RT5
+
 1.01
  - Provide a default search format when one isn't passed
 
