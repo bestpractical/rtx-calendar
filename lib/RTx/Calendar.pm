@@ -4,7 +4,7 @@ use strict;
 use DateTime;
 use DateTime::Set;
 
-our $VERSION = "1.01";
+our $VERSION = "1.02";
 
 RT->AddStyleSheets('calendar.css');
 
@@ -115,9 +115,14 @@ RTx::Calendar - Calendar for RT due dates
 
 This RT extension provides a calendar view for your tickets and your
 reminders so you see when is your next due ticket. You can find it in
-the menu Search->Calendar.
+ticket search sub navigation menu.
 
-There's a portlet to put on your home page (see Prefs/MyRT.html)
+Date fields in the search results are displayed/used in the calendar,
+for example if you have a ticket with a due date, it won't be displayed on
+that date unless the Due field is included in the search result format.
+
+There's a portlet to put on your home page (see Prefs/MyRT.html), see the
+CONFIGURATION section below for details on adding it.
 
 =head1 INSTALLATION
 
@@ -175,7 +180,7 @@ mouse over a date in F<etc/RT_SiteConfig.pm>:
 
 =head1 USAGE
 
-A small help section is available in /Prefs/Calendar.html
+A small help section is available in /Search/Calendar.html
 
 =head1 AUTHOR
 
