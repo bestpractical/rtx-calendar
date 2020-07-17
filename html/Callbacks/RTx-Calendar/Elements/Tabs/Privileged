@@ -47,7 +47,7 @@
 %# END BPS TAGGED BLOCK }}}
 <%INIT>
 
-if ( $Path =~ qr{^/Search/} && $Has_Query && !$DECODED_ARGS->{Class} || $DECODED_ARGS->{Class} eq 'RT::Tickets' ) {
+if ( $Path =~ qr{^/Search/} && $Has_Query && ( !$DECODED_ARGS->{Class} || $DECODED_ARGS->{Class} eq 'RT::Tickets' ) ) {
     if ( my $chart = PageMenu->child('chart') ) {
         $chart->add_after( 'calendar' => title => loc('Calendar'), path => "/Search/Calendar.html$Search_Args" );
     }
