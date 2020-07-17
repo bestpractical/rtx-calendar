@@ -14,22 +14,24 @@ DESCRIPTION
     There's a portlet to put on your home page (see Prefs/MyRT.html), see
     the CONFIGURATION section below for details on adding it.
 
+RT VERSION
+    Works with RT 4.2, 4.4, 5.0
+
 INSTALLATION
     perl Makefile.PL
     make
     make install
         May need root permissions
 
+    patch RT
+        Apply for versions prior to 4.4.2:
+
+            patch -p1 -d /path/to/rt < etc/tabs_privileged_callback.patch
+
     Edit your /opt/rt4/etc/RT_SiteConfig.pm
-        If you are using RT 4.2 or greater, add this line:
+        Add this line:
 
             Plugin('RTx::Calendar');
-
-        For RT 4.0, add this line:
-
-            Set(@Plugins, qw(RTx::Calendar));
-
-        or add RTx::Calendar to your existing @Plugins line.
 
     Clear your mason cache
             rm -rf /opt/rt4/var/mason_data/obj

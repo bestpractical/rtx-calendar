@@ -124,6 +124,10 @@ that date unless the Due field is included in the search result format.
 There's a portlet to put on your home page (see Prefs/MyRT.html), see the
 CONFIGURATION section below for details on adding it.
 
+=head1 RT VERSION
+
+Works with RT 4.2, 4.4, 5.0
+
 =head1 INSTALLATION
 
 =over
@@ -136,17 +140,17 @@ CONFIGURATION section below for details on adding it.
 
 May need root permissions
 
+=item patch RT
+
+Apply for versions prior to 4.4.2:
+
+    patch -p1 -d /path/to/rt < etc/tabs_privileged_callback.patch
+
 =item Edit your F</opt/rt4/etc/RT_SiteConfig.pm>
 
-If you are using RT 4.2 or greater, add this line:
+Add this line:
 
     Plugin('RTx::Calendar');
-
-For RT 4.0, add this line:
-
-    Set(@Plugins, qw(RTx::Calendar));
-
-or add C<RTx::Calendar> to your existing C<@Plugins> line.
 
 =item Clear your mason cache
 
