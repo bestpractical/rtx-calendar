@@ -1,0 +1,74 @@
+#. (qq{<a href="$RT::WebPath/Search/Build.html">} . loc("Query Builder") . '</a>')
+#: html/Search/Calendar.html:158
+msgid ""
+"\n"
+"By default RTx::Calendar display Due and Starts dates. You can select other\n"
+"kind of events you want with the Display Columns section in the %1.\n"
+"The following one will display the two latter and LastUpdated dates:\n"
+msgstr ""
+
+#. (qq{<a href="$RT::WebPath/Search/Edit.html">} . loc("Advanced") . '</a>')
+#: html/Search/Calendar.html:146
+msgid ""
+"\n"
+"If you want to have reminders in a search you need to go to %1 tab\n"
+"and add something to the Query like that:\n"
+msgstr ""
+
+#. (qq{<a href="$RT::WebPath/Search/Build.html">} . loc("Query Builder") . '</a>')
+#: html/Search/Calendar.html:171
+msgid ""
+"\n"
+"You can change the default Query of Calendar.html and MyCalendar\n"
+"portlet by saving a query with the name <code>calendar</code> in the %1.\n"
+msgstr ""
+
+#: html/Search/Calendar.html:129
+msgid "<% $_ %>"
+msgstr ""
+
+#: html/Elements/CalendarEvent:69
+msgid "<% $label_of{$attr} %>"
+msgstr ""
+
+#: html/Search/Calendar.html:143
+msgid "Advanced"
+msgstr ""
+
+#: html/Callbacks/RTx-Calendar/Elements/Tabs/Privileged:52 html/Elements/MyCalendar:2 html/Elements/MyCalendar:43 html/Search/Calendar.html:191
+msgid "Calendar"
+msgstr ""
+
+#. ($rtdate->GetMonth($Month), $Year)
+#: html/Search/Calendar.html:23
+msgid "Calendar for %1 %2"
+msgstr ""
+
+#: etc/tabs_privileged_callback.patch:25
+msgid "Edit"
+msgstr ""
+
+#: html/Search/Calendar.html:139
+msgid "Help"
+msgstr ""
+
+#: html/Search/Calendar.html:154 html/Search/Calendar.html:168
+msgid "Query Builder"
+msgstr ""
+
+#: html/Search/Calendar.html:108
+msgid "Submit"
+msgstr ""
+
+#: html/Search/Calendar.html:166
+msgid "changing the default query"
+msgstr ""
+
+#: html/Search/Calendar.html:152
+msgid "displaying other kind of dates"
+msgstr ""
+
+#: html/Search/Calendar.html:141
+msgid "displaying reminders"
+msgstr ""
+
