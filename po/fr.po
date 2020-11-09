@@ -1,0 +1,93 @@
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2020-11-09 16:19+0200\n"
+"Last-Translator: Emmanuel Lacour <elacour@home-dn.net>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. (qq{<a href="$RT::WebPath/Search/Build.html">} . loc("Query Builder") . '</a>')
+#: html/Search/Calendar.html:158
+msgid ""
+"\n"
+"By default RTx::Calendar display Due and Starts dates. You can select other\n"
+"kind of events you want with the Display Columns section in the %1.\n"
+"The following one will display the two latter and LastUpdated dates:\n"
+msgstr ""
+"\n"
+"Par défaut RTx::Calendar affiche les dates d’échéance et de début. Vous pouvez\n"
+"sélectionner d’autre dates dans la section « Afficher les colonnes » du « %1 ».\n"
+"L’exemple suivant ajoute la date de dernière mise à jour :\n"
+
+#. (qq{<a href="$RT::WebPath/Search/Edit.html">} . loc("Advanced") . '</a>')
+#: html/Search/Calendar.html:146
+msgid ""
+"\n"
+"If you want to have reminders in a search you need to go to %1 tab\n"
+"and add something to the Query like that:\n"
+msgstr ""
+"\n"
+"Si vous voulez obtenir les rappels dans une recherche vous devez aller\n"
+"dans l’onglet « %1 » et ajouter quelque chose comme ceci à la requête :\n"
+"\n"
+
+#. (qq{<a href="$RT::WebPath/Search/Build.html">} . loc("Query Builder") . '</a>')
+#: html/Search/Calendar.html:171
+msgid ""
+"\n"
+"You can change the default Query of Calendar.html and MyCalendar\n"
+"portlet by saving a query with the name <code>calendar</code> in the %1.\n"
+msgstr ""
+"\n"
+"Vous pouvez changer la requête par défaut des composants « Calendar.html »\n"
+"et « MyCalendar » en sauvant une recherche sous le nom <code>calendar</code> dans le « %1 ».\n"
+
+#: html/Search/Calendar.html:129
+msgid "<% $_ %>"
+msgstr ""
+
+#: html/Elements/CalendarEvent:69
+msgid "<% $label_of{$attr} %>"
+msgstr ""
+
+#: html/Search/Calendar.html:143
+msgid "Advanced"
+msgstr "Avancé"
+
+#: html/Callbacks/RTx-Calendar/Elements/Tabs/Privileged:52 html/Elements/MyCalendar:2 html/Elements/MyCalendar:43 html/Search/Calendar.html:191
+msgid "Calendar"
+msgstr "Calendrier"
+
+#. ($rtdate->GetMonth($Month), $Year)
+#: html/Search/Calendar.html:23
+msgid "Calendar for %1 %2"
+msgstr "Calendrier pour %1 %2"
+
+#: etc/tabs_privileged_callback.patch:25
+msgid "Edit"
+msgstr "Modifier"
+
+#: html/Search/Calendar.html:139
+msgid "Help"
+msgstr "Aide"
+
+#: html/Search/Calendar.html:154 html/Search/Calendar.html:168
+msgid "Query Builder"
+msgstr "Constructeur de requête"
+
+#: html/Search/Calendar.html:108
+msgid "Submit"
+msgstr "Valider"
+
+#: html/Search/Calendar.html:166
+msgid "changing the default query"
+msgstr "changer la requête par défaut"
+
+#: html/Search/Calendar.html:152
+msgid "displaying other kind of dates"
+msgstr "afficher d’autre dates"
+
+#: html/Search/Calendar.html:141
+msgid "displaying reminders"
+msgstr "afficher les rappels"
+
