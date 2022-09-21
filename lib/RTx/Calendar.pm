@@ -4,7 +4,7 @@ use strict;
 use DateTime;
 use DateTime::Set;
 
-our $VERSION = "1.03";
+our $VERSION = "1.04";
 
 RT->AddStyleSheets('calendar.css');
 
@@ -232,7 +232,7 @@ or via the web at
 
 =head1 LICENSE AND COPYRIGHT
 
-This software is Copyright (c) 2010-2020 by Best Practical Solutions
+This software is Copyright (c) 2010-2022 by Best Practical Solutions
 
 Copyright 2007-2009 by Nicolas Chuche
 
