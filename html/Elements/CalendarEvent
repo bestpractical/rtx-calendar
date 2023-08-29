@@ -60,6 +60,9 @@ $DateTypes => undef
 %
 %    if ($attr =~ /(.*)->ISO$/ and $Object->$1->Unix <= 0) {
 %        $value = '-';
+%    } elsif ($attr =~ /CustomField\.\{(.*)\}$/) {
+%        my $cf = $1;
+%        $value = $Object->FirstCustomFieldValue($cf);
 %    } else {
 %        my $method = '$Object->'.$attr.'()';
 %        $method =~ s/->ISO\(\)$/->ISO( Timezone => 'user' )/;
@@ -123,6 +126,7 @@ for my $field (@display_fields) {
     my $label = $field;
     $label =~ s'Obj-.(?:AsString|Name|ISO)''g;
     $label =~ s'-\>MemberEmailAddressesAsString''g;
+    $label =~ s/CustomField\.\{(.*)\}/$1/g;
     $label_of{$field} = $label;
 }
 
