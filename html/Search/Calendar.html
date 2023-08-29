@@ -52,6 +52,39 @@ $FilterOnStatusClear => undef
 </&>
 
   <&| /Widgets/TitleBox,
+     title => loc('Event Types'),
+     &>
+
+<%perl>
+my %CalendarIcons = RT->Config->Get('CalendarIcons');
+# Sort the legend after translation
+my %CalendarIconsTranslated;
+my $LegendLabel;
+foreach my $legend (sort { lc($a) cmp lc($b) } keys %CalendarIcons) {
+  my @LegendLabels = split ',', $legend;
+  $LegendLabel = join ', ',
+    map {
+      $_ =~ s/^\s+|\s+$//g;
+      $_ =~ s/^CF\.\{(.*)\}/$1/;
+      $_ = 'Last Updated' if $_ eq 'LastUpdated';
+      loc($_)
+    } @LegendLabels;
+  $CalendarIconsTranslated{$LegendLabel} = $legend;
+}
+foreach my $TranslatedLegend (sort keys %CalendarIconsTranslated) {
+</%perl>
+  <span class="tip">
+    <span class="tipimg">
+      <img
+        src="<% $RT::WebImagesURL %>/<%
+        $CalendarIcons{$CalendarIconsTranslated{$TranslatedLegend}}|n %>" />
+    </span>
+    <span class="tiplegend">
+      <% $TranslatedLegend %>
+    </span>
+  </span>
+%     }
+</&>
 
 <&| /Widgets/TitleBox,
      title => loc('State Colors'),
@@ -166,24 +199,6 @@ $FilterOnStatusClear => undef
 </tr>
 </table>
 
-<table width="100%">
-% foreach my $legend (sort keys %legend) {
-    <tr>
-      <td align="right">
-        <img src="<%$RT::WebImagesURL%>/<%$legend%>.png" />
-      </td>
-      <td align="left">
-%       my $more = 0;
-%       foreach ( @{$legend{$legend}} ) {
-          <% $more++ ? ', ' : '' %>
-          <&|/l&><% $_ %></&>
-%       }
-      </td>
-    </tr>
-% }
-
-</table>
-
 </&>
 
 <&| /Widgets/TitleBox, title => loc('Help') &>
@@ -235,20 +250,7 @@ portlet by saving a query with the name <code>calendar</code> in the [_1].
     });
   });
 </script>
-<%ONCE>
 
-my %legend = (
-  'created'     => ['Created'],
-  'due'         => ['Due'],
-  'resolved'    => ['Resolved'],
-  'updated'     => ['Last Updated'],
-  'created_due' => ['Created','Due'],
-  'reminder'    => ['Reminders'],
-  'started'     => ['Started'],
-  'starts_due'  => ['Starts','Due'],
-);
-
-</%ONCE>
 <%INIT>
 if ($FilterOnStatusClear) {
   $Query = $BaseQuery if $BaseQuery;
