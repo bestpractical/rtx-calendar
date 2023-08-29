@@ -58,6 +58,11 @@ $FilterOnStatusClear => undef
 </div>
 
 <div class="calendar-content">
+<&| /Widgets/TitleBox,
+     title => loc('Calendar for [_1] [_2]', $rtdate->GetMonth($Month), $Year),
+     titleright => loc('Download Spreadsheet'),
+     titleright_href => $RT::WebPath. "/Search/Results.tsv?". $DownloadQueryString
+     &>
 
 <table width="100%">
 <tr>
@@ -329,6 +334,15 @@ $TempQuery .= RTx::Calendar::DatesClauses(\@Dates, $date->strftime("%F"), $end->
 $m->callback( CallbackName => 'BeforeFindTickets', ARGSRef => \%ARGS, QueryRef => \$TempQuery, FormatRef => \$TempFormat );
 
 my %Tickets = RTx::Calendar::FindTickets($session{'CurrentUser'}, $TempQuery, \@Dates, $date->strftime("%F"), $end->strftime("%F"));
+
+my $DownloadQueryString =
+      $m->comp(
+        '/Elements/QueryString',
+        Query   => $TempQuery,
+        Format  => $Format,
+        Order   => $Order,
+        OrderBy => $OrderBy,
+      );
 
 my $SortCalendarEvents = RT->Config->Get("CalendarSortEvents");
 </%INIT>
