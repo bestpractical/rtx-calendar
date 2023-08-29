@@ -30,6 +30,23 @@
     </form>
     </&>
 
+    <&| /Widgets/TitleBox,
+      title => loc('Event Types'),
+      &>
+% foreach my $TranslatedLegend (sort keys %CalendarIconsTranslated) {
+      <span class="tip">
+        <span class="tipimg">
+          <img
+            src="<% $RT::WebImagesURL %>/<%
+            $CalendarIcons{$CalendarIconsTranslated{$TranslatedLegend}}|n %>" />
+        </span>
+        <span class="tiplegend">
+          <% $TranslatedLegend %>
+        </span>
+      </span>
+% }
+    </&>
+
 <&| /Widgets/TitleBox,
      title => loc('State Colors'),
      &>
@@ -51,3 +68,29 @@
     });
   });
 </script>
+
+<%init>
+my %CalendarIcons = RT->Config->Get('CalendarIcons');
+# Sort the legend after translation
+my %CalendarIconsTranslated;
+
+my %date = map { $_ => 1 } @Dates;
+
+foreach my $legend (sort { lc($a) cmp lc($b) } keys %CalendarIcons) {
+  # We might have multiple labels for the same icon
+  # such as "LastUpdated, CF.{Maintenance Date}"
+  # so we need to split them and translate them individually
+  my @LegendLabels = split '\s*,\s*', $legend;
+  next if grep { !$date{$_} } @LegendLabels;
+
+  my $LegendLabel = join ', ',
+    map {
+      my $label = $_;
+      $_ =~ s/^\s+|\s+$//g;
+      $_ =~ s/^CF\.\{(.*)\}/$1/;
+      $_ = 'Last Updated' if $_ eq 'LastUpdated';
+      loc($_)
+    } @LegendLabels;
+  $CalendarIconsTranslated{$LegendLabel} = $legend;
+}
+</%init>

@@ -120,41 +120,10 @@ $ShowSidebar => 0
 </tr>
 </table>
 
-<table width="100%">
-% foreach my $legend (sort keys %legend) {
-    <tr>
-      <td align="right">
-        <img src="<%$RT::WebImagesURL%>/<%$legend%>.png" />
-      </td>
-      <td align="left">
-%       my $more = 0;
-%       foreach ( @{$legend{$legend}} ) {
-          <% $more++ ? ', ' : '' %>
-          <&|/l&><% $_ %></&>
-%       }
-      </td>
-    </tr>
-% }
-
-</table>
 </div>
 
 </&>
 
-<%ONCE>
-
-my %legend = (
-  'created'     => ['Created'],
-  'due'         => ['Due'],
-  'resolved'    => ['Resolved'],
-  'updated'     => ['Last Updated'],
-  'created_due' => ['Created','Due'],
-  'reminder'    => ['Reminders'],
-  'started'     => ['Started'],
-  'starts_due'  => ['Starts','Due'],
-);
-
-</%ONCE>
 </div>
 <%INIT>
 my $NotFirstAccess = $DECODED_ARGS->{NotFirstAccess};
