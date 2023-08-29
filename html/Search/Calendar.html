@@ -7,6 +7,9 @@ $Order => undef
 $OrderBy => undef
 $RowsPerPage => undef
 $NewQuery => 0
+@FilterOnStatus => undef
+$BaseQuery => undef
+$FilterOnStatusClear => undef
 </%args>
 
 <& /Elements/Header, Title => $title &>
@@ -23,6 +26,33 @@ $NewQuery => 0
 <a title="Toggle Filter" href="javascript:;" class="calendar-toggle-sidebar"></a>
 <div class="calendar-sidebar">
 <&| /Widgets/TitleBox,
+    title => loc('Filter on Status'),
+    class => 'calendar-filter-status-box',
+    &>
+
+  <form id="FilterOnStatusForm"
+  action="<%$RT::WebPath%>/Search/Calendar.html?<%$QueryString%>" method="post">
+  <input type="hidden" name="BaseQuery" value="<%$BaseQuery%>" />
+  <select name="FilterOnStatus" id="FilterOnStatus"
+    class="selectpicker filteronstatus mt-3 mb-3" multiple="multiple" size="6">
+% for my $Status (sort {loc($a) cmp loc($b)} @{RT->Config->Get('CalendarFilterStatuses')}) {
+    <option value="<% $Status %>"
+% if (@FilterOnStatus && $FilterOnStatus[0]) {
+      <% (grep { $Status eq $_ } @FilterOnStatus) ? 'selected="selected"':''%>
+% }
+      ><% loc($Status) %></option>
+% }
+  </select>
+  <div class="text-center">
+    <input type="submit" value="<% loc('Filter') %>" class="mr-2 button btn btn-primary" />
+    <button type="submit" id="FilterOnStatusClear" name="FilterOnStatusClear"
+      value="1" class="button btn btn-primary"><% loc('Clear Filter') %></button>
+  </div>
+</form>
+</&>
+
+  <&| /Widgets/TitleBox,
+</&>
 
 </div>
 </div>
@@ -207,6 +237,11 @@ my %legend = (
 
 </%ONCE>
 <%INIT>
+if ($FilterOnStatusClear) {
+  $Query = $BaseQuery if $BaseQuery;
+  @FilterOnStatus = ();
+}
+$BaseQuery ||= $Query;
 my $title = loc("Calendar");
 
 my @DateTypes = qw/Created Starts Started Due LastUpdated Resolved/;
@@ -233,10 +268,16 @@ my $set = DateTime::Set->from_recurrence(
     next => sub { $_[0]->truncate( to => 'day' )->add( days => 1 ) }
 );
 
+if ($FilterOnStatus[0]) {
+  my $StatusClause = join " OR ", map { "Status = '$_'" } @FilterOnStatus;
+  $Query .= " AND " if $Query;
+  $Query .= "($StatusClause)";
+}
+
 my $QueryString =
       $m->comp(
         '/Elements/QueryString',
-        Query   => $Query,
+        Query   => $BaseQuery,
         Format  => $Format,
         Order   => $Order,
         OrderBy => $OrderBy,

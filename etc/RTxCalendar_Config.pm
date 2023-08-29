@@ -4,4 +4,6 @@ Set($CalendarSortEvents, sub {
     return @SortedTickets;
 });
 
+Set(@CalendarFilterStatuses, qw(new open stalled rejected resolved));
+
 1;
