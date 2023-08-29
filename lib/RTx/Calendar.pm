@@ -72,14 +72,43 @@ sub FindTickets {
 
         # How to find the LastContacted date ?
         for my $Date (@$Dates) {
-            my $DateObj = $Date . "Obj";
-            push @{ $Tickets{ LocalDate( $Ticket->$DateObj->Unix ) } },
+
+            # $dateindex is the date to use as key in the Tickets Hash
+            # in the YYYY-MM-DD format
+            # Tickets are then groupd by date in the %Tickets hash
+            my $dateindex;
+            if ($Date =~ /^CF\./){
+                my $cf = $Date;
+                $cf =~ s/^CF\.\{(.*)\}/$1/;
+
+                my $CFDateValue = $Ticket->FirstCustomFieldValue($cf);
+                next unless $CFDateValue;
+                my $CustomFieldObj = RT::CustomField->new($CurrentUser);
+                $CustomFieldObj->LoadByName( Name => $cf );
+                my $CustomFieldObjType = $CustomFieldObj->Type;
+                my $DateObj            = RT::Date->new($CurrentUser);
+                if ( $CustomFieldObjType eq 'Date' ) {
+                    $DateObj->Set(
+                        Format   => 'unknown',
+                        Value    => $CFDateValue,
+                        Timezone => 'utc'
+                    );
+                } else {
+                    $DateObj->Set( Format => 'ISO', Value => $CFDateValue );
+                }
+                $dateindex = LocalDate( $DateObj->Unix );
+            } else {
+                my $DateObj = $Date . "Obj";
+                $dateindex = LocalDate( $Ticket->$DateObj->Unix );
+            }
+
+            push @{ $Tickets{$dateindex } },
                 $Ticket
 
                 # if reminder, check it's refering to a ticket
                 unless ( $Ticket->Type eq 'reminder'
                 and not $Ticket->RefersTo->First )
-                or $AlreadySeen{ LocalDate( $Ticket->$DateObj->Unix ) }
+                or $AlreadySeen{ $dateindex }
                 {$Ticket}++;
         }
     }
