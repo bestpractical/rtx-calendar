@@ -68,7 +68,7 @@ $NewQuery => 0
     <td class="<% @classes %>"><div class="inside-day">
       <div class="calendardate"><%$date->day%></div>
 
-%     for my $t ( @{ $Tickets{$date->strftime("%F")} } ) {
+%     for my $t ( $SortCalendarEvents->( @{ $Tickets{ $date->strftime("%F") } || [] } )) {
         <& /Elements/CalendarEvent, Object => $t, Date => $date, DateTypes => \%DateTypes &>
 %     }
 
@@ -272,4 +272,5 @@ $m->callback( CallbackName => 'BeforeFindTickets', ARGSRef => \%ARGS, QueryRef =
 
 my %Tickets = RTx::Calendar::FindTickets($session{'CurrentUser'}, $TempQuery, \@Dates, $date->strftime("%F"), $end->strftime("%F"));
 
+my $SortCalendarEvents = RT->Config->Get("CalendarSortEvents");
 </%INIT>
