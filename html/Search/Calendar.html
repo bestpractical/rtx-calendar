@@ -19,8 +19,15 @@ $NewQuery => 0
     <& /Elements/Tabs &>
 % }
 
+<div class="calendar-sidebar-toggle-content">
+<a title="Toggle Filter" href="javascript:;" class="calendar-toggle-sidebar"></a>
+<div class="calendar-sidebar">
 <&| /Widgets/TitleBox,
-     title => loc('Calendar for [_1] [_2]', $rtdate->GetMonth($Month), $Year) &>
+
+</div>
+</div>
+
+<div class="calendar-content">
 
 <table width="100%">
 <tr>
@@ -174,7 +181,17 @@ portlet by saving a query with the name <code>calendar</code> in the [_1].
 </p>
 
 </&>
+</div>
 
+<script type="text/javascript">
+  jQuery(document).ready(function() {
+    jQuery('.calendar-toggle-sidebar').click(function() {
+      jQuery('.calendar-sidebar').toggle();
+      jQuery('.calendar-sidebar-toggle-content,.calendar-toggle-sidebar').toggleClass('sidebar-off');
+      jQuery('.calendar-content').toggleClass('sidebar-off');
+    });
+  });
+</script>
 <%ONCE>
 
 my %legend = (
