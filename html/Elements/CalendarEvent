@@ -43,7 +43,11 @@ $DateTypes => undef
 
 % }
 
-	<a href="<%$RT::WebPath%>/Ticket/Display.html?id=<%$TicketId%>">
+	<a href="<%$RT::WebPath%>/Ticket/Display.html?id=<%$TicketId%>"
+% if ( $CalendarStatusColorMap{$status} ) {
+    style="color: <%$CalendarStatusColorMap{$status}%>;"
+% }
+    >
            <% $Object->QueueObj->Name %> #<% $TicketId %>
            <% $display_owner ? 'by ' . $Object->OwnerObj->Name : '' %>
            <% length($Object->Subject) > 80 ? substr($Object->Subject, 0, 77) . "..." : $Object->Subject %></a></small><br />
@@ -86,6 +90,7 @@ my $TicketId;
 my $ticket;
 my $subject;
 my $IsReminder;
+my $status;
 
 if ($Object->Type eq 'reminder') {
     $IsReminder = 1;
@@ -93,11 +98,15 @@ if ($Object->Type eq 'reminder') {
 	$ticket   = $Object->RefersTo->First->TargetObj;
 	$TicketId = $ticket->Id;
 	$subject = $Object->Subject . " (" . $ticket->Subject . ")";
+        $status = $Object->Status;
     }
 } else {
     $TicketId = $Object->Id;
     $subject = $Object->Subject;
+    $status = $Object->Status;
 }
+
+my %CalendarStatusColorMap = RT->Config->Get('CalendarStatusColorMap');
 
 my $display_owner = $RT::CalendarDisplayOwner;
 $display_owner ||= RT->Config->Get('CalendarDisplayOwner')
