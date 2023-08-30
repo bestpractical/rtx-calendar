@@ -1,0 +1,43 @@
+<%args>
+@FilterOnStatus => undef
+@Dates => undef
+</%args>
+<div class="calendar-sidebar-toggle-content">
+  <a title="Toggle Filter" href="javascript:;" class="calendar-toggle-sidebar"></a>
+  <div class="calendar-sidebar">
+    <&| /Widgets/TitleBox,
+      title => loc('Filter on Status'),
+      class => 'calendar-filter-status-box',
+      &>
+
+    <form id="FilterOnStatusForm"
+     method="post">
+      <select name="NewFilterOnStatus" id="NewFilterOnStatus"
+        class="selectpicker form-control filteronstatus mt-3 mb-3" multiple="multiple" size="6">
+% for my $Status (sort {lc(loc($a)) cmp lc(loc($b))} @{RT->Config->Get('CalendarFilterStatuses')}) {
+        <option value="<% $Status %>"
+% if (@FilterOnStatus && $FilterOnStatus[0]) {
+      <% (grep { $Status eq $_ } @FilterOnStatus) ? 'selected="selected"':''%>
+% }
+        ><% loc($Status) %></option>
+% }
+      </select>
+      <div class="text-center">
+        <input type="submit" value="<% loc('Filter') %>" class="mr-2 button btn btn-primary" />
+        <button type="submit" id="FilterOnStatusClear" name="FilterOnStatusClear"
+          value="1" class="button btn btn-primary form-control"><% loc('Clear Filter') %></button>
+      </div>
+    </form>
+    </&>
+  </div>
+</div>
+
+<script type="text/javascript">
+  jQuery(document).ready(function() {
+    jQuery('.calendar-toggle-sidebar').click(function() {
+      jQuery('.calendar-sidebar').toggle();
+      jQuery('.calendar-sidebar-toggle-content,.calendar-toggle-sidebar').toggleClass('sidebar-off');
+      jQuery('.calendar-content').toggleClass('sidebar-off');
+    });
+  });
+</script>

@@ -72,3 +72,73 @@ table.rtxcalendar td.yesterday {
 table.rtxcalendar td.aweekago {
     border-bottom: none;
 }
+
+.calendar-sidebar {
+    padding-right: 0.5rem;
+}
+
+.calendar-content {
+    width: auto;
+}
+
+.calendar-sidebar .tipimg {
+    display: table-cell;
+    width: 25px;
+}
+.calendar-sidebar .tiplegend {
+    display: table-cell;
+}
+.calendar-sidebar .tip {
+    display: table-row;
+}
+
+a.calendar-toggle-sidebar,
+a.calendar-toggle-sidebar.off {
+    background: none !important;
+    width: 0px !important;
+    position: relative;
+    float: right;
+    top: 300px;
+    margin-right: 10px;
+}
+a.calendar-toggle-sidebar::before {
+    content: '';
+    display: block;
+    width: 8px;
+    height: 8px;
+    border: solid #B0B3BC;
+    border-width: 0 2px 2px 0;
+    -webkit-transform: rotate(135deg);
+    -ms-transform: rotate(135deg);
+    transform: rotate(135deg);
+    transition: transform .25s;
+    position: absolute;
+    top: 1.2em;
+}
+a.calendar-toggle-sidebar.sidebar-off::before {
+    transform: rotate(315deg);
+}
+.calendar-sidebar-toggle-content {
+    float: left;
+    width: 230px;
+    margin-top: 20px;
+}
+.calendar-sidebar-toggle-content.sidebar-off {
+    width:unset;
+}
+.calendar-content.sidebar-off {
+    margin-left: 20px;
+}
+.filteronstatus {
+    width: 100% !important;
+}
+.calendar-filter-status-box {
+    margin-top: 0px;
+}
+.calendar-sidebar {
+    margin-right: 10px;
+}
+
+.calendar-container {
+    display: flow-root;
+}
