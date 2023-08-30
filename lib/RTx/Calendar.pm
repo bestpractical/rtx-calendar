@@ -280,15 +280,76 @@ C<$HomepageComponents> in F<etc/RT_SiteConfig.pm>:
 
 =head2 Display configuration
 
+=head3 Displaying the owner
+
 You can show the owner in each day box by adding this line to your
 F<etc/RT_SiteConfig.pm>:
 
     Set($CalendarDisplayOwner, 1);
 
+=head3 Choosing the fields to be displayed in the popup
+
 You can change which fields show up in the popup display when you
 mouse over a date in F<etc/RT_SiteConfig.pm>:
 
-    Set(@CalendarPopupFields, ('Status', 'OwnerObj->Name', 'DueObj->ISO'));
+    Set(@CalendarPopupFields,
+        ('Status',
+         'OwnerObj->Name',
+         'DueObj->ISO',
+         'CustomField.{Maintenance Estimated Start Date/Time - ET}'));
+
+=head3 Event sorting
+
+You can set the order that the events will presented in the day cell with
+the C<$CalendarSortEvents> setting.
+
+This setting takes a subroutine reference that will receive an array of
+L<RT::Ticket> objects and should return a sorted array of L<RT::Ticket>.
+
+The following example sorts the events by status:
+
+    Set($CalendarSortEvents, sub {
+        my @Tickets = @_;
+        my @SortedTickets = sort { lc($a->Status) cmp lc($b->Status) } @Tickets;
+        return @SortedTickets;
+    });
+
+=head3 Event colors
+
+It's also possible to change the color of the events in the calendar by
+adding the C<$CalendarStatusColorMap> setting to your F<etc/RT_SiteConfig.pm>:
+
+    Set(%CalendarStatusColorMap, (
+        'new'                                   => 'blue',
+        'open'                                  => 'blue',
+        'approved'                              => 'green',
+        'rejected'                              => 'red',
+        'resolved'                              => '#aaa',
+    ));
+
+You can use any color declaration that CSS supports, including hex codes,
+color names, and RGB values.
+
+=head3 Event filtering by status
+
+You can change the statuses available for filtering on the calendar by
+adding the C<@CalendarFilterStatuses> setting to your
+F<etc/RT_SiteConfig.pm>:
+
+    Set(@CalendarFilterStatuses, qw(new open stalled rejected resolved));
+
+
+=head3 Custom icons
+
+Custom Icons can be defined for the events in the calendar by adding the
+C<$CalendarIcons> setting to your F<etc/RT_SiteConfig.pm>:
+
+    Set(%CalendarIcons, (
+        'CF.{Maintenance Estimated Start Date/Time - ET}'
+            => 'maint.png',
+    ));
+
+The images should be placed on F<local/static/images>.
 
 =head1 USAGE
 
@@ -312,7 +373,7 @@ or via the web at
 
 =head1 LICENSE AND COPYRIGHT
 
-This software is Copyright (c) 2010-2022 by Best Practical Solutions
+This software is Copyright (c) 2010-2023 by Best Practical Solutions
 
 Copyright 2007-2009 by Nicolas Chuche
 
