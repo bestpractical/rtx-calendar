@@ -1,3 +1,15 @@
+Set(%CalendarIcons, (
+    'Reminder'     => 'reminder.png',
+    'Resolved'     => 'resolved.png',
+    'Starts, Due'  => 'starts_due.png',
+    'Created, Due' => 'created_due.png',
+    'Created'      => 'created.png',
+    'Due'          => 'due.png',
+    'Starts'       => 'starts.png',
+    'Started'      => 'started.png',
+    'LastUpdated'  => 'updated.png',
+));
+
 Set(%CalendarStatusColorMap, (
     'new'                                   => '#87873c',
     'open'                                  => '#5555f8',

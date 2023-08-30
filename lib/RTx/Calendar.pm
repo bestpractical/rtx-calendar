@@ -160,6 +160,57 @@ sub SearchDefaultCalendar {
     }
 }
 
+sub GetEventImg {
+    my $Object      = shift;
+    my $CurrentDate = shift;
+    my $DateTypes   = shift;
+    my $IsReminder  = shift;
+    my $EventIcon;
+    my %CalendarIcons = RT->Config->Get('CalendarIcons');
+CALENDAR_ICON:
+    for my $DateField ( keys %CalendarIcons ) {
+
+      # Icon can be a combination of two dates such as Due-Created,
+      # or CF.{Date Field}-Created. It can be also single date such as Created
+        my @DatesToCompare = split( /,/, $DateField );
+    DATE_COMPARE:
+        for my $ComparedDate (@DatesToCompare) {
+            # trim spaces
+            $ComparedDate =~ s/^\s+|\s+$//g;
+            if ( $DateField eq 'Reminder' ) {
+                if ( $IsReminder
+                    && RTx::Calendar::LocalDate( $Object->DueObj->Unix ) eq
+                    $CurrentDate )
+                {
+                    $EventIcon = 'reminder.png';
+                    last CALENDAR_ICON;
+                }
+            } elsif ( $DateField =~ /^CF\./ ) {
+                my $cf = $DateField;
+                $cf =~ s/^CF\.\{(.*)\}/$1/;
+                my $DateValue = $Object->FirstCustomFieldValue($cf);
+                next CALENDAR_ICON unless $DateValue;
+                $DateValue =~ s/(.*) (.*)/$1/;
+                next CALENDAR_ICON unless $DateValue eq $CurrentDate;
+            } else {
+                my $DateObj = $ComparedDate . "Obj";
+                my $DateValue
+                    = RTx::Calendar::LocalDate( $Object->$DateObj->Unix );
+                next CALENDAR_ICON unless $DateValue eq $CurrentDate;
+            }
+
+            # If we are here, it means that all comparissons are true
+            $EventIcon = $CalendarIcons{$DateField};
+        }
+    }
+    if ($EventIcon) {
+        return '<img src="' . $RT::WebImagesURL . '/' . $EventIcon . '" />';
+    } else {
+        return '';
+    }
+}
+
+
 1;
 
 __END__
