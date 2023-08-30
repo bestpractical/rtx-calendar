@@ -161,6 +161,62 @@ sub SearchDefaultCalendar {
     }
 }
 
+sub GetEventImg {
+    my $Object      = shift;
+    my $CurrentDate = shift;
+    my $DateTypes   = shift;
+    my $IsReminder  = shift;
+    my $CurrentUser = shift;
+    my $EventIcon;
+    my %CalendarIcons = RT->Config->Get('CalendarIcons');
+
+CALENDAR_ICON:
+    for my $legend ( sort { (split /\s*,\s*/, $b) <=> (split /\s*,\s*/, $a) or ($a cmp $b) } keys %CalendarIcons ) {
+        if (   $legend eq 'Reminder'
+            && $IsReminder
+            && $Object->DueObj->ISO( Time => 0, Timezone => 'user' ) eq $CurrentDate )
+        {
+            $EventIcon = 'reminder.png';
+            last;
+        }
+
+        for my $DateField ( split /\s*,\s*/, $legend ) {
+            next CALENDAR_ICON unless $DateTypes->{$DateField};
+
+            if ( $DateField =~ /^CF\./ ) {
+                my $cf = $DateField;
+                $cf =~ s/^CF\.\{(.*)\}/$1/;
+                my $CustomFieldObj = $Object->LoadCustomFieldByIdentifier($cf);
+                next CALENDAR_ICON unless $CustomFieldObj->id;
+                my $DateValue = $Object->FirstCustomFieldValue($cf);
+                next CALENDAR_ICON unless $DateValue;
+                unless ( $CustomFieldObj->Type eq 'Date' ) {
+                    my $DateObj = RT::Date->new( $CurrentUser );
+                    $DateObj->Set( Format => 'ISO', Value => $DateValue );
+                    $DateValue = $DateObj->ISO( Time => 0, Timezone => 'user' );
+                }
+                next CALENDAR_ICON unless $DateValue eq $CurrentDate;
+            } else {
+                my $DateObj = $DateField . "Obj";
+                my $DateValue
+                    = $Object->$DateObj->ISO( Time => 0, Timezone => 'user' );
+                next CALENDAR_ICON unless $DateValue eq $CurrentDate;
+            }
+        }
+
+        # If we are here, it means that all comparissons are true
+        $EventIcon = $CalendarIcons{$legend};
+        last;
+    }
+
+    if ($EventIcon) {
+        return '<img src="' . $RT::WebImagesURL . '/' . $EventIcon . '" />';
+    } else {
+        return '';
+    }
+}
+
+
 1;
 
 __END__
