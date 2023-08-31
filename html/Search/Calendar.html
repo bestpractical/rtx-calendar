@@ -31,8 +31,14 @@ $FilterOnStatusClear => undef
     &>
 
   <form id="FilterOnStatusForm"
-  action="<%$RT::WebPath%>/Search/Calendar.html?<%$QueryString%>" method="post">
+  action="<%$RT::WebPath%>/Search/Calendar.html" method="post">
   <input type="hidden" name="BaseQuery" value="<%$BaseQuery%>" />
+  <input type="hidden" name="Month" value="<%$Month%>" />
+  <input type="hidden" name="Year" value="<%$Year%>" />
+  <input type="hidden" name="Format" value="<%$Format%>" />
+  <input type="hidden" name="Order" value="<%$Order%>" />
+  <input type="hidden" name="OrderBy" value="<%$OrderBy%>" />
+  <input type="hidden" name="RowsPerPage" value="<%$RowsPerPage%>" />
   <select name="FilterOnStatus" id="FilterOnStatus"
     class="selectpicker filteronstatus mt-3 mb-3" multiple="multiple" size="6">
 % for my $Status (sort {loc($a) cmp loc($b)} @{RT->Config->Get('CalendarFilterStatuses')}) {
@@ -293,6 +299,7 @@ my $QueryString =
       $m->comp(
         '/Elements/QueryString',
         Query   => $BaseQuery,
+        FilterOnStatus => \@FilterOnStatus,
         Format  => $Format,
         Order   => $Order,
         OrderBy => $OrderBy,
