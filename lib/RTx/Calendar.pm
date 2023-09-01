@@ -168,7 +168,7 @@ sub GetEventImg {
     my $EventIcon;
     my %CalendarIcons = RT->Config->Get('CalendarIcons');
 CALENDAR_ICON:
-    for my $DateField ( keys %CalendarIcons ) {
+    for my $DateField ( sort keys %{$DateTypes} ) {
 
       # Icon can be a combination of two dates such as Due-Created,
       # or CF.{Date Field}-Created. It can be also single date such as Created
