@@ -15,7 +15,11 @@ DESCRIPTION
     the CONFIGURATION section below for details on adding it.
 
 RT VERSION
-    Works with RT 4.2, 4.4, 5.0
+    Works with RT 5.
+
+    If you need to install this for RT 4.4.x, install version 1.05:
+
+        cpanm RTx::Calendar@1.05
 
 INSTALLATION
     perl Makefile.PL
@@ -47,15 +51,68 @@ CONFIGURATION
          MyAdminQueues MySupportQueues MyReminders RefreshHomepage)]);
 
   Display configuration
+   Displaying the owner
     You can show the owner in each day box by adding this line to your
     etc/RT_SiteConfig.pm:
 
         Set($CalendarDisplayOwner, 1);
 
+   Choosing the fields to be displayed in the popup
     You can change which fields show up in the popup display when you mouse
     over a date in etc/RT_SiteConfig.pm:
 
-        Set(@CalendarPopupFields, ('Status', 'OwnerObj->Name', 'DueObj->ISO'));
+        Set(@CalendarPopupFields,
+            ('Status',
+             'OwnerObj->Name',
+             'DueObj->ISO',
+             'CustomField.{Maintenance Estimated Start Date/Time - ET}'));
+
+   Event sorting
+    You can set the order that the events will presented in the day cell
+    with the $CalendarSortEvents setting.
+
+    This setting takes a subroutine reference that will receive an array of
+    RT::Ticket objects and should return a sorted array of RT::Ticket.
+
+    The following example sorts the events by status:
+
+        Set($CalendarSortEvents, sub {
+            my @Tickets = @_;
+            my @SortedTickets = sort { lc($a->Status) cmp lc($b->Status) } @Tickets;
+            return @SortedTickets;
+        });
+
+   Event colors
+    It's also possible to change the color of the events in the calendar by
+    adding the $CalendarStatusColorMap setting to your etc/RT_SiteConfig.pm:
+
+        Set(%CalendarStatusColorMap, (
+            'new'                                   => 'blue',
+            'open'                                  => 'blue',
+            'approved'                              => 'green',
+            'rejected'                              => 'red',
+            'resolved'                              => '#aaa',
+        ));
+
+    You can use any color declaration that CSS supports, including hex
+    codes, color names, and RGB values.
+
+   Event filtering by status
+    You can change the statuses available for filtering on the calendar by
+    adding the @CalendarFilterStatuses setting to your etc/RT_SiteConfig.pm:
+
+        Set(@CalendarFilterStatuses, qw(new open stalled rejected resolved));
+
+   Custom icons
+    Custom Icons can be defined for the events in the calendar by adding the
+    $CalendarIcons setting to your etc/RT_SiteConfig.pm:
+
+        Set(%CalendarIcons, (
+            'CF.{Maintenance Estimated Start Date/Time - ET}'
+                => 'maint.png',
+        ));
+
+    The images should be placed on local/static/images.
 
 USAGE
     A small help section is available in /Search/Calendar.html
@@ -75,7 +132,7 @@ BUGS
         L<rt.cpan.org|http://rt.cpan.org/Public/Dist/Display.html?Name=RTx-Calendar>.
 
 LICENSE AND COPYRIGHT
-    This software is Copyright (c) 2010-2022 by Best Practical Solutions
+    This software is Copyright (c) 2010-2023 by Best Practical Solutions
 
     Copyright 2007-2009 by Nicolas Chuche
 

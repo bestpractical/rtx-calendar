@@ -1,3 +1,12 @@
+1.07 2023-09-06
+ - Clicking Reset Filter no longer resets month display
+
+1.06 2023-08-30
+ - Minimum version of RT 5.0
+ - Add color-coded display of events by ticket status
+ - Filter event display by ticket status
+ - Added help panel
+
 1.05 2023-01-29
  - add a callback named BeforeFindTickets so user can modify the query
    or format of the calendar search
