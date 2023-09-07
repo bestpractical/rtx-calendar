@@ -301,20 +301,6 @@ if ($FilterOnStatus[0]) {
   $Query .= "($StatusClause)";
 }
 
-my $QueryString =
-      $m->comp(
-        '/Elements/QueryString',
-        Query   => $BaseQuery,
-        FilterOnStatus => \@FilterOnStatus,
-        Format  => $Format,
-        Order   => $Order,
-        OrderBy => $OrderBy,
-        Rows    => $RowsPerPage
-      )
-      if ($Query);
-
-$QueryString ||= 'NewQuery=1';
-
 # Default Query and Format
 my $TempFormat = "__Starts__ __Due__";
 my $TempQuery = "( Status = 'new' OR Status = 'open' OR Status = 'stalled')
@@ -329,6 +315,21 @@ if ( my $Search = RTx::Calendar::SearchDefaultCalendar($session{CurrentUser}) ) 
 # we overide them if needed
 $TempQuery  = $Query  if $Query;
 $TempFormat = $Format if $Format;
+$Format = $TempFormat unless $Format;
+
+my $QueryString =
+      $m->comp(
+        '/Elements/QueryString',
+        Query   => $BaseQuery,
+        FilterOnStatus => \@FilterOnStatus,
+        Format  => $Format,
+        Order   => $Order,
+        OrderBy => $OrderBy,
+        Rows    => $RowsPerPage
+      )
+      if ($Query);
+
+$QueryString ||= 'NewQuery=1';
 
 # we search all date types in Format string
 my @CoreDates    = grep { $TempFormat =~ m/__${_}(Relative)?__/ } @DateTypes;
