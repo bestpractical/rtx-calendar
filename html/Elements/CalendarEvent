@@ -2,52 +2,122 @@
 $Date => undef
 $Object => undef
 $DateTypes => undef
+$DayOfWeek => undef
+$TicketsSpanningDays => undef
+$WeekTicketPosition => undef
+$CurrentPostion => undef
 </%args>
-<div class="day">
-<small>
 
-    <% RTx::Calendar::GetEventImg($Object, $today, $DateTypes, $IsReminder)|n %>
-	<a href="<%$RT::WebPath%>/Ticket/Display.html?id=<%$TicketId%>"
-% if ( $CalendarStatusColorMap{$status} ) {
-    style="color: <%$CalendarStatusColorMap{$status}%>;"
+<%perl>
+my $spanning_tickets_for_today    = $TicketsSpanningDays->{$today}    || [];
+my $spanning_tickets_for_tomorrow = $TicketsSpanningDays->{$tomorrow} || [];
+my $first_day_of_the_event = 0;
+my $last_day_of_the_event = 0;
+# If the ticket is not in the spanning tickets for today array, it means
+# it's the first day of the event
+if ( ( ! grep { $_ eq $TicketId } @$spanning_tickets_for_today ) ) {
+    $first_day_of_the_event = 1;
+}
+if ( ( !grep { $_ eq $TicketId } @$spanning_tickets_for_tomorrow ) ) {
+    $last_day_of_the_event = 1;
+    # This frees up the position for the next ticket
+    $WeekTicketPosition->{$CurrentPostion}->{id} = "";
+}
+</%perl>
+
+<div class="day
+% if ( $last_day_of_the_event || $DayOfWeek eq 7 ) {
+    last-day
 % }
-    >
+% if ( $first_day_of_the_event || $DayOfWeek eq 1 ) {
+    first-day
+% }
+% my $status_class = 'event-status-'.$status;
+% $status_class =~ s/\s+/-/g;
+<% $status_class %>
+" style="
+% if ( $CalendarStatusColorMap{$status} ) {
+    background-color: <%$CalendarStatusColorMap{$status}%> !important;
+% }
+% # We need to decrease the z-index of the spanning days of an event
+% # so the event title (which is placed on the div of the first day of the
+% # event and has a z-index of 4) is visible, since it cross multiple days.
+% if ( (grep { $_ eq $TicketId } @$spanning_tickets_for_today)
+%        && $DayOfWeek ne 1 ) {
+    z-index: 3;
+% }
+" data-object="<% $Object->Type %>-<% $Object->id %>">
+
+    <small>
+        <div class="event-icon" style="
+% if ($last_day_of_the_event
+% && !$first_day_of_the_event) {
+            float: right;
+% }
+        ">
+% if ( $first_day_of_the_event || $last_day_of_the_event ) {
+% my $icon = RTx::Calendar::GetEventImg( $Object, $today, $DateTypes, $IsReminder, $session{'CurrentUser'} );
+            <% $icon|n %>
+% }
+        </div>
+        <div class="event-info">
+% if ( $first_day_of_the_event || $DayOfWeek eq 1 ) {
+        <a class="event-title" href="<%$RT::WebPath%>/Ticket/Display.html?id=<%$TicketId%>">
            <% $Object->QueueObj->Name %> #<% $TicketId %>
            <% $display_owner ? 'by ' . $Object->OwnerObj->Name : '' %>
-           <% length($Object->Subject) > 80 ? substr($Object->Subject, 0, 77) . "..." : $Object->Subject %></a></small><br />
-	<span class="tip">
-	<a href="<%$RT::WebPath%>/Ticket/Display.html?id=<%$TicketId%>">
-           <% $Object->QueueObj->Name %> #<% $TicketId %>
+           <% length($Object->Subject) > 80 ? substr($Object->Subject, 0, 77) . "..." : $Object->Subject %>
         </a>
-	:</strong> <% $subject%><br />
+        <span class="tip">
+            <a href="<%$RT::WebPath%>/Ticket/Display.html?id=<%$TicketId%>">
+               <% $Object->QueueObj->Name %> #<% $TicketId %>
+            </a>
+	        :</strong> <% $subject%><br />
 	<br />
 
-%# logic taken from Ticket/Search/Results.tsv
-% foreach my $attr (@display_fields) {
-%    my $value;
-%
-%    if ($attr =~ /(.*)->ISO$/ and $Object->$1->Unix <= 0) {
-%        $value = '-';
-%    } elsif ($attr =~ /CustomField\.\{(.*)\}$/) {
-%        my $cf = $1;
-%        $value = $Object->FirstCustomFieldValue($cf);
-%    } else {
-%        my $method = '$Object->'.$attr.'()';
-%        $method =~ s/->ISO\(\)$/->ISO( Timezone => 'user' )/;
-%        $value = eval $method;
-%        if ($@) {die "<b>Check your CalendarPopupFields config in etc/RT_SiteConfig.pm</b>.<br /><br />Failed to find \"$attr\" - ". $@};
-%    }
+<%perl>
+# logic taken from Ticket/Search/Results.tsv
+ foreach my $attr (@display_fields) {
+    my $value;
+
+    if ($attr =~ /(.*)->ISO$/ and $Object->$1->Unix <= 0) {
+        $value = '-';
+    } elsif ($attr =~ /CustomField\.\{(.*)\}$/) {
+        my $cf = $1;
+        my $cf_obj = $Object->LoadCustomFieldByIdentifier($cf);
+        unless ($cf_obj->id) {
+            $RT::Logger->debug("Custom field '$cf' not available for ticket #".$Object->id);
+            next;
+        }
+        $value = $Object->FirstCustomFieldValue($cf);
+        if (grep { $_ eq $cf_obj->Type} qw(DateTime Date)) {
+            my $date_value = RT::Date->new($session{'CurrentUser'});
+            my $date_format = $cf_obj->Type eq 'DateTime' ? 'ISO' : 'unknown';
+            $date_value->Set(Format => $date_format, Value => $value);
+            $value = $date_value->AsString( Timezone => 'user', Time => $cf_obj->Type eq 'DateTime' ? 1 : 0 );
+        }
+    } else {
+        my $method = '$Object->'.$attr.'()';
+        $method =~ s/->ISO\(\)$/->ISO( Timezone => 'user' )/;
+        $value = eval $method;
+        if ($@) {die "<b>Check your CalendarPopupFields config in etc/RT_SiteConfig.pm</b>.<br /><br />Failed to find \"$attr\" - ". $@};
+    }
+</%perl>
 	<strong><&|/l&><% $label_of{$attr} %></&>:</strong> <% $value %><br />
 % }
 
-<br />
-	</span>
+    <br />
+</span>
+% }
+    </div>
+</small>
+
 </div>
 
 <%init>
 use RTx::Calendar;
 
 my $today = $Date->strftime("%F");
+my $tomorrow = $Date->clone()->add(days => 1)->strftime("%F");
 
 my $TicketId;
 

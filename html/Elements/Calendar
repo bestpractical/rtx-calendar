@@ -62,27 +62,92 @@ $ShowSidebar => 0
 
 <tbody>
 <tr>
-% while ($date <= $end) {
-%   my @classes = ();
-%   push @classes, "offmonth"  if $date->month != ($Month + 1);
-%   push @classes, "today"     if (DateTime->compare($today,     $date) == 0);
-%   push @classes, "yesterday" if (DateTime->compare($yesterday, $date) == 0);
-%   push @classes, "aweekago"  if (DateTime->compare($aweekago,  $date) == 0);
+<%perl>
+# We use %week_ticket_position to control the display of tickets on the
+# calendar. It has the following structure:
+# {
+#   1 => { id => 123, TicketObj => $t },
+#   2 => { id => 312, TicketObj => $t },
+#   3 => { id => '', TicketObj => undef }, # empty position
+#   4 => { id => 111, TicketObj => $t },
+# }
+# where the key is the position/line of the ticket in the current week
+# when an event ends during the week, it's removed from the hash, openning
+# the position for a new ticket to be placed at the same line on the week,
+# saving some height on the calendar.
+# This variable is cleaned every time we start a new week.
+my %week_ticket_position;
+my $day_of_week = 1;
 
-    <td class="<% @classes %>"><div class="inside-day">
+while ($date <= $end) {
+  my @classes = ();
+  push @classes, "offmonth"  if $date->month != ($Month + 1);
+  push @classes, "today"     if (DateTime->compare($today,     $date) == 0);
+  push @classes, "yesterday" if (DateTime->compare($yesterday, $date) == 0);
+  push @classes, "aweekago"  if (DateTime->compare($aweekago,  $date) == 0);
+  push @classes, "weekday-$day_of_week";
+
+  for my $t ( @{ $Tickets->{ $date->strftime("%F") } || [] } ) {
+    # check if ticket was already displayed this week, if not, we need to find a
+    # position for it
+    unless ( grep { $week_ticket_position{$_}{id} eq $t->id } keys %week_ticket_position ) {
+      # new tickets should assume the first empty spot.
+      my $i = 1;
+      my $free_index = 0;
+      for my $index ( sort { $a <=> $b } keys %week_ticket_position ) {
+        if ( $week_ticket_position{$index}{id} eq "" ) {
+          $free_index = $i;
+          last;
+        }
+        $i++;
+      }
+      # if we found a free spot, we place the ticket there
+      if ( $free_index != 0 ) {
+        $week_ticket_position{$free_index}{id} = $t->id;
+        $week_ticket_position{$free_index}{TicketObj} = $t;
+      }
+      # if not, we add it to the end of the hash
+      else {
+        $week_ticket_position{((scalar keys %week_ticket_position)+1)}{id} = $t->id;
+        $week_ticket_position{((scalar keys %week_ticket_position))}{TicketObj} = $t;
+      }
+    }
+  }
+</%perl>
+
+    <td class="<% join(' ', @classes) %>"><div class="inside-day">
       <div class="calendardate"><%$date->day%></div>
-
-%     for my $t ( @{ $Tickets{$date->strftime("%F")} } ) {
-        <& /Elements/CalendarEvent, Object => $t, Date => $date, DateTypes => \%DateTypes &>
+%     for my $index ( sort { $a <=> $b } keys %week_ticket_position ) {
+%       if ( grep { $_->id eq $week_ticket_position{$index}{id} }
+%                 @{ $Tickets->{ $date->strftime("%F") } || [] } ) {
+%         my $t = $week_ticket_position{$index}{TicketObj};
+        <& /Elements/CalendarEvent,
+          Object              => $t,
+          Date                => $date,
+          DateTypes           => \%DateTypes,
+          DayOfWeek           => $day_of_week,
+          TicketsSpanningDays => $TicketsSpanningDays,
+          WeekTicketPosition  => \%week_ticket_position,
+          CurrentPostion      => $index,
+        &>
+%       }
+%       else {
+%         # if there's no ticket for this position, we add an empty space
+             <div class="day">&nbsp;</div>
+%       }
 %     }
-
     </div></td>
 
 %   $date = $set->next($date);
 %   if ( $date->day_of_week == $startday_of_week ) {
+% #   we start a new week with empty positions
+%     %week_ticket_position = ();
+%     $day_of_week=1;
       </tr><tr>
 %   }
-
+%   else {
+%     $day_of_week = $day_of_week + 1;
+%   }
 % }
 </tr>
 </tbody>
@@ -253,7 +318,7 @@ if (@FilterOnStatus) {
 
 $m->callback( CallbackName => 'BeforeFindTickets', ARGSRef => \%ARGS, QueryRef => \$TempQuery, FormatRef => \$TempFormat );
 
-my %Tickets = RTx::Calendar::FindTickets($session{'CurrentUser'}, $TempQuery, \@Dates, $date->strftime("%F"), $end->strftime("%F"));
+my ($Tickets, $TicketsSpanningDays) = RTx::Calendar::FindTickets($session{'CurrentUser'}, $TempQuery, \@Dates, $date->strftime("%F"), $end->strftime("%F"));
 
 my $DownloadQueryString =
       $m->comp(
@@ -263,5 +328,4 @@ my $DownloadQueryString =
         Order   => $Order,
         OrderBy => $OrderBy,
       );
-
 </%INIT>
