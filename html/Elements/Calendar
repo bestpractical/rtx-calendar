@@ -1,0 +1,213 @@
+<%args>
+</%args>
+
+<&| /Widgets/TitleBox,
+     title => loc('Calendar for [_1] [_2]', $rtdate->GetMonth($Month), $Year),
+     title_href => "?Month=$Month&Year=$Year&$QueryString",
+     &>
+
+<table width="100%">
+<tr>
+<td align="left">
+% my ($PMonth, $PYear) = ($Month - 1, $Year);
+% if ($PMonth < 0) {
+%    $PYear--;
+%    $PMonth = 11;
+% }
+<a href="?Month=<%$PMonth%>&Year=<%$PYear%>&<%$QueryString%>">&laquo; <%$rtdate->GetMonth($PMonth)%></a>
+</td>
+<th align="center">
+  <font size="+1"><% $rtdate->GetMonth($Month). " $Year" %></font>
+</th>
+<td align="right">
+% my ($NMonth, $NYear) = ($Month + 1, $Year);
+% if ($NMonth > 11) {
+%    $NYear++;
+%    $NMonth = 0;
+% }
+<a href="?Month=<%$NMonth%>&Year=<%$NYear%>&<%$QueryString%>"><%$rtdate->GetMonth($NMonth)%> &raquo;</a>
+</td>
+</tr>
+</table>
+
+<table class="rtxcalendar">
+
+<thead>
+<tr>
+% for ( @{$week{$weekstart}} ) {
+<th width="14%"><%$rtdate->GetWeekday($_)%></th>
+% }
+</tr>
+</thead>
+
+<tbody>
+<tr>
+% while ($date <= $end) {
+%   my @classes = ();
+%   push @classes, "offmonth"  if $date->month != ($Month + 1);
+%   push @classes, "today"     if (DateTime->compare($today,     $date) == 0);
+%   push @classes, "yesterday" if (DateTime->compare($yesterday, $date) == 0);
+%   push @classes, "aweekago"  if (DateTime->compare($aweekago,  $date) == 0);
+
+    <td class="<% @classes %>"><div class="inside-day">
+      <div class="calendardate"><%$date->day%></div>
+
+%     for my $t ( @{ $Tickets{$date->strftime("%F")} } ) {
+        <& /Elements/CalendarEvent, Object => $t, Date => $date, DateTypes => \%DateTypes &>
+%     }
+
+    </div></td>
+
+%   $date = $set->next($date);
+%   if ( $date->day_of_week == $startday_of_week ) {
+      </tr><tr>
+%   }
+
+% }
+</tr>
+</tbody>
+</table>
+
+<table width="100%">
+<tr>
+<td align="left">
+<a href="?Month=<%$PMonth%>&Year=<%$PYear%>&<%$QueryString%>">&laquo; <%$rtdate->GetMonth($PMonth)%></a>
+</td>
+
+<td valign="top" align="center">
+<form method="post" class="changeCalendarMonth" onsubmit="changeCalendarMonth()">
+
+<select name="Month" class="selectpicker form-control col-3">
+% for (0..11) {
+<option value="<%$_%>" <% $_ == $Month ? 'selected' : ''%> ><%$rtdate->GetMonth($_)%></option>
+% }
+</select>
+% my $year = (localtime)[5] + 1900;
+<select name="Year" class="selectpicker form-control col-3">
+% for ( ($year-5) .. ($year+5)) {
+<option value="<%$_%>" <% $_ == $Year ? 'selected' : ''%>><%$_%></option>
+% }
+</select>
+<input type="hidden" id="querystring" value="<% $QueryString|n %>" />
+<input type="submit" value="<% loc('Submit') %>" class="button btn btn-primary" />
+
+</form>
+</td>
+
+<td align="right">
+<a href="?Month=<%$NMonth%>&Year=<%$NYear%>&<%$QueryString%>"><%$rtdate->GetMonth($NMonth)%> &raquo;</a>
+</td>
+</tr>
+</table>
+
+<table width="100%">
+% foreach my $legend (sort keys %legend) {
+    <tr>
+      <td align="right">
+        <img src="<%$RT::WebImagesURL%>/<%$legend%>.png" />
+      </td>
+      <td align="left">
+%       my $more = 0;
+%       foreach ( @{$legend{$legend}} ) {
+          <% $more++ ? ', ' : '' %>
+          <&|/l&><% $_ %></&>
+%       }
+      </td>
+    </tr>
+% }
+
+</table>
+
+</&>
+
+<%ONCE>
+
+my %legend = (
+  'created'     => ['Created'],
+  'due'         => ['Due'],
+  'resolved'    => ['Resolved'],
+  'updated'     => ['Last Updated'],
+  'created_due' => ['Created','Due'],
+  'reminder'    => ['Reminders'],
+  'started'     => ['Started'],
+  'starts_due'  => ['Starts','Due'],
+);
+
+</%ONCE>
+<%INIT>
+my $Month = $DECODED_ARGS->{Month} || (localtime)[4];
+my $Year = $DECODED_ARGS->{Year}  || (localtime)[5] + 1900;
+my $Query = $DECODED_ARGS->{Query};
+my $Format = $DECODED_ARGS->{Format};
+my $Order = $DECODED_ARGS->{Order};
+my $OrderBy = $DECODED_ARGS->{OrderBy};
+my $RowsPerPage = $DECODED_ARGS->{RowsPerPage};
+my $NewQuery = $DECODED_ARGS->{NewQuery};
+
+my $title = loc("Calendar");
+
+my @DateTypes = qw/Created Starts Started Due LastUpdated Resolved/;
+
+my $rtdate = RT::Date->new($session{'CurrentUser'});
+
+my $weekstart = 'Sunday'; #RT::SiteConfig?  user pref?
+my %week = (
+  'Saturday' => [6,0..5],
+  'Sunday'   => [0..6],
+  'Monday'   => [1..6,0],
+);
+my $startday_of_week = ${$week{$weekstart}}[0]  || 7;
+my $endday_of_week   = ${$week{$weekstart}}[-1] || 7;
+
+my $today = DateTime->today;
+my $yesterday = $today->clone->subtract( days=>1 );
+my $aweekago  = $today->clone->subtract( days=>7 );
+my $date = RTx::Calendar::FirstDay($Year, $Month + 1, $startday_of_week );
+my $end  = RTx::Calendar::LastDay ($Year, $Month + 1, $endday_of_week );
+
+# use this to loop over days until $end
+my $set = DateTime::Set->from_recurrence(
+    next => sub { $_[0]->truncate( to => 'day' )->add( days => 1 ) }
+);
+
+my $QueryString =
+      $m->comp(
+        '/Elements/QueryString',
+        Query   => $Query,
+        Format  => $Format,
+        Order   => $Order,
+        OrderBy => $OrderBy,
+        Rows    => $RowsPerPage
+      )
+      if ($Query);
+
+$QueryString ||= 'NewQuery=1';
+
+# Default Query and Format
+my $TempFormat = "__Starts__ __Due__";
+my $TempQuery = "( Status = 'new' OR Status = 'open' OR Status = 'stalled')
+ AND ( Owner = '" . $session{CurrentUser}->Id ."' OR Owner = 'Nobody'  )
+ AND ( Type = 'reminder' OR 'Type' = 'ticket' )";
+
+if ( my $Search = RTx::Calendar::SearchDefaultCalendar($session{CurrentUser}) ) {
+  $TempFormat = $Search->SubValue('Format');
+  $TempQuery = $Search->SubValue('Query');
+}
+
+# we overide them if needed
+$TempQuery  = $Query  if $Query;
+$TempFormat = $Format if $Format;
+
+# we search all date types in Format string
+my @Dates = grep { $TempFormat =~ m/__${_}(Relative)?__/ } @DateTypes;
+
+# used to display or not a date in Element/CalendarEvent
+my %DateTypes = map { $_ => 1 } @Dates;
+
+$TempQuery .= RTx::Calendar::DatesClauses(\@Dates, $date->strftime("%F"), $end->strftime("%F"));
+
+$m->callback( CallbackName => 'BeforeFindTickets', ARGSRef => \%ARGS, QueryRef => \$TempQuery, FormatRef => \$TempFormat );
+
+my %Tickets = RTx::Calendar::FindTickets($session{'CurrentUser'}, $TempQuery, \@Dates, $date->strftime("%F"), $end->strftime("%F"));
+
+</%INIT>
