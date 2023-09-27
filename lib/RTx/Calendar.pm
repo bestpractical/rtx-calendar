@@ -330,7 +330,11 @@ CONFIGURATION section below for details on adding it.
 
 =head1 RT VERSION
 
-Works with RT 4.2, 4.4, 5.0
+Works with RT 5.
+
+If you need to install this for RT 4.4.x, install version 1.05:
+
+    cpanm RTx::Calendar@1.05
 
 =head1 INSTALLATION
 
@@ -343,12 +347,6 @@ Works with RT 4.2, 4.4, 5.0
 =item C<make install>
 
 May need root permissions
-
-=item patch RT
-
-Apply for versions prior to 4.4.2:
-
-    patch -p1 -d /path/to/rt < etc/tabs_privileged_callback.patch
 
 =item Edit your F</opt/rt5/etc/RT_SiteConfig.pm>
 
