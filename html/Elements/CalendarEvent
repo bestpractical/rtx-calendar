@@ -67,46 +67,9 @@ if ( ( !grep { $_ eq $TicketId } @$spanning_tickets_for_tomorrow ) ) {
            <% $display_owner ? 'by ' . $Object->OwnerObj->Name : '' %>
            <% length($Object->Subject) > 80 ? substr($Object->Subject, 0, 77) . "..." : $Object->Subject %>
         </a>
+% # Placeholder for the event details that will be loaded via AJAX on hover
         <span class="tip">
-            <a href="<%$RT::WebPath%>/Ticket/Display.html?id=<%$TicketId%>">
-               <% $Object->QueueObj->Name %> #<% $TicketId %>
-            </a>
-	        :</strong> <% $subject%><br />
-	<br />
-
-<%perl>
-# logic taken from Ticket/Search/Results.tsv
- foreach my $attr (@display_fields) {
-    my $value;
-
-    if ($attr =~ /(.*)->ISO$/ and $Object->$1->Unix <= 0) {
-        $value = '-';
-    } elsif ($attr =~ /CustomField\.\{(.*)\}$/) {
-        my $cf = $1;
-        my $cf_obj = $Object->LoadCustomFieldByIdentifier($cf);
-        unless ($cf_obj->id) {
-            $RT::Logger->debug("Custom field '$cf' not available for ticket #".$Object->id);
-            next;
-        }
-        $value = $Object->FirstCustomFieldValue($cf);
-        if (grep { $_ eq $cf_obj->Type} qw(DateTime Date)) {
-            my $date_value = RT::Date->new($session{'CurrentUser'});
-            my $date_format = $cf_obj->Type eq 'DateTime' ? 'ISO' : 'unknown';
-            $date_value->Set(Format => $date_format, Value => $value);
-            $value = $date_value->AsString( Timezone => 'user', Time => $cf_obj->Type eq 'DateTime' ? 1 : 0 );
-        }
-    } else {
-        my $method = '$Object->'.$attr.'()';
-        $method =~ s/->ISO\(\)$/->ISO( Timezone => 'user' )/;
-        $value = eval $method;
-        if ($@) {die "<b>Check your CalendarPopupFields config in etc/RT_SiteConfig.pm</b>.<br /><br />Failed to find \"$attr\" - ". $@};
-    }
-</%perl>
-	<strong><&|/l&><% $label_of{$attr} %></&>:</strong> <% $value %><br />
-% }
-
-    <br />
-</span>
+        </span>
 % }
     </div>
 </small>
@@ -145,32 +108,5 @@ my %CalendarStatusColorMap = RT->Config->Get('CalendarStatusColorMap');
 my $display_owner = $RT::CalendarDisplayOwner;
 $display_owner ||= RT->Config->Get('CalendarDisplayOwner')
     if RT->can('Config');
-
-
-# 3.6 config
-my @display_fields = @RT::CalendarPopupFields;
-
-# 3.8 config
-# the if condition is weird but it doesn't work with 3.8.0 without the last part
-@display_fields = RT->Config->Get('CalendarPopupFields')
-    if 0 == @display_fields and RT->can('Config') and RT->Config->Get('CalendarPopupFields');
-
-# default
-if (0 == @display_fields) {
-    @display_fields = qw(OwnerObj->Name CreatedObj->ISO StartsObj->ISO
-			 StartedObj->ISO LastUpdatedObj->ISO DueObj->ISO
-			 ResolvedObj->ISO Status Priority
-			 Requestors->MemberEmailAddressesAsString);
-}
-
-
-my %label_of;
-for my $field (@display_fields) {
-    my $label = $field;
-    $label =~ s'Obj-.(?:AsString|Name|ISO)''g;
-    $label =~ s'-\>MemberEmailAddressesAsString''g;
-    $label =~ s/CustomField\.\{(.*)\}/$1/g;
-    $label_of{$field} = $label;
-}
 
 </%init>

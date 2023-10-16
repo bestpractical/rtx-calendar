@@ -1,6 +1,12 @@
 window.onresize = resizeCalendarEventTitles;
 jQuery(function() {
     resizeCalendarEventTitles();
+
+    jQuery('div[data-object]>small>div.event-info>a.event-title').hover(
+        function(e) {
+            loadCalendarEventDetails(e);
+        }
+    );
 });
 
 /*
@@ -45,4 +51,21 @@ function changeCalendarMonth() {
     var year = jQuery('.changeCalendarMonth select[name="Year"]').val();
     var querystring = jQuery('.changeCalendarMonth #querystring').val();
     window.location.href = "?Month=" + month + "&Year=" + year + "&" + querystring;
+}
+
+function loadCalendarEventDetails(e) {
+    // data-object
+    var event = jQuery(e.currentTarget).parents('[data-object]').attr('data-object');
+    // remove hover event from the element to run only once
+    jQuery(e.currentTarget).off('mouseenter mouseleave');
+
+    var url = RT.Config.WebHomePath + '/Helpers/CalendarEventInfo?event=' + event;
+
+    jQuery.ajax({
+        url: url,
+        success: function(data) {
+            jQuery(e.currentTarget).parents('[data-object]')
+                .find('div.event-info>span.tip').html(data);
+        }
+    });
 }
