@@ -366,25 +366,106 @@ Add this line:
 
 =head1 CONFIGURATION
 
-=head2 Base configuration
+=head2 Use the calendar on Dashboard
 
-To use the C<MyCalendar> portlet, you must add C<MyCalendar> to
+The calendar comes with 3 different portlets that can be added to your
+RT dashboards:
+
+=over
+
+=item C<MyCalendar>, a summary of the events for the current week.
+
+=item C<Calendar>, a full month of the calendar view, without sidebar.
+
+=item C<CalendarWithSidebar>, a full month of the calendar view, with
+sidebar which includes an extra status filter and legends of the calendars.
+
+=back
+
 C<$HomepageComponents> in F<etc/RT_SiteConfig.pm>:
 
-  Set($HomepageComponents, [qw(QuickCreate Quicksearch MyCalendar
+  Set($HomepageComponents, [qw(QuickCreate Quicksearch
+     MyCalendar Calendar CalendarWithSidebar
      MyAdminQueues MySupportQueues MyReminders RefreshHomepage)]);
 
 =head2 Display configuration
+
+=head3 Displaying the owner
 
 You can show the owner in each day box by adding this line to your
 F<etc/RT_SiteConfig.pm>:
 
     Set($CalendarDisplayOwner, 1);
 
+=head3 Choosing the fields to be displayed in the popup
+
 You can change which fields show up in the popup display when you
 mouse over a date in F<etc/RT_SiteConfig.pm>:
 
-    Set(@CalendarPopupFields, ('Status', 'OwnerObj->Name', 'DueObj->ISO'));
+    Set(@CalendarPopupFields,
+        ('Status',
+         'OwnerObj->Name',
+         'DueObj->ISO',
+         'CustomField.{Maintenance Estimated Start Date/Time - ET}'));
+
+=head3 Event colors
+
+It's also possible to change the color of the events in the calendar by
+adding the C<$CalendarStatusColorMap> setting to your F<etc/RT_SiteConfig.pm>:
+
+    Set(%CalendarStatusColorMap, (
+        'new'                                   => 'blue',
+        'open'                                  => 'blue',
+        'approved'                              => 'green',
+        'rejected'                              => 'red',
+        'resolved'                              => '#aaa',
+    ));
+
+You can use any color declaration that CSS supports, including hex codes,
+color names, and RGB values.
+
+=head3 Event filtering by status
+
+You can change the statuses available for filtering on the calendar by
+adding the C<@CalendarFilterStatuses> setting to your
+F<etc/RT_SiteConfig.pm>:
+
+    Set(@CalendarFilterStatuses, qw(new open stalled rejected resolved));
+
+=head3 Default selected status on Filtering on Status field
+
+You can change the default selected statuses by adding them to the
+C<@CalendarFilterDefaultStatuses> setting to your F<etc/RT_SiteConfig.pm>:
+
+    Set(@CalendarFilterDefaultStatuses, qw(new open));
+
+=head3 Custom icons
+
+Custom Icons can be defined for the events in the calendar by adding the
+C<$CalendarIcons> setting to your F<etc/RT_SiteConfig.pm>:
+
+    Set(%CalendarIcons, (
+        'CF.{Maintenance Estimated Start Date/Time - ET}'
+            => 'maint.png',
+    ));
+
+The images should be placed on F<local/static/images>.
+
+=head3 Multiple days events
+
+You can define multiple days events by adding the C<%CalendarMultipleDaysEvents>
+setting to your F<etc/RT_SiteConfig.pm>:
+
+    Set( %CalendarMultipleDaysEvents, (
+            'Maintenance' => {
+                'Starts' => 'Starts',
+                'Ends'   => 'Due',
+            },
+        )
+    );
+
+Note that the Starts and Ends fields must be included in the search result
+Format in order the event to be displayed on the calendar.
 
 =head1 USAGE
 
@@ -408,7 +489,7 @@ or via the web at
 
 =head1 LICENSE AND COPYRIGHT
 
-This software is Copyright (c) 2010-2022 by Best Practical Solutions
+This software is Copyright (c) 2010-2023 by Best Practical Solutions
 
 Copyright 2007-2009 by Nicolas Chuche
 
