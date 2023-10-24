@@ -316,6 +316,9 @@ if (@FilterOnStatus) {
   $TempQuery .= "($StatusClause)";
 }
 
+# For back compatibility
+$m->callback( CallbackName => 'BeforeFindTickets', ARGSRef => \%ARGS, QueryRef => \$TempQuery, FormatRef => \$TempFormat, CallbackPage => '/Search/Calendar.html' ) if $m->request_path eq '/Search/Calendar.html';
+
 $m->callback( CallbackName => 'BeforeFindTickets', ARGSRef => \%ARGS, QueryRef => \$TempQuery, FormatRef => \$TempFormat );
 
 my ($Tickets, $TicketsSpanningDays) = RTx::Calendar::FindTickets($session{'CurrentUser'}, $TempQuery, \@Dates, $date->strftime("%F"), $end->strftime("%F"));
