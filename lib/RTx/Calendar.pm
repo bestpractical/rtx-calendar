@@ -138,9 +138,9 @@ sub FindTickets {
                 Value => $starts_date->Unix,
             );
 
-            my $end_date_unix = $ends_date->Unix;
+            my $end_date = $ends_date->ISO( Time => 0, Timezone => 'user' );
             my $first_day = 1;
-            while ( $current_date->Unix <= $end_date_unix )
+            while ( $current_date->ISO( Time => 0, Timezone => 'user' ) le $end_date )
             {
                 my $dateindex = $current_date->ISO( Time => 0, Timezone => 'user' );
 
