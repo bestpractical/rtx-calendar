@@ -140,7 +140,11 @@ sub FindTickets {
 
             my $end_date = $ends_date->ISO( Time => 0, Timezone => 'user' );
             my $first_day = 1;
-            while ( $current_date->ISO( Time => 0, Timezone => 'user' ) le $end_date )
+            # We want to prevent infinite loops if user for some reason
+            # set a future date for year 3000 or something like that
+            my $prevent_infinite_loop = 0;
+            while ( ( $current_date->ISO( Time => 0, Timezone => 'user' ) le $end_date )
+                && ( $prevent_infinite_loop++ < 10000 ) )
             {
                 my $dateindex = $current_date->ISO( Time => 0, Timezone => 'user' );
 
