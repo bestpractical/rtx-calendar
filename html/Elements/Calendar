@@ -192,7 +192,7 @@ while ($date <= $end) {
 </div>
 <%INIT>
 my $NotFirstAccess = $DECODED_ARGS->{NotFirstAccess};
-my $Month = $DECODED_ARGS->{Month} || (localtime)[4];
+my $Month = $DECODED_ARGS->{Month} // (localtime)[4];
 my $Year = $DECODED_ARGS->{Year}  || (localtime)[5] + 1900;
 my $Query = $DECODED_ARGS->{Query};
 my $Format = $DECODED_ARGS->{Format};
