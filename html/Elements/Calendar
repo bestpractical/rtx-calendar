@@ -162,13 +162,13 @@ while ($date <= $end) {
 <td valign="top" align="center">
 <form method="post" class="changeCalendarMonth" onsubmit="changeCalendarMonth()">
 
-<select name="Month" class="selectpicker form-control col-3">
+<select name="SelectedMonth" class="selectpicker form-control col-3">
 % for (0..11) {
 <option value="<%$_%>" <% $_ == $Month ? 'selected' : ''%> ><%$rtdate->GetMonth($_)%></option>
 % }
 </select>
 % my $year = (localtime)[5] + 1900;
-<select name="Year" class="selectpicker form-control col-3">
+<select name="SelectedYear" class="selectpicker form-control col-3">
 % for ( ($year-5) .. ($year+5)) {
 <option value="<%$_%>" <% $_ == $Year ? 'selected' : ''%>><%$_%></option>
 % }
@@ -192,8 +192,8 @@ while ($date <= $end) {
 </div>
 <%INIT>
 my $NotFirstAccess = $DECODED_ARGS->{NotFirstAccess};
-my $Month = $DECODED_ARGS->{Month} // (localtime)[4];
-my $Year = $DECODED_ARGS->{Year}  || (localtime)[5] + 1900;
+my $Month = $DECODED_ARGS->{SelectedMonth} // $DECODED_ARGS->{Month} // (localtime)[4];
+my $Year = $DECODED_ARGS->{SelectedYear} // $DECODED_ARGS->{Year}  || (localtime)[5] + 1900;
 my $Query = $DECODED_ARGS->{Query};
 my $Format = $DECODED_ARGS->{Format};
 my $Order = $DECODED_ARGS->{Order};
