@@ -160,7 +160,7 @@ while ($date <= $end) {
 </td>
 
 <td valign="top" align="center">
-<form method="post" class="changeCalendarMonth" onsubmit="changeCalendarMonth()">
+<form method="post" class="changeCalendarMonth" action="?<% $QueryString %>" onsubmit="changeCalendarMonth()">
 
 <select name="SelectedMonth" class="selectpicker form-control col-3">
 % for (0..11) {
