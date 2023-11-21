@@ -48,7 +48,7 @@
     </&>
 
 <&| /Widgets/TitleBox,
-     title => loc('State Colors'),
+     title => loc('Status Colors'),
      &>
 % my %ColorStatusMap = RT->Config->Get('CalendarStatusColorMap');
 % foreach my $Status (sort { lc($a) cmp lc($b) } keys %ColorStatusMap) {
