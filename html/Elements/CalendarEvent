@@ -38,6 +38,8 @@ if ( ( !grep { $_ eq $TicketId } @$spanning_tickets_for_tomorrow ) ) {
 " style="
 % if ( $CalendarStatusColorMap{$status} ) {
     background-color: <%$CalendarStatusColorMap{$status}%> !important;
+% } else {
+    background-color: <%$CalendarStatusColorMap{'_default_'}%> !important;
 % }
 % # We need to decrease the z-index of the spanning days of an event
 % # so the event title (which is placed on the div of the first day of the

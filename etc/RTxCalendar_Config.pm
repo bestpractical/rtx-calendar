@@ -11,6 +11,7 @@ Set(%CalendarIcons, (
 ));
 
 Set(%CalendarStatusColorMap, (
+    '_default_'                             => '#5555f8',
     'new'                                   => '#87873c',
     'open'                                  => '#5555f8',
     'rejected'                              => '#FF0000',
