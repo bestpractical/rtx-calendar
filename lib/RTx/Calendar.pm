@@ -317,28 +317,28 @@ __END__
 
 =head1 NAME
 
-RTx::Calendar - Calendar for RT due dates
+RTx::Calendar - Calendar view for RT ticket dates and custom fields
 
 =head1 DESCRIPTION
 
-This RT extension provides a calendar view for your tickets and your
-reminders so you see when is your next due ticket. You can find it in
-ticket search sub navigation menu.
+C<RTx::Calendar> provides a calendar view to display tickets and
+reminders based on selected dates. Once the extension is installed,
+if you perform a ticket search using the Query Builder, you will see
+a new Calendar entry in the page menu. You can click that menu to see
+the calendar view of your search. A portlet is also available to add
+to any dashboard, including on the RT home page.
 
-Date fields in the search results are displayed/used in the calendar,
-for example if you have a ticket with a due date, it won't be displayed on
-that date unless the Due field is included in the search result format.
+=begin HTML
 
-There's a portlet to put on your home page (see Prefs/MyRT.html), see the
-CONFIGURATION section below for details on adding it.
+<p><img src="https://static.bestpractical.com/images/calendar/calendar.png" alt="Calendar Overview" /></p>
+
+=end HTML
 
 =head1 RT VERSION
 
 Works with RT 5.
 
-If you need to install this for RT 4.4.x, install version 1.05:
-
-    cpanm RTx::Calendar@1.05
+For older versions of RT, see the CHANGES file for compatible earlier versions.
 
 =head1 INSTALLATION
 
@@ -366,36 +366,95 @@ Add this line:
 
 =back
 
+=head1 USAGE
+
+To view a Calendar, first perform a ticket search in the ticket Query
+Builder and load the search results. Then click the Calendar item in the
+page menu to see the calendar view based on the results from that search.
+
+By default, RTx::Calendar will display the Starts and Due date fields of
+each ticket from your search results as events on the Calendar.
+
+Other date fields added to the Format of a ticket search are displayed on the
+Calendar as events. You can also display events based on Date or DateTime
+custom fields by adding them to the Format of a ticket search as well.
+
+Hover over events in the calendar to see additional details for that event.
+You can click on entries to go to the ticket.
+
+=head2 Displaying Other Date Fields
+
+You can show other date fields as events on the Calendar by adding them
+to the Format section at the Advanced tab of your query. You can add and
+remove dates from search results using the Display Columns section at
+the bottom of the Query Builder.
+
+Changes made using the Display Columns settings automatically update the
+search Format. You can also edit the Format directly on the Advanced page.
+
+=head2 Calendar Portlet Saved Searches
+
+As described above, you can see a calendar for any ticket search using
+the calendar link in the search results.
+
+You can also create a saved search for the calendar to be used in calendar
+portlets on dashboards. See L</"CONFIGURATION"> for details on adding the
+calendar portlets.
+
+By default, the calendar looks for a saved search with the name "calendar"
+and will use that search for calendar portlets. Saved searches can be
+saved with different privacy settings, so your system can have multiple
+saved "calendar" searches. For a given user, the calendar first checks
+for a user-level saved search (personal to that user), then for a group-level
+saved search for groups the user is in, and finally, for a system-level saved
+search.
+
+=head2 Displaying Reminders
+
+Reminders are displayed on the Calendar only if you explicitly add the
+following clause to your query:
+
+    AND ( Type = 'ticket' OR Type = 'reminder' )
+
 =head1 CONFIGURATION
 
-=head2 Use the calendar on Dashboard
+=head2 Use the Calendar on Dashboard
 
-The calendar comes with 3 different portlets that can be added to your
+The Calendar comes with 3 different portlets that can be added to your
 RT dashboards:
 
 =over
 
-=item C<MyCalendar>, a summary of the events for the current week.
+=item C<MyCalendar>
 
-=item C<Calendar>, a full month of the calendar view, without sidebar.
+A summary of the events for the current week.
 
-=item C<CalendarWithSidebar>, a full month of the calendar view, with
-sidebar which includes an extra status filter and legends of the calendars.
+=item C<Calendar>
+
+A full-month view of the Calendar.
+
+=item C<CalendarWithSidebar>
+
+A full-month view of the Calendar, with a sidebar that includes an extra
+status filter and legends of the Calendar events.
 
 =back
 
-C<$HomepageComponents> in F<etc/RT_SiteConfig.pm>:
+To make these portlets available in RT, add them to the
+C<$HomepageComponents> configuration in your F<etc/RT_SiteConfig.pm>:
 
-  Set($HomepageComponents, [qw(QuickCreate Quicksearch
-     MyCalendar Calendar CalendarWithSidebar
-     MyAdminQueues MySupportQueues MyReminders RefreshHomepage)]);
+    Set($HomepageComponents, [qw(QuickCreate Quicksearch
+        MyAdminQueues MySupportQueues MyReminders RefreshHomepage
+        MyCalendar Calendar CalendarWithSidebar)]);
 
-=head2 Display configuration
+Users can then select them when building dashboards.
 
-=head3 Displaying the owner
+=head2 Display Configuration
 
-You can show the owner in each day box by adding this line to your
-F<etc/RT_SiteConfig.pm>:
+=head3 Display Owner
+
+You can show the owner of the ticket in each event box by adding this line
+to your F<etc/RT_SiteConfig.pm>:
 
     Set($CalendarDisplayOwner, 1);
 
@@ -433,64 +492,124 @@ has other format options. User fields, like Owner, can use the methods shown
 in the C<RT::User> documentation to show values like EmailAddress or
 RealName, for example.
 
-=head3 Event colors
+=head3 Event Colors
 
-It's also possible to change the color of the events in the calendar by
-adding the C<$CalendarStatusColorMap> setting to your F<etc/RT_SiteConfig.pm>:
+The Calendar shows events in different colors based on the ticket status.
+Use C<$CalendarStatusColorMap> to set alternate colors or add custom statuses.
+The following is the default configuration:
 
     Set(%CalendarStatusColorMap, (
-        'new'                                   => 'blue',
-        'open'                                  => 'blue',
-        'approved'                              => 'green',
-        'rejected'                              => 'red',
-        'resolved'                              => '#aaa',
+        '_default_'                             => '#5555f8',
+        'new'                                   => '#87873c',
+        'open'                                  => '#5555f8',
+        'rejected'                              => '#FF0000',
+        'resolved'                              => '#72b872',
+        'stalled'                               => '#FF0000',
     ));
 
 You can use any color declaration that CSS supports, including hex codes,
 color names, and RGB values.
 
-=head3 Event filtering by status
+The C<_default_> key is used for events that don't have a status
+in the C<$CalendarStatusColorMap> hash. The default color is a dark tone of
+blue.
 
-You can change the statuses available for filtering on the calendar by
-adding the C<@CalendarFilterStatuses> setting to your
-F<etc/RT_SiteConfig.pm>:
+=head3 Filter on Status
+
+The Calendar has a Filter on Status section that allows you to filter
+events by status without having to change the original query.
+The C<@CalendarFilterStatuses> setting controls which statuses are available
+for filtering. The following is the default:
 
     Set(@CalendarFilterStatuses, qw(new open stalled rejected resolved));
 
-=head3 Default selected status on Filtering on Status field
-
-You can change the default selected statuses by adding them to the
-C<@CalendarFilterDefaultStatuses> setting to your F<etc/RT_SiteConfig.pm>:
+You can change the default selected statuses of the Filter On Status section
+by defining C<@CalendarFilterDefaultStatuses>. The following is the default:
 
     Set(@CalendarFilterDefaultStatuses, qw(new open));
 
-=head3 Custom icons
+=head3 Custom Icons
 
-Custom Icons can be defined for the events in the calendar by adding the
-C<$CalendarIcons> setting to your F<etc/RT_SiteConfig.pm>:
+The calendar shows different icons for events based on the date fields
+used to display the event on that day. The C<%CalendarIcons> setting
+controls which icons are used for each date field. The following is the
+default using provided icons:
 
     Set(%CalendarIcons, (
-        'CF.{Maintenance Estimated Start Date/Time - ET}'
-            => 'maint.png',
+        'Reminder'     => 'reminder.png',
+        'Resolved'     => 'resolved.png',
+        'Starts, Due'  => 'starts_due.png',
+        'Created, Due' => 'created_due.png',
+        'Created'      => 'created.png',
+        'Due'          => 'due.png',
+        'Starts'       => 'starts.png',
+        'Started'      => 'started.png',
+        'LastUpdated'  => 'updated.png',
     ));
 
-The images should be placed on F<local/static/images>.
+You can also define icons for custom fields by using the following format:
 
-=head3 Multiple days events
+        'CF.{Maintenance Start}' => 'maintstart.png',
+        'CF.{Maintenance Stop}'  => 'maintstop.png',
 
-You can define multiple days events by adding the C<%CalendarMultipleDaysEvents>
-setting to your F<etc/RT_SiteConfig.pm>:
+To add custom images, create a directory F<local/static/images> in your installed
+RT directory (usually F</opt/rt5>) and copy images files there.
+
+You can use any image format that your browser supports, but PNGs and GIFs
+with transparent backgrounds are recommended because they will display better
+to the background color of the events. The recommended size is 10 pixels wide
+and 7 pixels in high.
+
+=head3 Multiple Days Events
+
+By default, calendars display individual events on each day based on
+the dates in the query.
+
+=begin HTML
+
+<p><img src="https://static.bestpractical.com/images/calendar/calendar-disconnected-events.png" alt="Calendar Disconnected Events" /></p>
+
+=end HTML
+
+To display events that span multiple days, such as the full expected
+duration of a change blackout period, define the fields using the
+C<%CalendarMultipleDaysEvents> configuration. This option accepts
+named keys that each define the field to reference for the start (Starts)
+and end (Ends) of multi-day events. For example:
 
     Set( %CalendarMultipleDaysEvents, (
-            'Maintenance' => {
-                'Starts' => 'Starts',
-                'Ends'   => 'Due',
-            },
-        )
-    );
+        'Project Task' => {
+            'Starts' => 'Starts',
+            'Ends'   => 'Due',
+        },
+    ));
 
-Note that the Starts and Ends fields must be included in the search result
-Format in order the event to be displayed on the calendar.
+=begin HTML
+
+<p><img src="https://static.bestpractical.com/images/calendar/calendar-multiple-days-events.png" alt="Calendar Multi-days Events" /></p>
+
+=end HTML
+
+The keys, like C<Project Task>, are arbitrary labels to group each
+set, so you can use a name that helps you identify the entry.
+
+You can also define multiple day events for custom fields by using the
+following format:
+
+    Set( %CalendarMultipleDaysEvents, (
+        'Maintenance' => {
+            "Starts" => "CF.{Maintenance Start}",
+            "Ends"   => "CF.{Maintenance Stop}",
+        },
+        'Project Task' => {
+            'Starts' => 'Starts',
+            'Ends'   => 'Due',
+        },
+    ));
+
+As with all calendar entries, the date fields referenced in the
+configuration must be included in the search result Format to
+display the event on the Calendar.
 
 =head1 AUTHOR
 

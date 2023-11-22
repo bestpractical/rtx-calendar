@@ -1,5 +1,5 @@
 ---
-abstract: 'Calendar for RT due dates'
+abstract: 'Calendar view for RT ticket dates and custom fields'
 author:
   - 'Best Practical Solutions, LLC'
 build_requires:
