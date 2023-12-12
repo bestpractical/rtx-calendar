@@ -23,4 +23,17 @@ Set(@CalendarFilterStatuses, qw(new open stalled rejected resolved));
 
 Set(@CalendarFilterDefaultStatuses, qw(new open));
 
+Set(@CalendarPopupFields, (
+    "OwnerObj->Name",
+    "CreatedObj->ISO",
+    "StartsObj->ISO",
+    "StartedObj->ISO",
+    "LastUpdatedObj->ISO",
+    "DueObj->ISO",
+    "ResolvedObj->ISO",
+    "Status",
+    "Priority",
+    "Requestors->MemberEmailAddressesAsString",
+));
+
 1;

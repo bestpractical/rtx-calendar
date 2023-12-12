@@ -61,14 +61,37 @@ CONFIGURATION
         Set($CalendarDisplayOwner, 1);
 
    Choosing the fields to be displayed in the popup
-    You can change which fields show up in the popup display when you mouse
-    over a date in etc/RT_SiteConfig.pm:
+    When you mouse over events on the calendar, a popup window shows
+    additional details from the ticket associated with that event. You can
+    configure which fields are displayed with @CalendarPopupFields. This is
+    the default configuration:
 
-        Set(@CalendarPopupFields,
-            ('Status',
-             'OwnerObj->Name',
-             'DueObj->ISO',
-             'CustomField.{Maintenance Estimated Start Date/Time - ET}'));
+        Set(@CalendarPopupFields, (
+            "OwnerObj->Name",
+            "CreatedObj->ISO",
+            "StartsObj->ISO",
+            "StartedObj->ISO",
+            "LastUpdatedObj->ISO",
+            "DueObj->ISO",
+            "ResolvedObj->ISO",
+            "Status",
+            "Priority",
+            "Requestors->MemberEmailAddressesAsString",
+        ));
+
+    To show custom field values, add them using the custom field name in
+    this format: "CustomField.{Maintenance Start}".
+
+    Valid values are all fields on an RT ticket. See the RT documentation
+    for RT::Ticket for a list.
+
+    As shown above, for ticket fields that can have multiple output formats,
+    like dates and users, you can also use the Obj associated with the field
+    to call a specific method to display the format you want. The ticket
+    dates shown above will display dates in ISO format. The documentation
+    for RT::Date has other format options. User fields, like Owner, can use
+    the methods shown in the RT::User documentation to show values like
+    EmailAddress or RealName, for example.
 
    Event colors
     It's also possible to change the color of the events in the calendar by
@@ -123,11 +146,8 @@ CONFIGURATION
     Note that the Starts and Ends fields must be included in the search
     result Format in order the event to be displayed on the calendar.
 
-USAGE
-    A small help section is available in /Search/Calendar.html
-
 AUTHOR
-    Best Practical Solutions, LLC <modules@bestpractical.com>
+    Best Practical Solutions, LLC
 
     Originally written by Nicolas Chuche <nchuche@barna.be>
 

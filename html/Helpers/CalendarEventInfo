@@ -25,15 +25,13 @@ if ($Object->Type eq 'reminder') {
     $status = $Object->Status;
 }
 
-my @display_fields = RT->Config->Get('CalendarPopupFields');
-
-# default
-if (0 == @display_fields) {
-    @display_fields = qw(OwnerObj->Name CreatedObj->ISO StartsObj->ISO
-			 StartedObj->ISO LastUpdatedObj->ISO DueObj->ISO
-			 ResolvedObj->ISO Status Priority
-			 Requestors->MemberEmailAddressesAsString);
+my @display_fields = ();
+if ( RT->Config->Get('CalendarPopupFields') ) {
+    @display_fields = RT->Config->Get('CalendarPopupFields');
 }
+
+RT->Logger->warning("No CalendarPopupFields defined. Popups will have no extra information.")
+    unless @display_fields;
 
 my %label_of;
 for my $field (@display_fields) {

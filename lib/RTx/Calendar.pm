@@ -401,14 +401,37 @@ F<etc/RT_SiteConfig.pm>:
 
 =head3 Choosing the fields to be displayed in the popup
 
-You can change which fields show up in the popup display when you
-mouse over a date in F<etc/RT_SiteConfig.pm>:
+When you mouse over events on the calendar, a popup window shows additional
+details from the ticket associated with that event. You can configure which
+fields are displayed with C<@CalendarPopupFields>. This is the default
+configuration:
 
-    Set(@CalendarPopupFields,
-        ('Status',
-         'OwnerObj->Name',
-         'DueObj->ISO',
-         'CustomField.{Maintenance Estimated Start Date/Time - ET}'));
+    Set(@CalendarPopupFields, (
+        "OwnerObj->Name",
+        "CreatedObj->ISO",
+        "StartsObj->ISO",
+        "StartedObj->ISO",
+        "LastUpdatedObj->ISO",
+        "DueObj->ISO",
+        "ResolvedObj->ISO",
+        "Status",
+        "Priority",
+        "Requestors->MemberEmailAddressesAsString",
+    ));
+
+To show custom field values, add them using the custom field name in
+this format: C<"CustomField.{Maintenance Start}">.
+
+Valid values are all fields on an RT ticket. See the RT documentation for
+C<RT::Ticket> for a list.
+
+As shown above, for ticket fields that can have multiple output formats,
+like dates and users, you can also use the C<Obj> associated with the field
+to call a specific method to display the format you want. The ticket dates
+shown above will display dates in C<ISO> format. The documentation for C<RT::Date>
+has other format options. User fields, like Owner, can use the methods shown
+in the C<RT::User> documentation to show values like EmailAddress or
+RealName, for example.
 
 =head3 Event colors
 
@@ -469,13 +492,9 @@ setting to your F<etc/RT_SiteConfig.pm>:
 Note that the Starts and Ends fields must be included in the search result
 Format in order the event to be displayed on the calendar.
 
-=head1 USAGE
-
-A small help section is available in /Search/Calendar.html
-
 =head1 AUTHOR
 
-Best Practical Solutions, LLC E<lt>modules@bestpractical.comE<gt>
+Best Practical Solutions, LLC
 
 Originally written by Nicolas Chuche E<lt>nchuche@barna.beE<gt>
 
