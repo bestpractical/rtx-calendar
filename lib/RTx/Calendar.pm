@@ -4,9 +4,10 @@ use strict;
 use DateTime;
 use DateTime::Set;
 
-our $VERSION = "1.05";
+our $VERSION = "1.08";
 
 RT->AddStyleSheets('calendar.css');
+RT->AddJavaScript('calendar.js');
 
 sub FirstDay {
     my ( $year, $month, $matchday ) = @_;
@@ -33,14 +34,6 @@ sub LastDay {
     $day;
 }
 
-# we can't use RT::Date::Date because it uses gmtime
-# and we need localtime
-sub LocalDate {
-    my $ts = shift;
-    my ( $d, $m, $y ) = ( localtime($ts) )[ 3 .. 5 ];
-    sprintf "%4d-%02d-%02d", ( $y + 1900 ), ++$m, $d;
-}
-
 sub DatesClauses {
     my ( $Dates, $begin, $end ) = @_;
 
@@ -49,6 +42,30 @@ sub DatesClauses {
     my @DateClauses = map {
         "($_ >= '" . $begin . " 00:00:00' AND $_ <= '" . $end . " 23:59:59')"
     } @$Dates;
+
+    # All multiple days events are already covered on the query above
+    # The following code works for covering events that start before and ends
+    # after the selected period.
+    # Start and end fields of the multiple days must also be present on the
+    # format.
+    my $multiple_days_events = RT->Config->Get('CalendarMultipleDaysEvents');
+    for my $event ( keys %$multiple_days_events ) {
+        next unless
+            grep { $_ eq $multiple_days_events->{$event}{'Starts'} } @$Dates;
+        next unless
+            grep { $_ eq $multiple_days_events->{$event}{'Ends'} } @$Dates;
+        push @DateClauses,
+            "("
+            . $multiple_days_events->{$event}{Starts}
+            . " <= '"
+            . $end
+            . " 00:00:00' AND "
+            . $multiple_days_events->{$event}{Ends}
+            . " >= '"
+            . $begin
+            . " 23:59:59')";
+    }
+
     $clauses .= " AND " . " ( " . join( " OR ", @DateClauses ) . " ) "
         if @DateClauses;
 
@@ -58,31 +75,138 @@ sub DatesClauses {
 sub FindTickets {
     my ( $CurrentUser, $Query, $Dates, $begin, $end ) = @_;
 
+    my $multiple_days_events = RT->Config->Get('CalendarMultipleDaysEvents');
+    my @multiple_days_fields;
+    for my $event ( keys %$multiple_days_events ) {
+        next unless
+            grep { $_ eq $multiple_days_events->{$event}{'Starts'} } @$Dates;
+        next unless
+            grep { $_ eq $multiple_days_events->{$event}{'Ends'} } @$Dates;
+        for my $type ( keys %{ $multiple_days_events->{$event} } ) {
+            push @multiple_days_fields,
+                $multiple_days_events->{$event}{$type};
+        }
+    }
+
     $Query .= DatesClauses( $Dates, $begin, $end )
         if $begin and $end;
 
     my $Tickets = RT::Tickets->new($CurrentUser);
     $Tickets->FromSQL($Query);
-
+    $Tickets->OrderBy( FIELD => 'id', ORDER => 'ASC' );
     my %Tickets;
     my %AlreadySeen;
+    my %TicketsSpanningDays;
+    my %TicketsSpanningDaysAlreadySeen;
 
     while ( my $Ticket = $Tickets->Next() ) {
-
         # How to find the LastContacted date ?
+        # Find single day events fields
         for my $Date (@$Dates) {
-            my $DateObj = $Date . "Obj";
-            push @{ $Tickets{ LocalDate( $Ticket->$DateObj->Unix ) } },
+            # $dateindex is the date to use as key in the Tickets Hash
+            # in the YYYY-MM-DD format
+            # Tickets are then groupd by date in the %Tickets hash
+            my $dateindex_obj = GetDate( $Date, $Ticket, $CurrentUser );
+            next unless $dateindex_obj;
+            my $dateindex = $dateindex_obj->ISO( Time => 0, Timezone => 'user' );
+            push @{ $Tickets{$dateindex } },
                 $Ticket
 
                 # if reminder, check it's refering to a ticket
                 unless ( $Ticket->Type eq 'reminder'
                 and not $Ticket->RefersTo->First )
-                or $AlreadySeen{ LocalDate( $Ticket->$DateObj->Unix ) }
+                or $AlreadySeen{ $dateindex }
                 {$Ticket}++;
         }
+
+        # Find spanning days of multiple days events
+        for my $event (sort keys %$multiple_days_events) {
+            next unless
+                grep { $_ eq $multiple_days_events->{$event}{'Starts'} } @$Dates;
+            next unless
+                grep { $_ eq $multiple_days_events->{$event}{'Ends'} } @$Dates;
+            my $starts_field = $multiple_days_events->{$event}{'Starts'};
+            my $ends_field   = $multiple_days_events->{$event}{'Ends'};
+            my $starts_date  = GetDate( $starts_field, $Ticket, $CurrentUser );
+            my $ends_date    = GetDate( $ends_field,   $Ticket, $CurrentUser );
+            next unless $starts_date and $ends_date;
+            # Loop through all days between start and end and add the ticket
+            # to it
+            my $current_date = RT::Date->new($CurrentUser);
+            $current_date->Set(
+                Format => 'unix',
+                Value => $starts_date->Unix,
+            );
+
+            my $end_date = $ends_date->ISO( Time => 0, Timezone => 'user' );
+            my $first_day = 1;
+            # We want to prevent infinite loops if user for some reason
+            # set a future date for year 3000 or something like that
+            my $prevent_infinite_loop = 0;
+            while ( ( $current_date->ISO( Time => 0, Timezone => 'user' ) le $end_date )
+                && ( $prevent_infinite_loop++ < 10000 ) )
+            {
+                my $dateindex = $current_date->ISO( Time => 0, Timezone => 'user' );
+
+                push @{ $TicketsSpanningDays{$dateindex} }, $Ticket->id
+                    unless $first_day
+                    || $TicketsSpanningDaysAlreadySeen{$dateindex}
+                    {$Ticket}++;
+                push @{ $Tickets{$dateindex } },
+                    $Ticket
+                    # if reminder, check it's refering to a ticket
+                    unless ( $Ticket->Type eq 'reminder'
+                    and not $Ticket->RefersTo->First )
+                    or $AlreadySeen{ $dateindex }
+                    {$Ticket}++;
+
+                $current_date->AddDay();
+                $first_day = 0;
+            }
+        }
     }
-    return %Tickets;
+    if ( wantarray ) {
+        return ( \%Tickets, \%TicketsSpanningDays );
+    } else {
+        return \%Tickets;
+    }
+}
+
+sub GetDate {
+    my $date_field = shift;
+    my $Ticket = shift;
+    my $CurrentUser = shift;
+
+    unless ($date_field) {
+        $RT::Logger->debug("No date field provided. Using created date.");
+        $date_field = 'Created';
+    }
+
+    if ($date_field =~ /^CF\./){
+        my $cf = $date_field;
+        $cf =~ s/^CF\.\{(.*)\}/$1/;
+        my $CustomFieldObj = $Ticket->LoadCustomFieldByIdentifier($cf);
+        unless ($CustomFieldObj->id) {
+            RT->Logger->debug("$cf Custom Field is not available for this object.");
+            return;
+        }
+        my $CFDateValue = $Ticket->FirstCustomFieldValue($cf);
+        return unless $CFDateValue;
+        my $CustomFieldObjType = $CustomFieldObj->Type;
+        my $DateObj            = RT::Date->new($CurrentUser);
+        if ( $CustomFieldObjType eq 'Date' ) {
+            $DateObj->Set(
+                Format   => 'unknown',
+                Value    => $CFDateValue,
+            );
+        } else {
+            $DateObj->Set( Format => 'ISO', Value => $CFDateValue );
+        }
+        return $DateObj;
+    } else {
+        my $DateObj = $date_field . "Obj";
+        return $Ticket->$DateObj;
+    }
 }
 
 #
@@ -131,6 +255,62 @@ sub SearchDefaultCalendar {
     }
 }
 
+sub GetEventImg {
+    my $Object      = shift;
+    my $CurrentDate = shift;
+    my $DateTypes   = shift;
+    my $IsReminder  = shift;
+    my $CurrentUser = shift;
+    my $EventIcon;
+    my %CalendarIcons = RT->Config->Get('CalendarIcons');
+
+CALENDAR_ICON:
+    for my $legend ( sort { (split /\s*,\s*/, $b) <=> (split /\s*,\s*/, $a) or ($a cmp $b) } keys %CalendarIcons ) {
+        if (   $legend eq 'Reminder'
+            && $IsReminder
+            && $Object->DueObj->ISO( Time => 0, Timezone => 'user' ) eq $CurrentDate )
+        {
+            $EventIcon = 'reminder.png';
+            last;
+        }
+
+        for my $DateField ( split /\s*,\s*/, $legend ) {
+            next CALENDAR_ICON unless $DateTypes->{$DateField};
+
+            if ( $DateField =~ /^CF\./ ) {
+                my $cf = $DateField;
+                $cf =~ s/^CF\.\{(.*)\}/$1/;
+                my $CustomFieldObj = $Object->LoadCustomFieldByIdentifier($cf);
+                next CALENDAR_ICON unless $CustomFieldObj->id;
+                my $DateValue = $Object->FirstCustomFieldValue($cf);
+                next CALENDAR_ICON unless $DateValue;
+                unless ( $CustomFieldObj->Type eq 'Date' ) {
+                    my $DateObj = RT::Date->new( $CurrentUser );
+                    $DateObj->Set( Format => 'ISO', Value => $DateValue );
+                    $DateValue = $DateObj->ISO( Time => 0, Timezone => 'user' );
+                }
+                next CALENDAR_ICON unless $DateValue eq $CurrentDate;
+            } else {
+                my $DateObj = $DateField . "Obj";
+                my $DateValue
+                    = $Object->$DateObj->ISO( Time => 0, Timezone => 'user' );
+                next CALENDAR_ICON unless $DateValue eq $CurrentDate;
+            }
+        }
+
+        # If we are here, it means that all comparissons are true
+        $EventIcon = $CalendarIcons{$legend};
+        last;
+    }
+
+    if ($EventIcon) {
+        return '<img src="' . $RT::WebImagesURL . '/' . $EventIcon . '" />';
+    } else {
+        return '';
+    }
+}
+
+
 1;
 
 __END__
@@ -154,7 +334,11 @@ CONFIGURATION section below for details on adding it.
 
 =head1 RT VERSION
 
-Works with RT 4.2, 4.4, 5.0
+Works with RT 5.
+
+If you need to install this for RT 4.4.x, install version 1.05:
+
+    cpanm RTx::Calendar@1.05
 
 =head1 INSTALLATION
 
@@ -167,12 +351,6 @@ Works with RT 4.2, 4.4, 5.0
 =item C<make install>
 
 May need root permissions
-
-=item patch RT
-
-Apply for versions prior to 4.4.2:
-
-    patch -p1 -d /path/to/rt < etc/tabs_privileged_callback.patch
 
 =item Edit your F</opt/rt5/etc/RT_SiteConfig.pm>
 
@@ -190,33 +368,133 @@ Add this line:
 
 =head1 CONFIGURATION
 
-=head2 Base configuration
+=head2 Use the calendar on Dashboard
 
-To use the C<MyCalendar> portlet, you must add C<MyCalendar> to
+The calendar comes with 3 different portlets that can be added to your
+RT dashboards:
+
+=over
+
+=item C<MyCalendar>, a summary of the events for the current week.
+
+=item C<Calendar>, a full month of the calendar view, without sidebar.
+
+=item C<CalendarWithSidebar>, a full month of the calendar view, with
+sidebar which includes an extra status filter and legends of the calendars.
+
+=back
+
 C<$HomepageComponents> in F<etc/RT_SiteConfig.pm>:
 
-  Set($HomepageComponents, [qw(QuickCreate Quicksearch MyCalendar
+  Set($HomepageComponents, [qw(QuickCreate Quicksearch
+     MyCalendar Calendar CalendarWithSidebar
      MyAdminQueues MySupportQueues MyReminders RefreshHomepage)]);
 
 =head2 Display configuration
+
+=head3 Displaying the owner
 
 You can show the owner in each day box by adding this line to your
 F<etc/RT_SiteConfig.pm>:
 
     Set($CalendarDisplayOwner, 1);
 
-You can change which fields show up in the popup display when you
-mouse over a date in F<etc/RT_SiteConfig.pm>:
+=head3 Choosing the fields to be displayed in the popup
 
-    Set(@CalendarPopupFields, ('Status', 'OwnerObj->Name', 'DueObj->ISO'));
+When you mouse over events on the calendar, a popup window shows additional
+details from the ticket associated with that event. You can configure which
+fields are displayed with C<@CalendarPopupFields>. This is the default
+configuration:
 
-=head1 USAGE
+    Set(@CalendarPopupFields, (
+        "OwnerObj->Name",
+        "CreatedObj->ISO",
+        "StartsObj->ISO",
+        "StartedObj->ISO",
+        "LastUpdatedObj->ISO",
+        "DueObj->ISO",
+        "ResolvedObj->ISO",
+        "Status",
+        "Priority",
+        "Requestors->MemberEmailAddressesAsString",
+    ));
 
-A small help section is available in /Search/Calendar.html
+To show custom field values, add them using the custom field name in
+this format: C<"CustomField.{Maintenance Start}">.
+
+Valid values are all fields on an RT ticket. See the RT documentation for
+C<RT::Ticket> for a list.
+
+As shown above, for ticket fields that can have multiple output formats,
+like dates and users, you can also use the C<Obj> associated with the field
+to call a specific method to display the format you want. The ticket dates
+shown above will display dates in C<ISO> format. The documentation for C<RT::Date>
+has other format options. User fields, like Owner, can use the methods shown
+in the C<RT::User> documentation to show values like EmailAddress or
+RealName, for example.
+
+=head3 Event colors
+
+It's also possible to change the color of the events in the calendar by
+adding the C<$CalendarStatusColorMap> setting to your F<etc/RT_SiteConfig.pm>:
+
+    Set(%CalendarStatusColorMap, (
+        'new'                                   => 'blue',
+        'open'                                  => 'blue',
+        'approved'                              => 'green',
+        'rejected'                              => 'red',
+        'resolved'                              => '#aaa',
+    ));
+
+You can use any color declaration that CSS supports, including hex codes,
+color names, and RGB values.
+
+=head3 Event filtering by status
+
+You can change the statuses available for filtering on the calendar by
+adding the C<@CalendarFilterStatuses> setting to your
+F<etc/RT_SiteConfig.pm>:
+
+    Set(@CalendarFilterStatuses, qw(new open stalled rejected resolved));
+
+=head3 Default selected status on Filtering on Status field
+
+You can change the default selected statuses by adding them to the
+C<@CalendarFilterDefaultStatuses> setting to your F<etc/RT_SiteConfig.pm>:
+
+    Set(@CalendarFilterDefaultStatuses, qw(new open));
+
+=head3 Custom icons
+
+Custom Icons can be defined for the events in the calendar by adding the
+C<$CalendarIcons> setting to your F<etc/RT_SiteConfig.pm>:
+
+    Set(%CalendarIcons, (
+        'CF.{Maintenance Estimated Start Date/Time - ET}'
+            => 'maint.png',
+    ));
+
+The images should be placed on F<local/static/images>.
+
+=head3 Multiple days events
+
+You can define multiple days events by adding the C<%CalendarMultipleDaysEvents>
+setting to your F<etc/RT_SiteConfig.pm>:
+
+    Set( %CalendarMultipleDaysEvents, (
+            'Maintenance' => {
+                'Starts' => 'Starts',
+                'Ends'   => 'Due',
+            },
+        )
+    );
+
+Note that the Starts and Ends fields must be included in the search result
+Format in order the event to be displayed on the calendar.
 
 =head1 AUTHOR
 
-Best Practical Solutions, LLC E<lt>modules@bestpractical.comE<gt>
+Best Practical Solutions, LLC
 
 Originally written by Nicolas Chuche E<lt>nchuche@barna.beE<gt>
 
@@ -232,7 +510,7 @@ or via the web at
 
 =head1 LICENSE AND COPYRIGHT
 
-This software is Copyright (c) 2010-2022 by Best Practical Solutions
+This software is Copyright (c) 2010-2023 by Best Practical Solutions
 
 Copyright 2007-2009 by Nicolas Chuche
 

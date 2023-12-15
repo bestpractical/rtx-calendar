@@ -1,3 +1,20 @@
+1.08 2023-11-17
+ - Prevent loss of filter selection when changing months w/select boxes
+
+1.07 2023-11-16
+ - Fix display of multiple day events
+ - Prevent infinite loops when rendering multiple days events
+ - Allow the calendar to be correctly changed to January
+ - Fix crash when changing months using the select boxes
+
+1.06 2023-10-24
+ - Minimum version of RT 5.0
+ - Add color-coded display of events by ticket status
+ - Filter event display by ticket status
+ - Added help panel
+ - Add multi-day event support
+ - Add dark mode support
+
 1.05 2023-01-29
  - add a callback named BeforeFindTickets so user can modify the query
    or format of the calendar search
