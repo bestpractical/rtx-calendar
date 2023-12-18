@@ -330,7 +330,7 @@ to any dashboard, including on the RT home page.
 
 =begin HTML
 
-<p><img src="https://static.bestpractical.com/images/calendar/calendar.png" alt="Calendar Overview" /></p>
+<p><img width="600" src="https://static.bestpractical.com/images/calendar/calendar.png" alt="Calendar Overview" /></p>
 
 =end HTML
 
