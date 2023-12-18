@@ -1,8 +1,13 @@
 CHANGES
-etc/tabs_privileged_callback.patch
+etc/RTxCalendar_Config.pm
 html/Callbacks/RTx-Calendar/Elements/Tabs/Privileged
+html/Elements/Calendar
 html/Elements/CalendarEvent
+html/Elements/CalendarFooter
+html/Elements/CalendarSidebar
+html/Elements/CalendarWithSidebar
 html/Elements/MyCalendar
+html/Helpers/CalendarEventInfo
 html/Search/Calendar.html
 inc/Module/Install.pm
 inc/Module/Install/Base.pm
@@ -32,4 +37,5 @@ static/images/started.png
 static/images/starts.png
 static/images/starts_due.png
 static/images/updated.png
+static/js/calendar.js
 TODO
