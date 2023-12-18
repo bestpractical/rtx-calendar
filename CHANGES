@@ -1,3 +1,9 @@
+Revision history for RTx-Calendar
+
+1.09 2023-12-18
+ - Add French translation (thanks elacour!)
+ - Restrict image width for better display on metacpan
+
 1.08 2023-12-15
  - Prevent loss of filter selection when changing months w/select boxes
  - Restore the default popup configuration
