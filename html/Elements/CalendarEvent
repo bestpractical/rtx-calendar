@@ -65,7 +65,7 @@ if ( ( !grep { $_ eq $TicketId } @$spanning_tickets_for_tomorrow ) ) {
         <div class="event-info">
 % if ( $first_day_of_the_event || $DayOfWeek eq 1 ) {
         <a class="event-title" href="<%$RT::WebPath%>/Ticket/Display.html?id=<%$TicketId%>">
-           <% $Object->QueueObj->Name %> #<% $TicketId %>
+           &nbsp;<% RT->Config->Get('CalendarDisplayQueue') ? $Object->QueueObj->Name : '' %> #<% $TicketId %>
            <% $display_owner ? 'by ' . $Object->OwnerObj->Name : '' %>
            <% length($Object->Subject) > 80 ? substr($Object->Subject, 0, 77) . "..." : $Object->Subject %>
         </a>

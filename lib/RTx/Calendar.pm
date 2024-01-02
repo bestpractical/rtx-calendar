@@ -458,6 +458,13 @@ to your F<etc/RT_SiteConfig.pm>:
 
     Set($CalendarDisplayOwner, 1);
 
+=head3 Display Queue
+
+You can show the queue of the ticket in each event box title by adding this
+line to your F<etc/RT_SiteConfig.pm>:
+
+    Set($CalendarDisplayQueue, 1);
+
 =head3 Choosing the fields to be displayed in the popup
 
 When you mouse over events on the calendar, a popup window shows additional
