@@ -93,3 +93,8 @@ msgstr ""
 msgid "Submit"
 msgstr ""
 
+#. ($Object->OwnerObj->Name)
+#: html/Elements/CalendarEvent:69
+msgid "by %1"
+msgstr ""
+
