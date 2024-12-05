@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2023-12-18 11:39+0200\n"
+"PO-Revision-Date: 2024-12-05 15:33+0200\n"
 "Last-Translator: Emmanuel Lacour <elacour@home-dn.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -115,4 +115,9 @@ msgstr "Couleurs des statuts"
 #: html/Elements/Calendar:177
 msgid "Submit"
 msgstr "Valider"
+
+#. ($Object->OwnerObj->Name)
+#: html/Elements/CalendarEvent:69
+msgid "by %1"
+msgstr "par %1"
 
