@@ -113,10 +113,11 @@ while ($date <= $end) {
       }
     }
   }
+  my $day_query = $TempQuery . RTx::Calendar::DatesClauses(\@Dates, $date->strftime("%F"), $date->strftime("%F"));
 </%perl>
 
     <td class="<% join(' ', @classes) %>"><div class="inside-day">
-      <div class="calendardate"><%$date->day%></div>
+      <div class="calendardate"><a href="<% RT->Config->Get('WebPath') %>/Search/Results.html?Query=<%$day_query%>"><%$date->day%></a></div>
 %     for my $index ( sort { $a <=> $b } keys %week_ticket_position ) {
 %       if ( grep { $_->id eq $week_ticket_position{$index}{id} }
 %                 @{ $Tickets->{ $date->strftime("%F") } || [] } ) {
