@@ -78,7 +78,7 @@ foreach my $attr (@display_fields) {
         };
     }
 </%perl>
-	<strong><&|/l&><% $label_of{$attr} %></&>:</strong> <% $value %><br />
+	<strong><&|/l&><% loc($label_of{$attr}) %></&>:</strong> <% ( $attr eq 'Status' ) ? loc($value) : $value %><br />
 % }
 <br />
 % $m->abort;

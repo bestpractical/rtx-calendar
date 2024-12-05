@@ -66,7 +66,7 @@ if ( ( !grep { $_ eq $TicketId } @$spanning_tickets_for_tomorrow ) ) {
 % if ( $first_day_of_the_event || $DayOfWeek eq 1 ) {
         <a class="event-title" href="<%$RT::WebPath%>/Ticket/Display.html?id=<%$TicketId%>">
            <% $Object->QueueObj->Name %> #<% $TicketId %>
-           <% $display_owner ? 'by ' . $Object->OwnerObj->Name : '' %>
+           <% $display_owner ? loc('by [_1]', $Object->OwnerObj->Name) : '' %>
            <% length($Object->Subject) > 80 ? substr($Object->Subject, 0, 77) . "..." : $Object->Subject %>
         </a>
 % # Placeholder for the event details that will be loaded via AJAX on hover
