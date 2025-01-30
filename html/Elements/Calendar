@@ -160,19 +160,22 @@ while ($date <= $end) {
 </td>
 
 <td valign="top" align="center">
-<form method="post" class="changeCalendarMonth" action="?<% $QueryString %>" onsubmit="changeCalendarMonth()">
-
+<form method="post" class="changeCalendarMonth row justify-content-center" action="?<% $QueryString %>" onsubmit="changeCalendarMonth()">
+<div class="col-3">
 <select name="SelectedMonth" class="selectpicker form-control col-3">
 % for (0..11) {
 <option value="<%$_%>" <% $_ == $Month ? 'selected' : ''%> ><%$rtdate->GetMonth($_)%></option>
 % }
 </select>
+</div>
+<div class="col-3">
 % my $year = (localtime)[5] + 1900;
 <select name="SelectedYear" class="selectpicker form-control col-3">
 % for ( ($year-5) .. ($year+5)) {
 <option value="<%$_%>" <% $_ == $Year ? 'selected' : ''%>><%$_%></option>
 % }
 </select>
+</div>
 <input type="hidden" id="querystring" value="<% $QueryString|n %>" />
 <input type="submit" value="<% loc('Submit') %>" class="button btn btn-primary" />
 

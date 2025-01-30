@@ -182,16 +182,16 @@ table.rtxcalendar .day.first-day.last-day {
     border-radius: 5px;
 }
 
-.darkmode table.rtxcalendar * {
+[data-bs-theme=dark] table.rtxcalendar * {
     background: unset !important;
 }
 
-.darkmode table.rtxcalendar div.day div.event-info:hover span.tip{
+[data-bs-theme=dark] table.rtxcalendar div.day div.event-info:hover span.tip{
     border: 1px solid #555;
     background-color: #2C3539 !important;
     color: #fff !important;
 }
 
-.darkmode table.rtxcalendar div.day a {
+[data-bs-theme=dark] table.rtxcalendar div.day a {
     color: #fff !important;
 }
