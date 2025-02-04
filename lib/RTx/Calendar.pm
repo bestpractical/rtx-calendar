@@ -336,7 +336,7 @@ to any dashboard, including on the RT home page.
 
 =head1 RT VERSION
 
-Works with RT 5.
+Works with RT 6.
 
 For older versions of RT, see the CHANGES file for compatible earlier versions.
 
@@ -352,7 +352,7 @@ For older versions of RT, see the CHANGES file for compatible earlier versions.
 
 May need root permissions
 
-=item Edit your F</opt/rt5/etc/RT_SiteConfig.pm>
+=item Edit your F</opt/rt6/etc/RT_SiteConfig.pm>
 
 Add this line:
 
@@ -360,7 +360,7 @@ Add this line:
 
 =item Clear your mason cache
 
-    rm -rf /opt/rt5/var/mason_data/obj
+    rm -rf /opt/rt6/var/mason_data/obj
 
 =item Restart your webserver
 
@@ -553,7 +553,7 @@ You can also define icons for custom fields by using the following format:
         'CF.{Maintenance Stop}'  => 'maintstop.png',
 
 To add custom images, create a directory F<local/static/images> in your installed
-RT directory (usually F</opt/rt5>) and copy images files there.
+RT directory (usually F</opt/rt6>) and copy images files there.
 
 You can use any image format that your browser supports, but PNGs and GIFs
 with transparent backgrounds are recommended because they will display better
@@ -629,7 +629,7 @@ or via the web at
 
 =head1 LICENSE AND COPYRIGHT
 
-This software is Copyright (c) 2010-2023 by Best Practical Solutions
+This software is Copyright (c) 2010-2025 by Best Practical Solutions
 
 Copyright 2007-2009 by Nicolas Chuche
 
