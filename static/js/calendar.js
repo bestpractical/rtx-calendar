@@ -40,9 +40,34 @@ function resizeCalendarEventTitles() {
     )
 }
 
-function changeCalendarMonth() {
-    var month = jQuery('.changeCalendarMonth select[name="Month"]').val();
-    var year = jQuery('.changeCalendarMonth select[name="Year"]').val();
-    var querystring = jQuery('.changeCalendarMonth #querystring').val();
-    window.location.href = "?Month=" + month + "&Year=" + year + "&" + querystring;
-}
+htmx.onLoad(function(elt) {
+    elt.querySelectorAll('.calendar-reload').forEach(elt => {
+        elt.addEventListener('click', function(evt) {
+            evt.preventDefault();
+            const form = elt.closest('form');
+            const data = {};
+            if ( form ) {
+                const formData = new FormData(form);
+                for (const [key, value] of formData.entries()) {
+                    if (data[key]) {
+                        if ( data[key] instanceof Array ) {
+                            data[key].push(value);
+                        }
+                        else {
+                            data[key] = [data[key], value];
+                        }
+                    }
+                    else {
+                        data[key] = value;
+                    }
+                }
+            }
+
+            if (elt.name) {
+                data[elt.name] = elt.value;
+            }
+
+            reloadElement(this.closest('[hx-get]'), { 'hx-vals': JSON.stringify(data) });
+        });
+    });
+});

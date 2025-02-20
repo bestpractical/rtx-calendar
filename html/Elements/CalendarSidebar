@@ -1,6 +1,7 @@
 <%args>
 @FilterOnStatus => undef
 @Dates => undef
+$Standalone => 0
 </%args>
 <div class="calendar-sidebar-toggle-content">
   <a title="Toggle Filter" href="javascript:;" class="calendar-toggle-sidebar"></a>
@@ -12,8 +13,12 @@
 
     <form id="FilterOnStatusForm"
      method="post">
+% if ( !$Standalone ) {
+      <input type="hidden" name="SelectedMonth" value="<% $DECODED_ARGS->{SelectedMonth} // $DECODED_ARGS->{Month} // (localtime)[4] %>" />
+      <input type="hidden" name="SelectedYear" value="<% $DECODED_ARGS->{SelectedYear} // $DECODED_ARGS->{Year}  || (localtime)[5] + 1900 %>" />
+% }
       <select name="NewFilterOnStatus" id="NewFilterOnStatus"
-        class="selectpicker form-control filteronstatus mt-3 mb-3" multiple="multiple" size="6">
+        class="selectpicker form-select filteronstatus mt-3 mb-3" multiple="multiple" size="6">
 % for my $Status (sort {lc(loc($a)) cmp lc(loc($b))} @{RT->Config->Get('CalendarFilterStatuses')}) {
         <option value="<% $Status %>"
 % if (@FilterOnStatus && $FilterOnStatus[0]) {
@@ -22,10 +27,14 @@
         ><% loc($Status) %></option>
 % }
       </select>
-      <div class="text-center">
-        <input type="submit" value="<% loc('Filter') %>" class="mr-2 button btn btn-primary form-control" />
-        <button type="submit" id="FilterOnStatusClear" name="FilterOnStatusClear"
-          value="1" class="button btn btn-primary form-control"><% loc('Clear Filter') %></button>
+      <div class="row">
+        <div class="col-auto">
+          <input type="submit" value="<% loc('Filter') %>" class="me-2 btn btn-primary <% $Standalone ? '' : 'calendar-reload' %>" />
+        </div>
+        <div class="col-auto">
+          <button type="submit" id="FilterOnStatusClear" name="FilterOnStatusClear"
+            value="1" class="btn btn-primary <% $Standalone ? '' : 'calendar-reload' %>"><% loc('Clear Filter') %></button>
+        </div>
       </div>
     </form>
     </&>
