@@ -38,7 +38,11 @@ $Standalone => 0
 %    $PYear--;
 %    $PMonth = 11;
 % }
-<a href="?Month=<%$PMonth%>&Year=<%$PYear%>&<%$QueryString%>">&laquo; <%$rtdate->GetMonth($PMonth)%></a>
+% if ( $Standalone ) {
+  <a href="?Month=<%$PMonth%>&Year=<%$PYear%>&<%$QueryString%>">&laquo; <%$rtdate->GetMonth($PMonth)%></a>
+% } else {
+  <a onclick="reloadElement(this.closest('[hx-get]'), {'hx-vals': '<% JSON({ Month => $PMonth, Year => $PYear }) %>'}); return false;" href="#">&laquo; <%$rtdate->GetMonth($PMonth)%></a>
+% }
 </td>
 <th align="center">
   <font size="+1"><% $rtdate->GetMonth($Month). " $Year" %></font>
@@ -49,7 +53,11 @@ $Standalone => 0
 %    $NYear++;
 %    $NMonth = 0;
 % }
-<a href="?Month=<%$NMonth%>&Year=<%$NYear%>&<%$QueryString%>"><%$rtdate->GetMonth($NMonth)%> &raquo;</a>
+% if ( $Standalone ) {
+  <a href="?Month=<%$NMonth%>&Year=<%$NYear%>&<%$QueryString%>"><%$rtdate->GetMonth($NMonth)%> &raquo;</a>
+% } else {
+  <a onclick="reloadElement(this.closest('[hx-get]'), {'hx-vals': '<% JSON({ Month => $NMonth, Year => $NYear }) %>'}); return false;" href="#"><%$rtdate->GetMonth($NMonth)%> &raquo;</a>
+% }
 </td>
 </tr>
 </table>
