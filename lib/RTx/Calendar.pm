@@ -217,14 +217,10 @@ sub SearchDefaultCalendar {
     my $Description = "calendar";
 
     my $UserObj  = $CurrentUser->UserObj;
-    my @searches = $UserObj->Attributes->Named('SavedSearch');
-    for my $search (@searches) {
-        next
-            if ( $search->SubValue('SearchType')
-            && $search->SubValue('SearchType') ne 'Ticket' );
-
+    my $searches = $UserObj->SavedSearches( Type => 'Ticket' );
+    while( my $search = $searches->Next ) {
         return $search
-            if "calendar" eq $search->Description;
+            if "calendar" eq $search->Name;
     }
 
     # search through user's groups as well
@@ -232,26 +228,18 @@ sub SearchDefaultCalendar {
     $Groups->LimitToUserDefinedGroups;
     $Groups->WithCurrentUser;
     while ( my $group = $Groups->Next ) {
-        @searches = $group->Attributes->Named('SavedSearch');
-        for my $search (@searches) {
-            next
-                if ( $search->SubValue('SearchType')
-                && $search->SubValue('SearchType') ne 'Ticket' );
-
+        my $searches = $group->SavedSearches( Type => 'Ticket' );
+        while( my $search = $searches->Next ) {
             return $search
-                if "calendar" eq $search->Description;
+                if "calendar" eq $search->Name;
         }
     }
 
     # search thru system saved searches
-    @searches = $RT::System->Attributes->Named('SavedSearch');
-    for my $search (@searches) {
-        next
-            if ( $search->SubValue('SearchType')
-            && $search->SubValue('SearchType') ne 'Ticket' );
-
+    $searches = RT->System->SavedSearches( Type => 'Ticket' );
+    while( my $search = $searches->Next ) {
         return $search
-            if "calendar" eq $search->Description;
+            if "calendar" eq $search->Name;
     }
 }
 

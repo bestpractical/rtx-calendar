@@ -290,8 +290,9 @@ my $TempQuery = "( Status = 'new' OR Status = 'open' OR Status = 'stalled')
  AND ( Type = 'reminder' OR 'Type' = 'ticket' )";
 
 if ( my $Search = RTx::Calendar::SearchDefaultCalendar($session{CurrentUser}) ) {
-  $TempFormat = $Search->SubValue('Format');
-  $TempQuery = $Search->SubValue('Query');
+    my $content = $Search->Content || {};
+    $TempFormat = $content->{'Format'};
+    $TempQuery = $content->{'Query'};
 }
 
 # we overide them if needed
