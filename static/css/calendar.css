@@ -89,18 +89,6 @@ table.rtxcalendar td.aweekago {
     padding-right: 0.5rem;
 }
 
-.calendar-content {
-    width: auto;
-}
-
-.calendar-container.with-sidebar.calendar-standalone .calendar-content:not(.sidebar-off) {
-    margin-left: 250px;
-}
-
-.calendar-container.with-sidebar:not(.calendar-standalone) .calendar-content:not(.sidebar-off) {
-    margin-left: 230px;
-}
-
 .calendar-sidebar .tipimg {
     display: table-cell;
     width: 25px;
@@ -139,13 +127,7 @@ a.calendar-toggle-sidebar.sidebar-off::before {
     transform: rotate(315deg);
 }
 .calendar-sidebar-toggle-content {
-    float: left;
     margin-top: 20px;
-    width: 230px;
-}
-
-.calendar-standalone .calendar-sidebar-toggle-content {
-    width: 250px;
 }
 
 .calendar-sidebar-toggle-content.sidebar-off {

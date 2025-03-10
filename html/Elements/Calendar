@@ -13,7 +13,7 @@ $Standalone => 0
      titleright => loc('Download Spreadsheet'),
      titleright_href => $RT::WebPath. "/Search/Results.tsv?". $DownloadQueryString,
      &>
-
+<div class="row">
 % if ($ShowSidebar) {
   <& /Elements/CalendarSidebar,
     BaseQuery => $BaseQuery,
@@ -29,7 +29,7 @@ $Standalone => 0
   &>
 % }
 
-<div class="calendar-content">
+<div class="calendar-content <% $ShowSidebar ? 'col' : 'col-12' %> ">
 <table width="100%">
 <tr>
 <td align="left">
@@ -217,6 +217,7 @@ while ($date <= $end) {
 % if ( $ShowSidebar ) {
   </div>
 % }
+</div>
 <%INIT>
 my $NotFirstAccess = $DECODED_ARGS->{NotFirstAccess};
 my $Month = $DECODED_ARGS->{SelectedMonth} // $DECODED_ARGS->{Month} // (localtime)[4];
