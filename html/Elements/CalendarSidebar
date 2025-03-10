@@ -3,7 +3,7 @@
 @Dates => undef
 $Standalone => 0
 </%args>
-<div class="calendar-sidebar-toggle-content">
+<div class="calendar-sidebar-toggle-content col-xl-2 col-lg-3 col-md-4">
   <a title="Toggle Filter" href="javascript:;" class="calendar-toggle-sidebar"></a>
   <div class="calendar-sidebar">
     <&| /Widgets/TitleBox,
