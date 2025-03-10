@@ -44,8 +44,8 @@ $Standalone => 0
   <a onclick="reloadElement(this.closest('[hx-get]'), {'hx-vals': '<% JSON({ Month => $PMonth, Year => $PYear }) %>'}); return false;" href="#">&laquo; <%$rtdate->GetMonth($PMonth)%></a>
 % }
 </td>
-<th align="center">
-  <font size="+1"><% $rtdate->GetMonth($Month). " $Year" %></font>
+<th class="h5 text-center">
+  <% $rtdate->GetMonth($Month). " $Year" %>
 </th>
 <td align="right">
 % my ($NMonth, $NYear) = ($Month + 1, $Year);
