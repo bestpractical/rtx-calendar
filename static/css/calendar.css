@@ -28,8 +28,6 @@ table.rtxcalendar div.day div.event-info:hover span.tip{
     top:1rem; left:24px; width:350px;
     border: 1px solid #555;
     background-color: #fff;
-    padding: 4px;
-    font-size: 0.8em;
     color: #505050;
 }
 
