@@ -157,7 +157,6 @@ a.calendar-toggle-sidebar.sidebar-off::before {
 
 .event-info a.event-title {
     overflow: hidden;
-    max-width: 100%;
     left: 0px;
     padding-left: 21px;
     white-space: nowrap;
