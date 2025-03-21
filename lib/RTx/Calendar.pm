@@ -298,6 +298,34 @@ CALENDAR_ICON:
     }
 }
 
+=head2 GetEventData $Object
+
+Accepts a ticket object and returns an array of ticket metadata
+values based on the configured CalendarEventLineValues.
+
+=cut
+
+sub GetEventData {
+    my $Object   = shift;
+
+    my @event_data;
+    foreach my $field ( RT->Config->Get('CalendarEventLineValues') ) {
+        if ($field eq 'Queue') {
+            push @event_data, $Object->QueueObj->Name;
+        }
+        else {
+            $field =~ s/^Id$/id/;  # "id" is lowercase in CoreAccessible
+            if ( $Object->_Accessible($field => 'READ') ) {
+                push @event_data, $Object->$field();
+            }
+            else {
+                RT->Logger->error("Field $field is not accessible on " . ref($Object));
+            }
+
+        }
+    }
+    return @event_data;
+}
 
 1;
 
@@ -445,6 +473,14 @@ You can show the owner of the ticket in each event box by adding this line
 to your F<etc/RT_SiteConfig.pm>:
 
     Set($CalendarDisplayOwner, 1);
+
+=head3 Setting event ticket values
+
+Set C<@CalendarEventLineValues> to define the ticket information
+displayed on each event in the calendar. Valid options are
+the methods on an C<RT::Ticket> object.
+
+    Set(@CalendarEventLineValues, qw(Queue Id Subject));
 
 =head3 Choosing the fields to be displayed in the popup
 
