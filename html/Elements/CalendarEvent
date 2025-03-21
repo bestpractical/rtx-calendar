@@ -70,9 +70,7 @@ if ( ( !grep { $_ eq $TicketId } @$spanning_tickets_for_tomorrow ) ) {
             hx-trigger="mouseover once"
             hx-target="next .tip"
         >
-           <% $Object->QueueObj->Name %> #<% $TicketId %>
-           <% $display_owner ? 'by ' . $Object->OwnerObj->Name : '' %>
-           <% length($Object->Subject) > 80 ? substr($Object->Subject, 0, 77) . "..." : $Object->Subject %>
+           <% $display_line %>
         </a>
 % # Placeholder for the event details that will be loaded via AJAX on hover
         <span class="tip p-3 rounded">
@@ -109,6 +107,8 @@ if ($Object->Type eq 'reminder') {
     $subject = $Object->Subject;
     $status = $Object->Status;
 }
+
+my $display_line = join " ", RTx::Calendar::GetEventData($Object);
 
 my %CalendarStatusColorMap = RT->Config->Get('CalendarStatusColorMap');
 
