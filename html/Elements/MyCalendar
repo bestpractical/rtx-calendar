@@ -143,5 +143,12 @@ $Query .= RTx::Calendar::DatesClauses(\@Dates, $begin->strftime("%F"), $end->str
 
 $m->callback( CallbackName => 'BeforeFindTickets', ARGSRef => \%ARGS, QueryRef => \$Query, FormatRef => \$Format );
 
-my ($Tickets, $TicketsSpanningDays) = RTx::Calendar::FindTickets($session{'CurrentUser'}, $Query, \@Dates);
+my ($Tickets, $TicketsSpanningDays);
+
+# This is the expensive part of the processing, so only run this when
+# htmx is rendering the main content.
+if ( $m->request_path =~ /^(?:\/SelfService)?\/Views/ ) {
+    ($Tickets, $TicketsSpanningDays) = RTx::Calendar::FindTickets($session{'CurrentUser'}, $Query, \@Dates);
+}
+
 </%INIT>

@@ -350,8 +350,6 @@ $m->callback( CallbackName => 'BeforeFindTickets', ARGSRef => \%ARGS, QueryRef =
 
 $m->callback( CallbackName => 'BeforeFindTickets', ARGSRef => \%ARGS, QueryRef => \$TempQuery, FormatRef => \$TempFormat );
 
-my ($Tickets, $TicketsSpanningDays) = RTx::Calendar::FindTickets($session{'CurrentUser'}, $TempQuery, \@Dates, $date->strftime("%F"), $end->strftime("%F"));
-
 my $DownloadQueryString =
       $m->comp(
         '/Elements/QueryString',
@@ -360,4 +358,13 @@ my $DownloadQueryString =
         Order   => $Order,
         OrderBy => $OrderBy,
       );
+
+my ($Tickets, $TicketsSpanningDays);
+
+# This is the expensive part of the processing, so only run this when
+# htmx is rendering the main content.
+if ( $m->request_path =~ /^(?:\/SelfService)?\/Views/ ) {
+    ($Tickets, $TicketsSpanningDays) = RTx::Calendar::FindTickets($session{'CurrentUser'}, $TempQuery, \@Dates, $date->strftime("%F"), $end->strftime("%F"));
+}
+
 </%INIT>
