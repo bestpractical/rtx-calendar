@@ -3,13 +3,15 @@
 @Dates => undef
 $Standalone => 0
 </%args>
-<div class="calendar-sidebar-toggle-content col-xl-2 col-lg-3 col-md-4">
-  <a title="Toggle Filter" href="javascript:;" class="calendar-toggle-sidebar"></a>
-  <div class="calendar-sidebar">
+<div class="calendar-sidebar-toggle-content col-xl-3 col-lg-4 col-md-5">
+<div class="row h-100">
+  <div class="calendar-sidebar col-11">
+
     <&| /Widgets/TitleBox,
       title => loc('Filter on Status'),
       class => 'calendar-filter-status-box',
-      &>
+      htmx_load => 0,
+    &>
 
     <form id="FilterOnStatusForm"
      method="post">
@@ -17,8 +19,9 @@ $Standalone => 0
       <input type="hidden" name="SelectedMonth" value="<% $DECODED_ARGS->{SelectedMonth} // $DECODED_ARGS->{Month} // (localtime)[4] %>" />
       <input type="hidden" name="SelectedYear" value="<% $DECODED_ARGS->{SelectedYear} // $DECODED_ARGS->{Year}  || (localtime)[5] + 1900 %>" />
 % }
+      <div class="row">
       <select name="NewFilterOnStatus" id="NewFilterOnStatus"
-        class="selectpicker form-select filteronstatus mt-3 mb-3" multiple="multiple" size="6">
+        class="selectpicker form-select" multiple="multiple">
 % for my $Status (sort {lc(loc($a)) cmp lc(loc($b))} @{RT->Config->Get('CalendarFilterStatuses')}) {
         <option value="<% $Status %>"
 % if (@FilterOnStatus && $FilterOnStatus[0]) {
@@ -27,13 +30,12 @@ $Standalone => 0
         ><% loc($Status) %></option>
 % }
       </select>
-      <div class="row">
+      </div>
+      <div class="row justify-content-center mt-2">
         <div class="col-auto">
-          <input type="submit" value="<% loc('Filter') %>" class="me-2 btn btn-primary <% $Standalone ? '' : 'calendar-reload' %>" />
-        </div>
-        <div class="col-auto">
+          <input type="submit" value="<% loc('Filter') %>" class="me-2 btn btn-primary btn-sm <% $Standalone ? '' : 'calendar-reload' %>" />
           <button type="submit" id="FilterOnStatusClear" name="FilterOnStatusClear"
-            value="1" class="btn btn-primary <% $Standalone ? '' : 'calendar-reload' %>"><% loc('Clear Filter') %></button>
+            value="1" class="btn btn-primary btn-sm <% $Standalone ? '' : 'calendar-reload' %>"><% loc('Clear Filter') %></button>
         </div>
       </div>
     </form>
@@ -41,7 +43,9 @@ $Standalone => 0
 
     <&| /Widgets/TitleBox,
       title => loc('Event Types'),
-      &>
+      htmx_load => 0,
+    &>
+
 % foreach my $TranslatedLegend (sort keys %CalendarIconsTranslated) {
       <span class="tip">
         <span class="tipimg">
@@ -56,17 +60,26 @@ $Standalone => 0
 % }
     </&>
 
-<&| /Widgets/TitleBox,
-     title => loc('Status Colors'),
-     &>
+    <&| /Widgets/TitleBox,
+      title => loc('Status Colors'),
+      htmx_load => 0,
+    &>
+
 % my %ColorStatusMap = RT->Config->Get('CalendarStatusColorMap');
 % foreach my $Status (sort { lc($a) cmp lc($b) } keys %ColorStatusMap) {
 %   next if $Status eq '_default_';
     <span style="color: <% $ColorStatusMap{$Status} %> !important;"><% $Status %></span><br />
 % }
-</&>
-
+    </&>
   </div>
+
+  <div class="col-1">
+    <div class="row h-100 align-items-center">
+        <a title="Toggle Filter" href="javascript:;" class="calendar-toggle-sidebar"></a>
+    </div>
+  </div>
+
+</div>
 </div>
 
 <script type="text/javascript">
