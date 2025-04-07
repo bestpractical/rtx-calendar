@@ -217,7 +217,6 @@ while ($date <= $end) {
 % if ( $ShowSidebar ) {
   </div>
 % }
-</div>
 <%INIT>
 my $NotFirstAccess = $DECODED_ARGS->{NotFirstAccess};
 my $Month = $DECODED_ARGS->{SelectedMonth} // $DECODED_ARGS->{Month} // (localtime)[4];
