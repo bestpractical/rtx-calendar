@@ -5,3 +5,40 @@
   Standalone => 1,
 &>
 <& /Elements/CalendarFooter &>
+
+<%INIT>
+my $hash_name = "CurrentSearchHash-RT::Tickets";
+
+$Query = "( Status = 'new' OR Status = 'open' OR Status = 'stalled')
+    AND ( Owner = '" . $session{CurrentUser}->Id ."' OR Owner = 'Nobody'  )
+    AND ( Type = 'reminder' OR 'Type' = 'ticket' )";
+
+if ( my $Search = RTx::Calendar::SearchDefaultCalendar($session{CurrentUser}) ) {
+    my $content = $Search->Content || {};
+
+    $Format = $content->{'Format'};
+    $Query = $content->{'Query'};
+}
+
+RT::Interface::Web::Session::Set(
+    Key   => $hash_name,
+    Value => {
+        Format      => $Format,
+        Query       => $Query,
+        Page        => $Page,
+        Order       => $Order,
+        OrderBy     => $OrderBy,
+        RowsPerPage => $Rows,
+        ObjectType  => "RT::Ticket"
+    }
+);
+</%INIT>
+
+<%ARGS>
+$Query      => undef
+$Format     => undef
+$Rows       => undef
+$Page       => 1
+$OrderBy    => undef
+$Order      => undef
+</%ARGS>
