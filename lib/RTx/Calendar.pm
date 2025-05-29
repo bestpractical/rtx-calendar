@@ -327,6 +327,66 @@ sub GetEventData {
     return @event_data;
 }
 
+if ( RT->Config->can('RegisterPluginConfig') ) {
+    RT->Config->RegisterPluginConfig(
+        Plugin  => 'Calendar',
+        Content => [
+            {
+                Name => 'CalendarDisplayOwner',
+                Help => 'https://metacpan.org/pod/RTx::Calendar#Display-Owner',
+            },
+            {
+                Name => 'CalendarPopupFields',
+                Help => 'https://metacpan.org/pod/RTx::Calendar#Choosing-the-fields-to-be-displayed-in-the-popup',
+            },
+            {
+                Name => 'CalendarStatusColorMap',
+                Help => 'https://metacpan.org/pod/RTx::Calendar#Event-Colors',
+            },
+            {
+                Name => 'CalendarFilterStatuses',
+                Help => 'https://metacpan.org/pod/RTx::Calendar#Filter-on-Status',
+            },
+            {
+                Name => 'CalendarIcons',
+                Help => 'https://metacpan.org/pod/RTx::Calendar#Custom-Icons',
+            },
+            {
+                Name => 'CalendarMultipleDaysEvents',
+                Help => 'https://metacpan.org/pod/RTx::Calendar#Multiple-Days-Events',
+            },
+            {
+                Name => 'CalendarEventLineValues',
+                Help => 'https://metacpan.org/pod/RTx::Calendar#Setting-event-ticket-values',
+            },
+        ],
+        Meta    => {
+            CalendarDisplayOwner => {
+                Type   => 'SCALAR',
+                Widget => '/Widgets/Form/Boolean',
+            },
+            CalendarPopupFields => {
+                Type => 'ARRAY',
+            },
+            CalendarStatusColorMap => {
+                Type => 'HASH',
+            },
+            CalendarFilterStatuses => {
+                Type => 'ARRAY',
+            },
+            CalendarIcons => {
+                Type => 'HASH',
+            },
+            CalendarMultipleDaysEvents => {
+                Type => 'HASH',
+            },
+            CalendarEventLineValues => {
+                Type => 'ARRAY',
+            },
+        }
+    );
+}
+
 1;
 
 __END__
