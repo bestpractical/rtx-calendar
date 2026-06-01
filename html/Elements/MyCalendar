@@ -16,6 +16,7 @@
 <tr>
 <%perl>
 my %week_ticket_position;
+my %positioned_ids;   # O(1) membership check replaces the O(n) grep per ticket
 my $day_of_week = 1;
 $date = $begin->clone;
 
@@ -25,39 +26,32 @@ while ($date <= $end) {
   push @classes, "yesterday" if (DateTime->compare($yesterday, $date) == 0);
   push @classes, "weekday-$day_of_week";
   for my $t ( @{ $Tickets->{ $date->strftime("%F") } || [] } ) {
-    # check if ticket was already displayed this week, if not, we need to find a
-    # position for it
-    unless ( grep { $week_ticket_position{$_}{id} eq $t->id } keys %week_ticket_position ) {
-      # new tickets should assume the first empty spot.
-      my $i = 1;
-      my $free_index = 0;
-      for my $index ( sort { $a <=> $b } keys %week_ticket_position ) {
-        if ( $week_ticket_position{$index}{id} eq "" ) {
-          $free_index = $i;
-          last;
-        }
-        $i++;
+    next if $positioned_ids{ $t->id }++;
+    my $free_index = 0;
+    for my $index ( sort { $a <=> $b } keys %week_ticket_position ) {
+      if ( $week_ticket_position{$index}{id} eq "" ) {
+        $free_index = $index;
+        last;
       }
-      # if we found a free spot, we place the ticket there
-      if ( $free_index != 0 ) {
-        $week_ticket_position{$free_index}{id} = $t->id;
-        $week_ticket_position{$free_index}{TicketObj} = $t;
-      }
-      # if not, we add it to the end of the array
-      else {
-        $week_ticket_position{((scalar keys %week_ticket_position)+1)}{id} = $t->id;
-        $week_ticket_position{((scalar keys %week_ticket_position))}{TicketObj} = $t;
-      }
+    }
+    if ( $free_index ) {
+      $week_ticket_position{$free_index}{id}        = $t->id;
+      $week_ticket_position{$free_index}{TicketObj} = $t;
+    } else {
+      my $next = ( scalar keys %week_ticket_position ) + 1;
+      $week_ticket_position{$next}{id}        = $t->id;
+      $week_ticket_position{$next}{TicketObj} = $t;
     }
   }
   my $day_query = $Query . RTx::Calendar::DatesClauses(\@Dates, $date->strftime("%F"), $date->strftime("%F"));
+  # O(1) lookup for the rendering loop below — replaces the O(n) grep per slot
+  my %day_ticket_ids = map { $_->id => 1 } @{ $Tickets->{ $date->strftime("%F") } || [] };
 </%perl>
 
     <td class="<% join(' ', @classes) %>"><div class="inside-day">
       <div class="calendardate"><a href="<% RT->Config->Get('WebPath') %>/Search/Results.html?Query=<% $day_query %>"><%$date->day%></a></div>
 %      for my $index ( sort { $a <=> $b } keys %week_ticket_position ) {
-%       if ( grep { $_->id eq $week_ticket_position{$index}{id} }
-%                 @{ $Tickets->{ $date->strftime("%F") } || [] } ) {
+%       if ( $day_ticket_ids{ $week_ticket_position{$index}{id} } ) {
 %         my $t = $week_ticket_position{$index}{TicketObj};
         <& /Elements/CalendarEvent,
           Object              => $t,
