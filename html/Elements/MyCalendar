@@ -140,10 +140,47 @@ $m->callback( CallbackName => 'BeforeFindTickets', ARGSRef => \%ARGS, QueryRef =
 
 my ($Tickets, $TicketsSpanningDays);
 
-# This is the expensive part of the processing, so only run this when
-# htmx is rendering the main content.
+# Run only for htmx requests; cache results for 60 seconds to avoid the
+# expensive multi-table FindTickets JOIN on every concurrent page load.
 if ( $m->request_path =~ /^(?:\/SelfService)?\/Views/ ) {
-    ($Tickets, $TicketsSpanningDays) = RTx::Calendar::FindTickets($session{'CurrentUser'}, $Query, \@Dates);
+    my $cache_key  = 'RTxCalendar_week_' . $begin->strftime("%F");
+    my $cache      = $session{$cache_key};
+    my $cache_age  = $cache ? ( time() - ( $cache->{ts} // 0 ) ) : undef;
+    my $cache_valid = $cache && defined($cache_age) && $cache_age < 60;
+
+    if ( $cache_valid ) {
+        # Reconstruct ticket objects via a single id-IN query — far cheaper than
+        # FindTickets' multi-table JOIN under concurrent load.
+        my %all_ids;
+        $all_ids{$_} = 1 for map { @$_ } values %{ $cache->{tickets} };
+        my %by_id;
+        if ( %all_ids ) {
+            my $batch = RT::Tickets->new( $session{CurrentUser} );
+            $batch->FromSQL( "(" . join( " OR ", map { "id = $_" } sort keys %all_ids ) . ")" );
+            while ( my $t = $batch->Next ) { $by_id{ $t->id } = $t }
+        }
+        my %Tickets_h;
+        for my $date ( keys %{ $cache->{tickets} } ) {
+            push @{ $Tickets_h{$date} }, $by_id{$_}
+                for grep { $by_id{$_} } @{ $cache->{tickets}{$date} };
+        }
+        $Tickets             = \%Tickets_h;
+        $TicketsSpanningDays = $cache->{spanning};
+    } else {
+        ( $Tickets, $TicketsSpanningDays ) = RTx::Calendar::FindTickets(
+            $session{'CurrentUser'}, $Query, \@Dates
+        );
+        # Store only ticket IDs (serializable) — ticket objects cannot go into session
+        my %ids;
+        for my $date ( keys %{ $Tickets || {} } ) {
+            $ids{$date} = [ map { $_->id } @{ $Tickets->{$date} } ];
+        }
+        $session{$cache_key} = {
+            ts       => time(),
+            tickets  => \%ids,
+            spanning => $TicketsSpanningDays || {},
+        };
+    }
 }
 
 </%INIT>
