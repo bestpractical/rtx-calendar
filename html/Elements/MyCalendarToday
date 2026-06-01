@@ -1,16 +1,9 @@
+% if ( @day_tickets ) {
 <&| /Widgets/TitleBox,
     title => loc("Today's Calendar"),
     title_href => "Search/Calendar.html" &>
 
 <div class="rtxcalendar-day-view p-1">
-% my @day_tickets = sort {
-%     my $a_due = $a->DueObj->IsSet ? $a->DueObj->Unix : 9**9**9;
-%     my $b_due = $b->DueObj->IsSet ? $b->DueObj->Unix : 9**9**9;
-%     $a_due <=> $b_due;
-% } @{ $Tickets->{ $today->strftime("%F") } || [] };
-% if ( !@day_tickets ) {
-  <p class="text-center text-muted mt-2 mb-2"><% loc('No events today') %></p>
-% }
 % my %ColorStatusMap = RT->Config->Get('CalendarStatusColorMap');
 % for my $t ( @day_tickets ) {
 %   my $color = $ColorStatusMap{ $t->Status } || $ColorStatusMap{'_default_'} || '#5555f8';
@@ -48,6 +41,7 @@
 </div>
 
 </&>
+% }
 
 <%INIT>
 
@@ -95,10 +89,16 @@ $Query .= RTx::Calendar::DatesClauses(\@Dates, $begin->strftime("%F"), $end->str
 
 $m->callback( CallbackName => 'BeforeFindTickets', ARGSRef => \%ARGS, QueryRef => \$Query, FormatRef => \$Format );
 
-my ($Tickets, $TicketsSpanningDays);
+# Unlike the full Calendar view, this portlet is rendered inline during the
+# homepage request (/index.html), so $m->request_path never matches /Views/.
+# FindTickets must always run here — there is no double-call to guard against.
+my ($Tickets, $TicketsSpanningDays) =
+    RTx::Calendar::FindTickets($session{'CurrentUser'}, $Query, \@Dates);
 
-if ( $m->request_path =~ /^(?:\/SelfService)?\/Views/ ) {
-    ($Tickets, $TicketsSpanningDays) = RTx::Calendar::FindTickets($session{'CurrentUser'}, $Query, \@Dates);
-}
+my @day_tickets = sort {
+    my $a_due = $a->DueObj->IsSet ? $a->DueObj->Unix : 9**9**9;
+    my $b_due = $b->DueObj->IsSet ? $b->DueObj->Unix : 9**9**9;
+    $a_due <=> $b_due;
+} @{ $Tickets->{ $today->strftime("%F") } || [] };
 
 </%INIT>
