@@ -2,10 +2,33 @@
 @FilterOnStatus => undef
 @Dates => undef
 $Standalone => 0
+$View => 'month'
+$CurrentSelectedDate => ''
+$QueryString => ''
 </%args>
 <div class="calendar-sidebar-toggle-content col-xl-3 col-lg-4 col-md-5">
 <div class="row h-100">
   <div class="calendar-sidebar col-11">
+
+    <&| /Widgets/TitleBox,
+      title => loc('View'),
+      htmx_load => 0,
+    &>
+    <div class="d-flex gap-1 justify-content-center">
+      <a href="?View=day&SelectedDate=<% $CurrentSelectedDate %>&<% $QueryString %>"
+         class="btn btn-sm <% $View eq 'day' ? 'btn-primary' : 'btn-outline-secondary' %>">
+        <% loc('Day') %>
+      </a>
+      <a href="?View=week&SelectedDate=<% $CurrentSelectedDate %>&<% $QueryString %>"
+         class="btn btn-sm <% $View eq 'week' ? 'btn-primary' : 'btn-outline-secondary' %>">
+        <% loc('Week') %>
+      </a>
+      <a href="?View=month&<% $QueryString %>"
+         class="btn btn-sm <% $View eq 'month' ? 'btn-primary' : 'btn-outline-secondary' %>">
+        <% loc('Month') %>
+      </a>
+    </div>
+    </&>
 
     <&| /Widgets/TitleBox,
       title => loc('Filter on Status'),
@@ -15,6 +38,10 @@ $Standalone => 0
 
     <form id="FilterOnStatusForm"
      method="post">
+      <input type="hidden" name="View" value="<% $View %>" />
+% if ( $View ne 'month' ) {
+      <input type="hidden" name="SelectedDate" value="<% $CurrentSelectedDate %>" />
+% }
 % if ( !$Standalone ) {
       <input type="hidden" name="SelectedMonth" value="<% $DECODED_ARGS->{SelectedMonth} // $DECODED_ARGS->{Month} // (localtime)[4] %>" />
       <input type="hidden" name="SelectedYear" value="<% $DECODED_ARGS->{SelectedYear} // $DECODED_ARGS->{Year}  || (localtime)[5] + 1900 %>" />
@@ -68,8 +95,37 @@ $Standalone => 0
 % my %ColorStatusMap = RT->Config->Get('CalendarStatusColorMap');
 % foreach my $Status (sort { lc($a) cmp lc($b) } keys %ColorStatusMap) {
 %   next if $Status eq '_default_';
-    <span style="color: <% $ColorStatusMap{$Status} %> !important;"><% $Status %></span><br />
+    <span style="color: <% $ColorStatusMap{$Status} %> !important;"><% loc($Status) %></span><br />
 % }
+    </&>
+
+    <&| /Widgets/TitleBox,
+      title => loc('Help'),
+      htmx_load => 0,
+    &>
+    <h6 class="mt-1"><&|/l&>Displaying reminders</&></h6>
+    <p class="small">
+    <&|/l_unsafe, qq{<a href="$RT::WebPath/Search/Edit.html">} . loc("Advanced") . '</a>' &>
+    Go to the [_1] tab of your query and add:
+    </&>
+    <pre class="small mt-1">AND ( Type = 'ticket'
+  OR Type = 'reminder' )</pre>
+    </p>
+    <h6><&|/l&>Other date fields</&></h6>
+    <p class="small">
+    <&|/l_unsafe, qq{<a href="$RT::WebPath/Search/Build.html">} . loc("Query Builder") . '</a>'&>
+    Add date fields via Display Columns in the [_1], e.g.:
+    </&>
+    <pre class="small mt-1">__Due__
+__Starts__
+__LastUpdated__</pre>
+    </p>
+    <h6><&|/l&>Default query</&></h6>
+    <p class="small">
+    <&|/l_unsafe, qq{<a href="$RT::WebPath/Search/Build.html">} . loc("Query Builder") . '</a>'&>
+    Save a search named <code>calendar</code> in the [_1] to set the default query.
+    </&>
+    </p>
     </&>
   </div>
 
@@ -100,9 +156,6 @@ my %CalendarIconsTranslated;
 my %date = map { $_ => 1 } @Dates;
 
 foreach my $legend (sort { lc($a) cmp lc($b) } keys %CalendarIcons) {
-  # We might have multiple labels for the same icon
-  # such as "LastUpdated, CF.{Maintenance Date}"
-  # so we need to split them and translate them individually
   my @LegendLabels = split '\s*,\s*', $legend;
   next if grep { !$date{$_} } @LegendLabels;
 

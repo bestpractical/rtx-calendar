@@ -115,3 +115,60 @@ msgstr "Colors dels estats"
 #: html/Elements/Calendar:177
 msgid "Submit"
 msgstr "Enviar"
+
+#. ($Object->OwnerObj->Name)
+#: html/Elements/CalendarEvent:69
+msgid "by %1"
+msgstr "per %1"
+
+#: html/Elements/CalendarSidebar
+msgid "View"
+msgstr "Vista"
+
+#: html/Elements/CalendarSidebar
+msgid "Day"
+msgstr "Dia"
+
+#: html/Elements/CalendarSidebar
+msgid "Week"
+msgstr "Setmana"
+
+#: html/Elements/CalendarSidebar
+msgid "Month"
+msgstr "Mes"
+
+#: html/Elements/Calendar
+msgid "Previous Day"
+msgstr "Dia anterior"
+
+#: html/Elements/Calendar
+msgid "Next Day"
+msgstr "Dia següent"
+
+#: html/Elements/Calendar
+msgid "Previous Week"
+msgstr "Setmana anterior"
+
+#: html/Elements/Calendar
+msgid "Next Week"
+msgstr "Setmana següent"
+
+#: html/Elements/MyCalendarToday
+msgid "Today's Calendar"
+msgstr "Calendari d'avui"
+
+#: html/Elements/MyCalendarToday
+msgid "No events today"
+msgstr "Cap esdeveniment avui"
+
+#: html/Elements/Calendar
+msgid "No events"
+msgstr "Cap esdeveniment"
+
+#: html/Elements/CalendarSidebar
+msgid "Other date fields"
+msgstr "Altres camps de data"
+
+#: html/Elements/CalendarSidebar
+msgid "Default query"
+msgstr "Cerca per defecte"

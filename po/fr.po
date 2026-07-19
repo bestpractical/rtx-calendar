@@ -112,7 +112,64 @@ msgstr "Constructeur de requêtes"
 msgid "Status Colors"
 msgstr "Couleurs des statuts"
 
+#. ($Object->OwnerObj->Name)
+#: html/Elements/CalendarEvent:69
+msgid "by %1"
+msgstr "par %1"
+
 #: html/Elements/Calendar:177
 msgid "Submit"
 msgstr "Valider"
+
+#: html/Elements/CalendarSidebar
+msgid "View"
+msgstr "Vue"
+
+#: html/Elements/CalendarSidebar
+msgid "Day"
+msgstr "Jour"
+
+#: html/Elements/CalendarSidebar
+msgid "Week"
+msgstr "Semaine"
+
+#: html/Elements/CalendarSidebar
+msgid "Month"
+msgstr "Mois"
+
+#: html/Elements/Calendar
+msgid "Previous Day"
+msgstr "Jour précédent"
+
+#: html/Elements/Calendar
+msgid "Next Day"
+msgstr "Jour suivant"
+
+#: html/Elements/Calendar
+msgid "Previous Week"
+msgstr "Semaine précédente"
+
+#: html/Elements/Calendar
+msgid "Next Week"
+msgstr "Semaine suivante"
+
+#: html/Elements/MyCalendarToday
+msgid "Today's Calendar"
+msgstr "Calendrier du jour"
+
+#: html/Elements/MyCalendarToday
+msgid "No events today"
+msgstr "Aucun événement aujourd'hui"
+
+#: html/Elements/Calendar
+msgid "No events"
+msgstr "Aucun événement"
+
+#: html/Elements/CalendarSidebar
+msgid "Other date fields"
+msgstr "Autres champs de date"
+
+#: html/Elements/CalendarSidebar
+msgid "Default query"
+msgstr "Requête par défaut"
 

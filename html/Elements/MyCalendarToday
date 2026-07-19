@@ -1,0 +1,104 @@
+% if ( @day_tickets ) {
+<&| /Widgets/TitleBox,
+    title => loc("Today's Calendar"),
+    title_href => "Search/Calendar.html" &>
+
+<div class="rtxcalendar-day-view p-1">
+% my %ColorStatusMap = RT->Config->Get('CalendarStatusColorMap');
+% for my $t ( @day_tickets ) {
+%   my $color = $ColorStatusMap{ $t->Status } || $ColorStatusMap{'_default_'} || '#5555f8';
+%   my $url   = RT->Config->Get('WebPath') . '/Ticket/Display.html?id=' . $t->id;
+  <div class="rtxcalendar-day-event mb-1 p-1 rounded" style="border-left:4px solid <% $color %>">
+    <div><a href="<% $url %>"><strong>#<% $t->id %> <% $t->Subject | h %></strong></a></div>
+    <div class="small text-muted">
+      <% loc('Queue') %>: <% $t->QueueObj->Name | h %> &bull;
+      <% loc('Status') %>: <% loc($t->Status) %> &bull;
+      <% loc('Owner') %>: <% $t->OwnerObj->Name | h %>
+    </div>
+%   my $requestors = $t->Requestors->MemberEmailAddressesAsString;
+%   if ( $requestors ) {
+    <div class="small text-muted">
+      <% loc('Requestor') %>: <% $requestors | h %>
+    </div>
+%   }
+%   my $starts = $t->StartsObj->IsSet ? $t->StartsObj->AsString : '';
+%   my $due    = $t->DueObj->IsSet    ? $t->DueObj->AsString    : '';
+%   if ( $starts || $due ) {
+    <div class="small text-muted">
+%     if ( $starts ) {
+      <% loc('Starts') %>: <% $starts | h %>
+%     }
+%     if ( $starts && $due ) {
+      &bull;
+%     }
+%     if ( $due ) {
+      <% loc('Due') %>: <% $due | h %>
+%     }
+    </div>
+%   }
+  </div>
+% }
+</div>
+
+</&>
+% }
+
+<%INIT>
+
+use RTx::Calendar;
+
+my $rtdate = RT::Date->new($session{'CurrentUser'});
+
+my @DateTypes = qw/Created Starts Started Due LastUpdated Resolved/;
+
+my $today = DateTime->today;
+my $begin = $today->clone;
+my $end   = $today->clone;
+
+my $Query = "( Status = 'new' OR Status = 'open' OR Status = 'stalled')
+ AND ( Owner = '" . $session{CurrentUser}->Id ."' OR Owner = 'Nobody'  )
+ AND ( Type = 'reminder' OR 'Type' = 'ticket' )";
+my $Format = "__Starts__ __Due__";
+
+if ( my $Search = RTx::Calendar::SearchDefaultCalendar($session{CurrentUser}) ) {
+    my $content = $Search->Content || {};
+    $Format = $content->{'Format'};
+    $Query = $content->{'Query'};
+}
+
+my @CoreDates    = grep { $Format =~ m/__${_}(Relative)?__/ } @DateTypes;
+my @CustomFields = ( $Format =~ /__(CustomField\.\{.*\})__/g );
+my @DateCustomFields;
+
+for my $CustomField (@CustomFields) {
+    my $LintCustomField = $CustomField;
+    $LintCustomField =~ s/CustomField\.\{(.*)\}/$1/;
+    my $CustomFieldObj = RT::CustomField->new( RT->SystemUser );
+    $CustomFieldObj->LoadByName( Name => $LintCustomField );
+    push @DateCustomFields, $CustomField
+        if $CustomFieldObj->id
+        && ( $CustomFieldObj->Type eq 'Date'
+        || $CustomFieldObj->Type eq 'DateTime' );
+}
+
+my @Dates = (@CoreDates, @DateCustomFields);
+@Dates = map { $_ =~ s/^CustomField\.(.*)$/CF.$1/; $_ } @Dates;
+my %DateTypes = map { $_ => 1 } @Dates;
+
+$Query .= RTx::Calendar::DatesClauses(\@Dates, $begin->strftime("%F"), $end->strftime("%F"));
+
+$m->callback( CallbackName => 'BeforeFindTickets', ARGSRef => \%ARGS, QueryRef => \$Query, FormatRef => \$Format );
+
+# Unlike the full Calendar view, this portlet is rendered inline during the
+# homepage request (/index.html), so $m->request_path never matches /Views/.
+# FindTickets must always run here — there is no double-call to guard against.
+my ($Tickets, $TicketsSpanningDays) =
+    RTx::Calendar::FindTickets($session{'CurrentUser'}, $Query, \@Dates);
+
+my @day_tickets = sort {
+    my $a_due = $a->DueObj->IsSet ? $a->DueObj->Unix : 9**9**9;
+    my $b_due = $b->DueObj->IsSet ? $b->DueObj->Unix : 9**9**9;
+    $a_due <=> $b_due;
+} @{ $Tickets->{ $today->strftime("%F") } || [] };
+
+</%INIT>

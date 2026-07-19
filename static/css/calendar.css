@@ -10,6 +10,12 @@ table.rtxcalendar .day {
     z-index: 4;
 }
 
+/* Fallback color only for actual event divs (have an event-status-* class) */
+table.rtxcalendar .day[class*="event-status"] {
+    background-color: #C5CAE9;
+    color: #1a237e;
+}
+
 table.rtxcalendar .day.last-day {
     width: 100%;
 }
@@ -38,6 +44,13 @@ table.rtxcalendar td.weekday-5 div.day div.event-info:hover span.tip {
     right: 24px;
 }
 
+/* Event status colors — light mode: pastel bg + dark text for readability */
+table.rtxcalendar .day.event-status-new      { background-color: #BBDEFB; color: #0D47A1; } /* light blue   */
+table.rtxcalendar .day.event-status-open     { background-color: #B2DFDB; color: #004D40; } /* light teal   */
+table.rtxcalendar .day.event-status-stalled  { background-color: #FFE0B2; color: #BF360C; } /* light orange */
+table.rtxcalendar .day.event-status-rejected { background-color: #FFCDD2; color: #B71C1C; } /* light red    */
+table.rtxcalendar .day.event-status-resolved { background-color: #C8E6C9; color: #1B5E20; } /* light green  */
+
 /* For the full calendar */
 table.rtxcalendar {
     width:100%;
@@ -46,11 +59,19 @@ table.rtxcalendar {
     margin-bottom: 6px;
 }
 
+.calendar-standalone table.rtxcalendar {
+    height: 70vh;
+}
+
 table.rtxcalendar td {
     border: 1px solid #d7d7d7;
     background: #fff;
     vertical-align: top;
     width: 14%;
+}
+
+table.rtxcalendar td.weekday-7 .day {
+    width: 100%;
 }
 
 table.rtxcalendar th {
@@ -134,11 +155,25 @@ a.calendar-toggle-sidebar.sidebar-off::before {
 
 .event-info a.event-title {
     overflow: hidden;
+    text-overflow: ellipsis;
     left: 0px;
     padding-left: 21px;
     white-space: nowrap;
     position: absolute;
-    color: white;
+    max-width: 100%;
+    color: inherit;
+    font-weight: 600;
+}
+
+/* Week view */
+table.rtxcalendar.week-view td .inside-day {
+    min-height: 8em;
+}
+
+table.rtxcalendar.week-view .calendardate {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 4px;
 }
 
 table.rtxcalendar .day.first-day {
@@ -151,16 +186,72 @@ table.rtxcalendar .day.first-day.last-day {
     border-radius: 5px;
 }
 
-[data-bs-theme=dark] table.rtxcalendar * {
-    background: unset !important;
+/* Dark mode — cell backgrounds */
+[data-bs-theme=dark] table.rtxcalendar td {
+    background: #1e1e2e;
+    border-color: #333;
 }
 
-[data-bs-theme=dark] table.rtxcalendar div.day div.event-info:hover span.tip{
+[data-bs-theme=dark] table.rtxcalendar th {
+    background: #2a2a3e;
+    border-color: #333;
+}
+
+[data-bs-theme=dark] table.rtxcalendar td.offmonth {
+    background: #16161f;
+    color: #666;
+}
+
+[data-bs-theme=dark] table.rtxcalendar td.today {
+    background: #2a2a1a;
+    border-color: #aa8800;
+}
+
+[data-bs-theme=dark] table.rtxcalendar td.today .calendardate {
+    background-color: #aa8800;
+}
+
+/* Dark mode — event status colors: medium-dark bg + white text */
+[data-bs-theme=dark] table.rtxcalendar .day[class*="event-status"] { background-color: #303F9F; color: #fff; }
+[data-bs-theme=dark] table.rtxcalendar .day.event-status-new       { background-color: #1565C0; color: #fff; }
+[data-bs-theme=dark] table.rtxcalendar .day.event-status-open      { background-color: #00695C; color: #fff; }
+[data-bs-theme=dark] table.rtxcalendar .day.event-status-stalled   { background-color: #BF360C; color: #fff; }
+[data-bs-theme=dark] table.rtxcalendar .day.event-status-rejected  { background-color: #B71C1C; color: #fff; }
+[data-bs-theme=dark] table.rtxcalendar .day.event-status-resolved  { background-color: #1B5E20; color: #fff; }
+
+[data-bs-theme=dark] table.rtxcalendar div.day div.event-info:hover span.tip {
     border: 1px solid #555;
-    background-color: #2C3539 !important;
-    color: #fff !important;
+    background-color: #2C3539;
+    color: #fff;
 }
 
-[data-bs-theme=dark] table.rtxcalendar div.day a {
-    color: #fff !important;
+/* Day / Week view event cards */
+.rtxcalendar-day-view {
+    min-height: 200px;
+}
+
+.calendar-standalone .rtxcalendar-day-view {
+    height: 70vh;
+    overflow-y: auto;
+}
+
+.rtxcalendar-day-event {
+    background: var(--bs-body-bg, #fff);
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    transition: box-shadow 0.15s ease, background 0.15s ease;
+    cursor: pointer;
+}
+
+.rtxcalendar-day-event:hover {
+    background: var(--bs-tertiary-bg, #f8f9fa);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.rtxcalendar-day-event a {
+    color: var(--bs-body-color, #212529);
+    text-decoration: none;
+}
+
+.rtxcalendar-day-event a:hover {
+    text-decoration: underline;
 }

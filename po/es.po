@@ -115,3 +115,60 @@ msgstr "Colores de los estados"
 #: html/Elements/Calendar:177
 msgid "Submit"
 msgstr "Enviar"
+
+#. ($Object->OwnerObj->Name)
+#: html/Elements/CalendarEvent:69
+msgid "by %1"
+msgstr "por %1"
+
+#: html/Elements/CalendarSidebar
+msgid "View"
+msgstr "Vista"
+
+#: html/Elements/CalendarSidebar
+msgid "Day"
+msgstr "Día"
+
+#: html/Elements/CalendarSidebar
+msgid "Week"
+msgstr "Semana"
+
+#: html/Elements/CalendarSidebar
+msgid "Month"
+msgstr "Mes"
+
+#: html/Elements/Calendar
+msgid "Previous Day"
+msgstr "Día anterior"
+
+#: html/Elements/Calendar
+msgid "Next Day"
+msgstr "Día siguiente"
+
+#: html/Elements/Calendar
+msgid "Previous Week"
+msgstr "Semana anterior"
+
+#: html/Elements/Calendar
+msgid "Next Week"
+msgstr "Semana siguiente"
+
+#: html/Elements/MyCalendarToday
+msgid "Today's Calendar"
+msgstr "Calendario de hoy"
+
+#: html/Elements/MyCalendarToday
+msgid "No events today"
+msgstr "No hay eventos hoy"
+
+#: html/Elements/Calendar
+msgid "No events"
+msgstr "No hay eventos"
+
+#: html/Elements/CalendarSidebar
+msgid "Other date fields"
+msgstr "Otros campos de fecha"
+
+#: html/Elements/CalendarSidebar
+msgid "Default query"
+msgstr "Búsqueda por defecto"

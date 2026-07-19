@@ -23,6 +23,8 @@ if ( ( !grep { $_ eq $TicketId } @$spanning_tickets_for_tomorrow ) ) {
     # This frees up the position for the next ticket
     $WeekTicketPosition->{$CurrentPostion}->{id} = "";
 }
+my $needs_lower_zindex = ( grep { $_ eq $TicketId } @$spanning_tickets_for_today )
+                         && $DayOfWeek ne 1;
 </%perl>
 
 <div class="day
@@ -35,20 +37,11 @@ if ( ( !grep { $_ eq $TicketId } @$spanning_tickets_for_tomorrow ) ) {
 % my $status_class = 'event-status-'.$status;
 % $status_class =~ s/\s+/-/g;
 <% $status_class %>
-" style="
-% if ( $CalendarStatusColorMap{$status} ) {
-    background-color: <%$CalendarStatusColorMap{$status}%> !important;
-% } else {
-    background-color: <%$CalendarStatusColorMap{'_default_'}%> !important;
+"
+% if ( $needs_lower_zindex ) {
+ style="z-index: 3;"
 % }
-% # We need to decrease the z-index of the spanning days of an event
-% # so the event title (which is placed on the div of the first day of the
-% # event and has a z-index of 4) is visible, since it cross multiple days.
-% if ( (grep { $_ eq $TicketId } @$spanning_tickets_for_today)
-%        && $DayOfWeek ne 1 ) {
-    z-index: 3;
-% }
-" data-object="<% $Object->Type %>-<% $Object->id %>">
+ data-object="<% $Object->Type %>-<% $Object->id %>">
 
     <small>
         <div class="event-icon" style="

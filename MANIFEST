@@ -7,6 +7,7 @@ html/Elements/CalendarFooter
 html/Elements/CalendarSidebar
 html/Elements/CalendarWithSidebar
 html/Elements/MyCalendar
+html/Elements/MyCalendarToday
 html/Helpers/CalendarEventInfo
 html/Search/Calendar.html
 inc/Module/Install.pm
@@ -25,9 +26,9 @@ inc/YAML/Tiny.pm
 lib/RTx/Calendar.pm
 Makefile.PL
 MANIFEST			This list of files
-META.yml
 po/calendar.pot
 po/ca.po
+po/de.po
 po/es.po
 po/fr.po
 README
@@ -43,3 +44,8 @@ static/images/starts_due.png
 static/images/updated.png
 static/js/calendar.js
 TODO
+docs/screenshots/NewCalendarDayListView.png
+docs/screenshots/NewCalendarMonthView.png
+docs/screenshots/NewCalendarWeekView.png
+docs/screenshots/TodaysListWidget.png
+docs/screenshots/WeekWidget.png

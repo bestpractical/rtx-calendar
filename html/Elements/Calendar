@@ -10,8 +10,6 @@ $Standalone => 0
 <&| /Widgets/TitleBox,
      title => loc('Calendar'),
      title_href => $RT::WebPath . "/Search/Calendar.html?Month=$Month&Year=$Year&$QueryString",
-     titleright => loc('Download Spreadsheet'),
-     titleright_href => $RT::WebPath. "/Search/Results.tsv?". $DownloadQueryString,
      &>
 <div class="row">
 % if ($ShowSidebar) {
@@ -26,6 +24,9 @@ $Standalone => 0
     FilterOnStatus => \@FilterOnStatus,
     Dates => \@Dates,
     Standalone => $Standalone,
+    View => $View,
+    CurrentSelectedDate => $CurrentSelectedDate,
+    QueryString => $QueryString,
   &>
 % }
 
@@ -33,41 +34,79 @@ $Standalone => 0
 <table width="100%">
 <tr>
 <td align="left">
-% my ($PMonth, $PYear) = ($Month - 1, $Year);
-% if ($PMonth < 0) {
-%    $PYear--;
-%    $PMonth = 11;
-% }
-% if ( $Standalone ) {
+% if ( $View eq 'month' ) {
+%   my ($PMonth, $PYear) = ($Month - 1, $Year);
+%   if ($PMonth < 0) { $PYear--; $PMonth = 11; }
+%   if ( $Standalone ) {
   <a href="?Month=<%$PMonth%>&Year=<%$PYear%>&<%$QueryString%>">&laquo; <%$rtdate->GetMonth($PMonth)%></a>
-% } else {
+%   } else {
   <a onclick="reloadElement(this.closest('[hx-get]'), {'hx-vals': '<% JSON({ Month => $PMonth, Year => $PYear }) %>'}); return false;" href="#">&laquo; <%$rtdate->GetMonth($PMonth)%></a>
+%   }
+% } else {
+  <a href="<% $PNavUrl %>">&laquo; <% $PNavLabel %></a>
 % }
 </td>
 <th class="h5 text-center">
-  <% $rtdate->GetMonth($Month). " $Year" %>
+% if ( $View eq 'month' ) {
+  <% $rtdate->GetMonth($Month) . " $Year" %>
+% } else {
+  <% $NavTitle %>
+% }
 </th>
 <td align="right">
-% my ($NMonth, $NYear) = ($Month + 1, $Year);
-% if ($NMonth > 11) {
-%    $NYear++;
-%    $NMonth = 0;
-% }
-% if ( $Standalone ) {
+% if ( $View eq 'month' ) {
+%   my ($NMonth, $NYear) = ($Month + 1, $Year);
+%   if ($NMonth > 11) { $NYear++; $NMonth = 0; }
+%   if ( $Standalone ) {
   <a href="?Month=<%$NMonth%>&Year=<%$NYear%>&<%$QueryString%>"><%$rtdate->GetMonth($NMonth)%> &raquo;</a>
-% } else {
+%   } else {
   <a onclick="reloadElement(this.closest('[hx-get]'), {'hx-vals': '<% JSON({ Month => $NMonth, Year => $NYear }) %>'}); return false;" href="#"><%$rtdate->GetMonth($NMonth)%> &raquo;</a>
+%   }
+% } else {
+  <a href="<% $NNavUrl %>"><% $NNavLabel %> &raquo;</a>
 % }
 </td>
 </tr>
 </table>
 
-<table class="rtxcalendar">
+% if ( $View eq 'day' ) {
+<%perl>
+my $day_key     = $date->strftime("%F");
+my @day_tickets = @{ $Tickets->{ $day_key } || [] };
+my %ColorStatusMap = RT->Config->Get('CalendarStatusColorMap');
+</%perl>
+<div class="rtxcalendar-day-view p-2">
+% if ( !@day_tickets ) {
+  <p class="text-center text-muted mt-4"><% loc('No events') %></p>
+% }
+% for my $t ( @day_tickets ) {
+%   my $color = $ColorStatusMap{ $t->Status } || $ColorStatusMap{'_default_'} || '#5555f8';
+%   my $url   = RT->Config->Get('WebPath') . '/Ticket/Display.html?id=' . $t->id;
+  <div class="rtxcalendar-day-event mb-2 p-2 rounded" style="border-left:4px solid <% $color %>">
+    <div><a href="<% $url %>"><strong>#<% $t->id %> <% $t->Subject | h %></strong></a></div>
+    <div class="small text-muted">
+      <% $t->QueueObj->Name | h %> &bull; <% loc($t->Status) %> &bull; <% $t->OwnerObj->Name | h %>
+    </div>
+  </div>
+% }
+</div>
+
+% } else {
+
+<table class="rtxcalendar<% $View eq 'week' ? ' week-view' : '' %>">
 
 <thead>
 <tr>
+% if ( $View eq 'week' ) {
+%   my $hdr = $date->clone;
+%   for my $i ( 0..6 ) {
+<th width="14%"><% $rtdate->GetWeekday( $hdr->day_of_week % 7 ) %><br><small><% $hdr->strftime("%d.%m") %></small></th>
+%     $hdr->add( days => 1 );
+%   }
+% } else {
 % for ( @{$week{$weekstart}} ) {
 <th width="14%"><%$rtdate->GetWeekday($_)%></th>
+% }
 % }
 </tr>
 </thead>
@@ -75,60 +114,59 @@ $Standalone => 0
 <tbody>
 <tr>
 <%perl>
-# We use %week_ticket_position to control the display of tickets on the
-# calendar. It has the following structure:
-# {
-#   1 => { id => 123, TicketObj => $t },
-#   2 => { id => 312, TicketObj => $t },
-#   3 => { id => '', TicketObj => undef }, # empty position
-#   4 => { id => 111, TicketObj => $t },
-# }
-# where the key is the position/line of the ticket in the current week
-# when an event ends during the week, it's removed from the hash, openning
-# the position for a new ticket to be placed at the same line on the week,
-# saving some height on the calendar.
-# This variable is cleaned every time we start a new week.
 my %week_ticket_position;
 my $day_of_week = 1;
+my %ColorStatusMap = RT->Config->Get('CalendarStatusColorMap');
 
 while ($date <= $end) {
   my @classes = ();
-  push @classes, "offmonth"  if $date->month != ($Month + 1);
+  push @classes, "offmonth"  if $View eq 'month' && $date->month != ($Month + 1);
   push @classes, "today"     if (DateTime->compare($today,     $date) == 0);
   push @classes, "yesterday" if (DateTime->compare($yesterday, $date) == 0);
   push @classes, "aweekago"  if (DateTime->compare($aweekago,  $date) == 0);
   push @classes, "weekday-$day_of_week";
 
-  for my $t ( @{ $Tickets->{ $date->strftime("%F") } || [] } ) {
-    # check if ticket was already displayed this week, if not, we need to find a
-    # position for it
-    unless ( grep { $week_ticket_position{$_}{id} eq $t->id } keys %week_ticket_position ) {
-      # new tickets should assume the first empty spot.
-      my $i = 1;
-      my $free_index = 0;
-      for my $index ( sort { $a <=> $b } keys %week_ticket_position ) {
-        if ( $week_ticket_position{$index}{id} eq "" ) {
-          $free_index = $i;
-          last;
+  if ( $View eq 'month' ) {
+    for my $t ( @{ $Tickets->{ $date->strftime("%F") } || [] } ) {
+      unless ( grep { $week_ticket_position{$_}{id} eq $t->id } keys %week_ticket_position ) {
+        my $i = 1;
+        my $free_index = 0;
+        for my $index ( sort { $a <=> $b } keys %week_ticket_position ) {
+          if ( $week_ticket_position{$index}{id} eq "" ) {
+            $free_index = $i;
+            last;
+          }
+          $i++;
         }
-        $i++;
-      }
-      # if we found a free spot, we place the ticket there
-      if ( $free_index != 0 ) {
-        $week_ticket_position{$free_index}{id} = $t->id;
-        $week_ticket_position{$free_index}{TicketObj} = $t;
-      }
-      # if not, we add it to the end of the hash
-      else {
-        $week_ticket_position{((scalar keys %week_ticket_position)+1)}{id} = $t->id;
-        $week_ticket_position{((scalar keys %week_ticket_position))}{TicketObj} = $t;
+        if ( $free_index != 0 ) {
+          $week_ticket_position{$free_index}{id} = $t->id;
+          $week_ticket_position{$free_index}{TicketObj} = $t;
+        }
+        else {
+          $week_ticket_position{((scalar keys %week_ticket_position)+1)}{id} = $t->id;
+          $week_ticket_position{((scalar keys %week_ticket_position))}{TicketObj} = $t;
+        }
       }
     }
   }
+  my $day_query = $TempQuery . RTx::Calendar::DatesClauses(\@Dates, $date->strftime("%F"), $date->strftime("%F"));
 </%perl>
 
     <td class="<% join(' ', @classes) %>"><div class="inside-day">
-      <div class="calendardate"><%$date->day%></div>
+      <div class="calendardate"><a href="<% RT->Config->Get('WebPath') %>/Search/Results.html?Query=<% $day_query %>"><%$date->day%></a></div>
+% if ( $View eq 'week' ) {
+%   my $day_key = $date->strftime("%F");
+%   for my $t ( @{ $Tickets->{ $day_key } || [] } ) {
+%     my $color = $ColorStatusMap{ $t->Status } || $ColorStatusMap{'_default_'} || '#5555f8';
+%     my $url   = RT->Config->Get('WebPath') . '/Ticket/Display.html?id=' . $t->id;
+  <div class="rtxcalendar-day-event mb-1 p-1 rounded" style="border-left:4px solid <% $color %>">
+    <div><a href="<% $url %>"><strong>#<% $t->id %> <% $t->Subject | h %></strong></a></div>
+    <div class="small text-muted">
+      <% $t->QueueObj->Name | h %> &bull; <% loc($t->Status) %> &bull; <% $t->OwnerObj->Name | h %>
+    </div>
+  </div>
+%   }
+% } else {
 %     for my $index ( sort { $a <=> $b } keys %week_ticket_position ) {
 %       if ( grep { $_->id eq $week_ticket_position{$index}{id} }
 %                 @{ $Tickets->{ $date->strftime("%F") } || [] } ) {
@@ -144,18 +182,19 @@ while ($date <= $end) {
         &>
 %       }
 %       else {
-%         # if there's no ticket for this position, we add an empty space
              <div class="day">&nbsp;</div>
 %       }
 %     }
+% }
     </div></td>
 
 %   $date = $set->next($date);
 %   if ( $date->day_of_week == $startday_of_week ) {
-% #   we start a new week with empty positions
 %     %week_ticket_position = ();
 %     $day_of_week=1;
+%     if ( $View eq 'month' ) {
       </tr><tr>
+%     }
 %   }
 %   else {
 %     $day_of_week = $day_of_week + 1;
@@ -165,18 +204,24 @@ while ($date <= $end) {
 </tbody>
 </table>
 
+% } # end if day/else
+
+% if ( $View eq 'month' ) {
 <table width="100%">
 <tr>
 <td align="left">
+% my ($PMonth2, $PYear2) = ($Month - 1, $Year);
+% if ($PMonth2 < 0) { $PYear2--; $PMonth2 = 11; }
 % if ( $Standalone ) {
-  <a href="?Month=<%$PMonth%>&Year=<%$PYear%>&<%$QueryString%>">&laquo; <%$rtdate->GetMonth($PMonth)%></a>
+  <a href="?Month=<%$PMonth2%>&Year=<%$PYear2%>&<%$QueryString%>">&laquo; <%$rtdate->GetMonth($PMonth2)%></a>
 % } else {
-  <a onclick="reloadElement(this.closest('[hx-get]'), {'hx-vals': '<% JSON({ Month => $PMonth, Year => $PYear }) %>'}); return false;" href="#">&laquo; <%$rtdate->GetMonth($PMonth)%></a>
+  <a onclick="reloadElement(this.closest('[hx-get]'), {'hx-vals': '<% JSON({ Month => $PMonth2, Year => $PYear2 }) %>'}); return false;" href="#">&laquo; <%$rtdate->GetMonth($PMonth2)%></a>
 % }
 </td>
 
 <td valign="top" align="center">
 <form class="row justify-content-center" action="?<% $QueryString %>">
+<input type="hidden" name="View" value="month" />
 <div class="col-auto">
 <select name="SelectedMonth" class="selectpicker form-select">
 % for (0..11) {
@@ -195,20 +240,21 @@ while ($date <= $end) {
 <div class="col-auto">
   <input type="submit" value="<% loc('Submit') %>" class="btn btn-primary <% $Standalone ? '' : 'calendar-reload' %>" />
 </div>
-
-
 </form>
 </td>
 
 <td align="right">
+% my ($NMonth2, $NYear2) = ($Month + 1, $Year);
+% if ($NMonth2 > 11) { $NYear2++; $NMonth2 = 0; }
 % if ( $Standalone ) {
-  <a href="?Month=<%$NMonth%>&Year=<%$NYear%>&<%$QueryString%>"><%$rtdate->GetMonth($NMonth)%> &raquo;</a>
+  <a href="?Month=<%$NMonth2%>&Year=<%$NYear2%>&<%$QueryString%>"><%$rtdate->GetMonth($NMonth2)%> &raquo;</a>
 % } else {
-  <a onclick="reloadElement(this.closest('[hx-get]'), {'hx-vals': '<% JSON({ Month => $NMonth, Year => $NYear }) %>'}); return false;" href="#"><%$rtdate->GetMonth($NMonth)%> &raquo;</a>
+  <a onclick="reloadElement(this.closest('[hx-get]'), {'hx-vals': '<% JSON({ Month => $NMonth2, Year => $NYear2 }) %>'}); return false;" href="#"><%$rtdate->GetMonth($NMonth2)%> &raquo;</a>
 % }
 </td>
 </tr>
 </table>
+% } # end month footer nav
 
 </div>
 </&>
@@ -263,7 +309,7 @@ my @DateTypes = qw/Created Starts Started Due LastUpdated Resolved/;
 
 my $rtdate = RT::Date->new($session{'CurrentUser'});
 
-my $weekstart = 'Sunday'; #RT::SiteConfig?  user pref?
+my $weekstart = 'Sunday';
 my %week = (
   'Saturday' => [6,0..5],
   'Sunday'   => [0..6],
@@ -277,6 +323,30 @@ my $yesterday = $today->clone->subtract( days=>1 );
 my $aweekago  = $today->clone->subtract( days=>7 );
 my $date = RTx::Calendar::FirstDay($Year, $Month + 1, $startday_of_week );
 my $end  = RTx::Calendar::LastDay ($Year, $Month + 1, $endday_of_week );
+
+# View switcher: override date range for week/day views
+my $View = $DECODED_ARGS->{View} || 'month';
+my $SelectedDate = $DECODED_ARGS->{SelectedDate} || '';
+
+if ( $View eq 'week' || $View eq 'day' ) {
+    my $anchor;
+    if ( $SelectedDate =~ /^(\d{4})-(\d{2})-(\d{2})$/ ) {
+        $anchor = DateTime->new( year => int($1), month => int($2), day => int($3) );
+    } else {
+        $anchor = $today->clone;
+    }
+    if ( $View eq 'week' ) {
+        my $dow = $anchor->day_of_week; # 1=Mon, 7=Sun
+        $date = $anchor->clone->subtract( days => $dow - 1 )->truncate( to => 'day' );
+        $end  = $date->clone->add( days => 6 );
+    } else {
+        $date = $anchor->clone->truncate( to => 'day' );
+        $end  = $anchor->clone->truncate( to => 'day' );
+    }
+    $Month = $date->month - 1;
+    $Year  = $date->year;
+}
+my $CurrentSelectedDate = $SelectedDate || $today->strftime("%F");
 
 # use this to loop over days until $end
 my $set = DateTime::Set->from_recurrence(
@@ -313,6 +383,26 @@ my $QueryString =
       );
 
 $QueryString ||= 'NewQuery=1&NotFirstAccess=1';
+
+# Navigation URLs for week/day views (computed after QueryString is ready)
+my ($PNavUrl, $NNavUrl, $PNavLabel, $NNavLabel, $NavTitle) = ('', '', '', '', '');
+if ( $View eq 'week' ) {
+    my $prev = $date->clone->subtract( days => 7 )->strftime("%F");
+    my $next = $end->clone->add( days => 1 )->strftime("%F");
+    $PNavUrl   = "?View=week&SelectedDate=$prev&$QueryString";
+    $NNavUrl   = "?View=week&SelectedDate=$next&$QueryString";
+    $PNavLabel = loc('Previous Week');
+    $NNavLabel = loc('Next Week');
+    $NavTitle  = $date->strftime("%d.%m") . " \x{2013} " . $end->strftime("%d.%m.%Y");
+} elsif ( $View eq 'day' ) {
+    my $prev = $date->clone->subtract( days => 1 )->strftime("%F");
+    my $next = $date->clone->add( days => 1 )->strftime("%F");
+    $PNavUrl   = "?View=day&SelectedDate=$prev&$QueryString";
+    $NNavUrl   = "?View=day&SelectedDate=$next&$QueryString";
+    $PNavLabel = loc('Previous Day');
+    $NNavLabel = loc('Next Day');
+    $NavTitle  = $rtdate->GetWeekday( $date->day_of_week % 7 ) . ', ' . $date->strftime("%d.%m.%Y");
+}
 
 # we search all date types in Format string
 my @CoreDates    = grep { $TempFormat =~ m/__${_}(Relative)?__/ } @DateTypes;
@@ -361,8 +451,8 @@ my $DownloadQueryString =
 my ($Tickets, $TicketsSpanningDays);
 
 # This is the expensive part of the processing, so only run this when
-# htmx is rendering the main content.
-if ( $m->request_path =~ /^(?:\/SelfService)?\/Views/ ) {
+# htmx is rendering the main content, or when rendering the standalone calendar page.
+if ( $m->request_path =~ /^(?:\/SelfService)?\/Views/ || $Standalone ) {
     ($Tickets, $TicketsSpanningDays) = RTx::Calendar::FindTickets($session{'CurrentUser'}, $TempQuery, \@Dates, $date->strftime("%F"), $end->strftime("%F"));
 }
 
